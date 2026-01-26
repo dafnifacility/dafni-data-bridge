@@ -1,15 +1,268 @@
+import hashlib
+import logging
+import os
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Callable, Optional
+from urllib.parse import unquote, urlparse
+
+import requests
+
+from exceptions import DownloadError, ValidationError
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class DownloadResult:
+    url: str
+    destination: Path
+    size_bytes: int
+    checksum: Optional[str] = None
+
+    @property
+    def size_mb(self) -> float:
+        return self.size_bytes / (1024 * 1024)
+
+
+ProgressCallback = Callable[[int, int], None]
+
 
 class Downloader:
-    def __init__(self, session, url: str):
-        self.session = session
-        self.url = url.rstrip("/")
+    """
+    downloads files from with progress tracking, supports streaming downloads,
+    automatic filename detection, checksum calculation, and progress callbacks
 
-    def download(self, url: str) -> bytes:
-        response = self.session.get(url)
+    Example:
+        downloader = Downloader(session)
 
-        if not response.ok:
-            raise ValueError(
-                f"Failed to download {url}: {response.status_code}"
-            )
+        result = downloader.download(url, destination="/path/to/file.nc")   # download to specific path
+        result = downloader.download(url, destination="/download/dir/")     # download to directory (auto-detect filename)
 
+        def on_progress(downloaded, total):                                 # with progress callback
+            print(f"{downloaded}/{total} bytes")
+        result = downloader.download(url, progress_callback=on_progress)
+    """
+
+    CEDA_DAP_HOST = os.getenv("CEDA_DAP_HOST", "dap.ceda.ac.uk")
+    DEFAULT_CHUNK_SIZE = int(os.getenv("DEFAULT_CHUNK_SIZE", "8192"))
+
+    def __init__(self, session: requests.Session, chunk_size: int | None = None):
+        """
+        Args:
+            session: configured requests session with auth.
+            chunk_size: size of chunks for streaming downloads.
+        """
+        chunk_size = chunk_size or self.DEFAULT_CHUNK_SIZE
+        if chunk_size <= 0:
+            raise ValueError("Chunk size must be positive")
+
+        self._session = session
+        self._chunk_size = chunk_size
+
+    def download(
+        self,
+        url: str,
+        destination: Optional[str | Path] = None,
+        progress_callback: Optional[ProgressCallback] = None,
+        calculate_checksum: bool = False,
+    ) -> DownloadResult:
+        """
+        Download a file from CEDA archive.
+
+        Args:
+            url: URL to download from.
+            destination: File path or directory. If directory, filename
+                        is extracted from URL. If None, uses current directory.
+            progress_callback: Optional callback(downloaded_bytes, total_bytes).
+            calculate_checksum: Whether to calculate MD5 checksum.
+
+        Returns:
+            DownloadResult with download details.
+
+        Raises:
+            ValidationError: If URL or destination is invalid.
+            DownloadError: If download fails.
+        """
+        self._validate_url(url)
+        dest_path = self._resolve_destination(url, destination)
+
+        logger.info(f"Starting download: {url}")
+        logger.info(f"Destination: {dest_path}")
+
+        try:
+            response = self._session.get(url, stream=True)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            logger.error(f"Download request failed: {e}")
+            raise DownloadError(f"Failed to download {url}: {e}") from e
+
+        total_size = int(response.headers.get("content-length", 0))
+        if total_size:
+            logger.info(f"File size: {total_size / (1024 * 1024):.2f} MB")
+
+        # Ensure parent directory exists
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+
+        downloaded_size = 0
+        md5_hash = hashlib.md5() if calculate_checksum else None
+
+        try:
+            with open(dest_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=self._chunk_size):
+                    if chunk:
+                        f.write(chunk)
+                        downloaded_size += len(chunk)
+
+                        if md5_hash:
+                            md5_hash.update(chunk)
+
+                        if progress_callback:
+                            progress_callback(downloaded_size, total_size)
+
+        except OSError as e:
+            logger.error(f"Failed to write file: {e}")
+            raise DownloadError(f"Failed to write to {dest_path}: {e}") from e
+
+        checksum = md5_hash.hexdigest() if md5_hash else None
+
+        logger.info(f"Download complete: {downloaded_size / (1024 * 1024):.2f} MB")
+
+        return DownloadResult(url=url, destination=dest_path, size_bytes=downloaded_size, checksum=checksum)
+
+    def download_bytes(self, url: str) -> bytes:
+        """
+        Download file content as bytes (in-memory).
+
+        Args:
+            url: URL to download from.
+
+        Returns:
+            File content as bytes.
+
+        Raises:
+            ValidationError: If URL is invalid.
+            DownloadError: If download fails.
+        """
+        self._validate_url(url)
+
+        logger.info(f"Downloading to memory: {url}")
+
+        try:
+            response = self._session.get(url)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            logger.error(f"Download failed: {e}")
+            raise DownloadError(f"Failed to download {url}: {e}") from e
+
+        logger.info(f"Downloaded {len(response.content)} bytes")
         return response.content
+
+    def _validate_url(self, url: str) -> None:
+        """Validate download URL."""
+        if not url:
+            raise ValidationError("URL cannot be empty")
+
+        if not isinstance(url, str):
+            raise ValidationError("URL must be a string")
+
+        parsed = urlparse(url)
+
+        if not parsed.scheme:
+            raise ValidationError("URL must include scheme (http/https)")
+
+        if parsed.scheme not in ("http", "https"):
+            raise ValidationError(f"Unsupported URL scheme: {parsed.scheme}")
+
+        if not parsed.netloc:
+            raise ValidationError("URL must include host")
+
+    def _resolve_destination(self, url: str, destination: Optional[str | Path]) -> Path:
+        """Resolve the final destination path for a download."""
+        filename = self._extract_filename(url)
+
+        if destination is None:
+            return Path.cwd() / filename
+
+        dest_path = Path(destination)
+
+        # If destination is a directory, append filename
+        if dest_path.is_dir() or str(destination).endswith(os.sep):
+            dest_path.mkdir(parents=True, exist_ok=True)
+            return dest_path / filename
+
+        return dest_path
+
+    @staticmethod
+    def _extract_filename(url: str) -> str:
+        """Extract filename from URL."""
+        parsed = urlparse(url)
+        path = unquote(parsed.path)
+        filename = os.path.basename(path)
+
+        if not filename:
+            raise ValidationError(f"Cannot extract filename from URL: {url}")
+
+        return filename
+
+
+def create_progress_logger(log_interval_mb: float = 10.0) -> ProgressCallback:
+    """
+    Create a progress callback that logs download progress.
+
+    Args:
+        log_interval_mb: Log progress every N megabytes.
+
+    Returns:
+        Progress callback function.
+    """
+    last_logged_mb = [0.0]
+
+    def log_progress(downloaded: int, total: int) -> None:
+        downloaded_mb = downloaded / (1024 * 1024)
+        total_mb = total / (1024 * 1024) if total else 0
+
+        if downloaded_mb - last_logged_mb[0] >= log_interval_mb:
+            if total_mb > 0:
+                percent = (downloaded / total) * 100
+                logger.info(f"Progress: {downloaded_mb:.1f}/{total_mb:.1f} MB ({percent:.1f}%)")
+            else:
+                logger.info(f"Progress: {downloaded_mb:.1f} MB downloaded")
+
+            last_logged_mb[0] = downloaded_mb
+
+    return log_progress
+
+
+def create_progress_bar(desc: str = "Downloading") -> tuple[ProgressCallback, Callable[[], None]]:
+    """
+    Create a simple console progress bar.
+
+    Args:
+        desc: Description to show before progress bar.
+
+    Returns:
+        Tuple of (progress_callback, close_function).
+    """
+    state = {"last_percent": -1}
+
+    def show_progress(downloaded: int, total: int) -> None:
+        if total <= 0:
+            return
+
+        percent = int((downloaded / total) * 100)
+
+        if percent != state["last_percent"]:
+            bar_length = 40
+            filled = int(bar_length * downloaded / total)
+            bar = "=" * filled + "-" * (bar_length - filled)
+            mb_downloaded = downloaded / (1024 * 1024)
+            mb_total = total / (1024 * 1024)
+
+            print(f"\r{desc}: [{bar}] {percent}% ({mb_downloaded:.1f}/{mb_total:.1f} MB)", end="", flush=True)
+            state["last_percent"] = percent
+
+    def close() -> None:
+        print()  # New line after progress bar
+
+    return show_progress, close

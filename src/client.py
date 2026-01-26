@@ -1,15 +1,89 @@
-from auth import TokenAuth
-from session import create_session
-from downloader import Downloader
+import logging
+from pathlib import Path
+from typing import Optional
+
+from auth import Auth
+from downloader import Downloader, DownloadResult, create_progress_bar
+from session import SessionConfig, SessionManager
+
+logger = logging.getLogger(__name__)
 
 
-url = "https://dap.ceda.ac.uk/badc/quest/data/qgsi/wp_d1_climate_scenarios/00README_catalogue_and_licence.txt?download=1"
+class Client:
+    """
+    high-level client for downloading data from ceda archives,
+    provides simple interface combining authentication, session, downloads
 
-auth = TokenAuth("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI4ZjhmaUpyaUtDY3hmaHhzdU5vazVEekdJdFZ4amhhTWNJa05ZX2U4MnhJIn0.eyJleHAiOjE3Njc5NTkzOTUsImlhdCI6MTc2NzcwMDE5NSwianRpIjoiNTFjMTNkZGEtZTJiMC00NjA3LThlMjYtOWE0MTU5ZDMwNGRiIiwiaXNzIjoiaHR0cHM6Ly9hY2NvdW50cy5jZWRhLmFjLnVrL3JlYWxtcy9jZWRhIiwic3ViIjoiODAwYjI5MmEtNzUzMC00YjM4LWJlZDEtZmM4Mzk5NmYzNWFmIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoic2VydmljZXMtcG9ydGFsLWNlZGEtYWMtdWsiLCJzZXNzaW9uX3N0YXRlIjoiZmFlNDlmMTAtZmE5Yi00YzQxLTkzY2UtODdlNmQ0ZTQzNjVkIiwiYWNyIjoiMSIsInNjb3BlIjoiZW1haWwgb3BlbmlkIHByb2ZpbGUgZ3JvdXBfbWVtYmVyc2hpcCIsInNpZCI6ImZhZTQ5ZjEwLWZhOWItNGM0MS05M2NlLTg3ZTZkNGU0MzY1ZCIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiTXVoYW1tYWQgTW9oc2luIiwicHJlZmVycmVkX3VzZXJuYW1lIjoibXRyNDY1ODUiLCJnaXZlbl9uYW1lIjoiTXVoYW1tYWQiLCJmYW1pbHlfbmFtZSI6Ik1vaHNpbiIsImVtYWlsIjoibXVoYW1tYWQubW9oc2luQHN0ZmMuYWMudWsifQ.dGgpPHPfet1jXreVDdemb0mRgNaltmDCHpEnClgyRgZg2mleccxhTXcdUKoN-Rz4x9Jylb4F0O6Lgk_jbu7r6g0zw5GIWnbJKlSz0rbmvmiPb7f2GkIygOlmf_XWr6DeEazk4eLrJv5GHRyXMTq5KpHWfBOqHVRln2BjnsC6yWpUgsXzH-epe1Rj_6ZE193TS3_0P5MmiE4Z4_ROu5t-Vo3xHhhbCCoEIIn4VhXPfzqWgC7Iev80IOvb5LP-J4eeuobszrK12W4Y0plRBbtxoTPAEeDbLnTdk_i2vUM4AOM1qS-ldYNYSil_gqU-hy_JF76K56R-o2a5fWV-UIU3wA")
-session = create_session(30)
-session.headers.update(auth.headers())
+    Example:
+        client = Client(token="your_access_token")               # with existing token
+        result = client.download(url, destination="./data/")
 
-download = Downloader(session, url)
+        client = Client.from_credentials("username", "password") # with credentials
+        result = client.download(url)
+    """
 
-print(download.download(url))
+    def __init__(self, token: str, timeout: int = 30, max_retries: int = 3):
+        self._auth = Auth(token=token)
+        self._config = SessionConfig(timeout=timeout, max_retries=max_retries)
+        self._session_manager = SessionManager(auth=self._auth, config=self._config)
+        self._downloader = Downloader(session=self._session_manager.session)
 
+        logger.info("Client initialized")
+
+    @classmethod
+    def from_credentials(cls, username: str, password: str, timeout: int = 30, max_retries: int = 3) -> "Client":
+        logger.info(f"Generating token for user: {username}")
+        auth = Auth.from_credentials(username, password, timeout=timeout)
+        return cls(token=auth.token, timeout=timeout, max_retries=max_retries)
+
+    def download(
+        self,
+        url: str,
+        destination: Optional[str | Path] = None,
+        show_progress: bool = True,
+        calculate_checksum: bool = False,
+    ) -> DownloadResult:
+        """
+        Args:
+            url: url to download
+            destination: target file path or directory
+            show_progress: whether to show progress bar
+            calculate_checksum: whether to calculate MD5 checksum
+
+        Returns:
+            DownloadResult
+        """
+        progress_callback = None
+        close_progress = None
+
+        if show_progress:
+            progress_callback, close_progress = create_progress_bar()
+
+        try:
+            result = self._downloader.download(
+                url=url,
+                destination=destination,
+                progress_callback=progress_callback,
+                calculate_checksum=calculate_checksum,
+            )
+        finally:
+            if close_progress:
+                close_progress()
+
+        return result
+
+    def download_bytes(self, url: str) -> bytes:
+        """
+        download file content to memory
+
+        Args:
+            url: url to download
+
+        Returns:
+            file content as bytes
+        """
+        return self._downloader.download_bytes(url)
+
+    @property
+    def token(self) -> str:
+        return self._auth.token
