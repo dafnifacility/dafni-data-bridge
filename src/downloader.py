@@ -55,7 +55,7 @@ class Downloader:
         """
         chunk_size = chunk_size or self.DEFAULT_CHUNK_SIZE
         if chunk_size <= 0:
-            raise ValueError("Chunk size must be positive")
+            raise ValueError("chunk size must be positive")
 
         self._session = session
         self._chunk_size = chunk_size
@@ -68,38 +68,37 @@ class Downloader:
         calculate_checksum: bool = False,
     ) -> DownloadResult:
         """
-        Download a file from CEDA archive.
-
         Args:
-            url: URL to download from.
-            destination: File path or directory. If directory, filename
-                        is extracted from URL. If None, uses current directory.
-            progress_callback: Optional callback(downloaded_bytes, total_bytes).
-            calculate_checksum: Whether to calculate MD5 checksum.
+            url: url to download from.
+            destination: destination path or directory,
+            if directory, filename is extracted from url,
+            if None, uses current directory.
+            progress_callback: optional callback(downloaded_bytes, total_bytes).
+            calculate_checksum: whether to calculate md5 checksum.
 
         Returns:
             DownloadResult with download details.
 
         Raises:
-            ValidationError: If URL or destination is invalid.
-            DownloadError: If download fails.
+            ValidationError: if url or destination is invalid.
+            DownloadError: if download fails.
         """
         self._validate_url(url)
         dest_path = self._resolve_destination(url, destination)
 
-        logger.info(f"Starting download: {url}")
-        logger.info(f"Destination: {dest_path}")
+        logger.info(f"starting download: {url}")
+        logger.info(f"destination: {dest_path}")
 
         try:
             response = self._session.get(url, stream=True)
             response.raise_for_status()
         except requests.RequestException as e:
-            logger.error(f"Download request failed: {e}")
-            raise DownloadError(f"Failed to download {url}: {e}") from e
+            logger.error(f"download request failed: {e}")
+            raise DownloadError(f"failed to download {url}: {e}") from e
 
         total_size = int(response.headers.get("content-length", 0))
         if total_size:
-            logger.info(f"File size: {total_size / (1024 * 1024):.2f} MB")
+            logger.info(f"file size: {total_size / (1024 * 1024):.2f} MB")
 
         # Ensure parent directory exists
         dest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -121,64 +120,63 @@ class Downloader:
                             progress_callback(downloaded_size, total_size)
 
         except OSError as e:
-            logger.error(f"Failed to write file: {e}")
-            raise DownloadError(f"Failed to write to {dest_path}: {e}") from e
+            logger.error(f"failed to write file: {e}")
+            raise DownloadError(f"failed to write to {dest_path}: {e}") from e
 
         checksum = md5_hash.hexdigest() if md5_hash else None
 
-        logger.info(f"Download complete: {downloaded_size / (1024 * 1024):.2f} MB")
+        logger.info(f"download complete: {downloaded_size / (1024 * 1024):.2f} MB")
 
         return DownloadResult(url=url, destination=dest_path, size_bytes=downloaded_size, checksum=checksum)
 
     def download_bytes(self, url: str) -> bytes:
         """
-        Download file content as bytes (in-memory).
+        download file content as bytes (in-memory).
 
         Args:
-            url: URL to download from.
+            url: url to download from.
 
         Returns:
             File content as bytes.
 
         Raises:
-            ValidationError: If URL is invalid.
-            DownloadError: If download fails.
+            ValidationError: if url is invalid.
+            DownloadError: if download fails.
         """
         self._validate_url(url)
 
-        logger.info(f"Downloading to memory: {url}")
+        logger.info(f"downloading to memory: {url}")
 
         try:
             response = self._session.get(url)
             response.raise_for_status()
         except requests.RequestException as e:
-            logger.error(f"Download failed: {e}")
-            raise DownloadError(f"Failed to download {url}: {e}") from e
+            logger.error(f"download failed: {e}")
+            raise DownloadError(f"failed to download {url}: {e}") from e
 
-        logger.info(f"Downloaded {len(response.content)} bytes")
+        logger.info(f"downloaded {len(response.content)} bytes")
         return response.content
 
     def _validate_url(self, url: str) -> None:
-        """Validate download URL."""
         if not url:
-            raise ValidationError("URL cannot be empty")
+            raise ValidationError("url cannot be empty")
 
         if not isinstance(url, str):
-            raise ValidationError("URL must be a string")
+            raise ValidationError("url must be a string")
 
         parsed = urlparse(url)
 
         if not parsed.scheme:
-            raise ValidationError("URL must include scheme (http/https)")
+            raise ValidationError("url must include scheme (http/https)")
 
         if parsed.scheme not in ("http", "https"):
-            raise ValidationError(f"Unsupported URL scheme: {parsed.scheme}")
+            raise ValidationError(f"unsupported url scheme: {parsed.scheme}")
 
         if not parsed.netloc:
-            raise ValidationError("URL must include host")
+            raise ValidationError("url must include host")
 
     def _resolve_destination(self, url: str, destination: Optional[str | Path]) -> Path:
-        """Resolve the final destination path for a download."""
+        """resolve the final destination path for a download."""
         filename = self._extract_filename(url)
 
         if destination is None:
@@ -186,7 +184,7 @@ class Downloader:
 
         dest_path = Path(destination)
 
-        # If destination is a directory, append filename
+        # if destination is a directory, append filename
         if dest_path.is_dir() or str(destination).endswith(os.sep):
             dest_path.mkdir(parents=True, exist_ok=True)
             return dest_path / filename
@@ -195,26 +193,26 @@ class Downloader:
 
     @staticmethod
     def _extract_filename(url: str) -> str:
-        """Extract filename from URL."""
+        """extract filename from url."""
         parsed = urlparse(url)
         path = unquote(parsed.path)
         filename = os.path.basename(path)
 
         if not filename:
-            raise ValidationError(f"Cannot extract filename from URL: {url}")
+            raise ValidationError(f"cannot extract filename from url: {url}")
 
         return filename
 
 
 def create_progress_logger(log_interval_mb: float = 10.0) -> ProgressCallback:
     """
-    Create a progress callback that logs download progress.
+    create a progress callback that logs download progress.
 
     Args:
-        log_interval_mb: Log progress every N megabytes.
+        log_interval_mb: log progress every N megabytes.
 
     Returns:
-        Progress callback function.
+        progress callback function.
     """
     last_logged_mb = [0.0]
 
@@ -225,24 +223,24 @@ def create_progress_logger(log_interval_mb: float = 10.0) -> ProgressCallback:
         if downloaded_mb - last_logged_mb[0] >= log_interval_mb:
             if total_mb > 0:
                 percent = (downloaded / total) * 100
-                logger.info(f"Progress: {downloaded_mb:.1f}/{total_mb:.1f} MB ({percent:.1f}%)")
+                logger.info(f"progress: {downloaded_mb:.1f}/{total_mb:.1f} mb ({percent:.1f}%)")
             else:
-                logger.info(f"Progress: {downloaded_mb:.1f} MB downloaded")
+                logger.info(f"progress: {downloaded_mb:.1f} mb downloaded")
 
             last_logged_mb[0] = downloaded_mb
 
     return log_progress
 
 
-def create_progress_bar(desc: str = "Downloading") -> tuple[ProgressCallback, Callable[[], None]]:
+def create_progress_bar(desc: str = "downloading") -> tuple[ProgressCallback, Callable[[], None]]:
     """
-    Create a simple console progress bar.
+    create a simple console progress bar.
 
     Args:
-        desc: Description to show before progress bar.
+        desc: description to show before progress bar.
 
     Returns:
-        Tuple of (progress_callback, close_function).
+        tuple of (progress_callback, close_function).
     """
     state = {"last_percent": -1}
 
@@ -259,10 +257,10 @@ def create_progress_bar(desc: str = "Downloading") -> tuple[ProgressCallback, Ca
             mb_downloaded = downloaded / (1024 * 1024)
             mb_total = total / (1024 * 1024)
 
-            print(f"\r{desc}: [{bar}] {percent}% ({mb_downloaded:.1f}/{mb_total:.1f} MB)", end="", flush=True)
+            print(f"\r{desc}: [{bar}] {percent}% ({mb_downloaded:.1f}/{mb_total:.1f} mb)", end="", flush=True)
             state["last_percent"] = percent
 
     def close() -> None:
-        print()  # New line after progress bar
+        print()  # new line after progress bar
 
     return show_progress, close
