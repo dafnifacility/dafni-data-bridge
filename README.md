@@ -7,48 +7,32 @@
 ## Usage
 
 ```bash
-# download with token
+
+# 1. Token 
 uv run python src/main.py \
     --token YOUR_TOKEN \
     --url "https://dap.ceda.ac.uk/badc/csip/data/salford-radiometer-1/2005/06/salford-radiometer-1_faccombe_20050624_iwv.nc" \
     --dest ./data/
 
-# generate token and download
+# 2. User name and password 
 uv run python src/main.py \
     -u USERNAME -p PASSWORD \
     --url "https://dap.ceda.ac.uk/badc/csip/data/salford-radiometer-1/2005/06/salford-radiometer-1_faccombe_20050624_iwv.nc" \
     --dest ./data/ \
     --checksum --debug
+
+# 3. A directory
+
+
+
 ```
 
 ## Documentation
 
-### Supported Options
+### Features
 
-**Authentication**
-
-1. CEDA no authentication required
-2. CEDA authentication
-   - user name and password
-   - token authentication
-3. CEDA need dataset agreement
-4. GWS no JASMIN account
-5. GWS via JASMIN account
-
-**Source**
-
-1. CEDA
-2. GWS
-
-**Source data**
-
-1. List of files
-2. Directory
-
-**Destination storage**
-
-1. Filesystem
-2. S3
+To be added, see internal document.
+ 
 
 ## Resources
 
