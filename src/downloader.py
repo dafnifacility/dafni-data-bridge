@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class DownloadResult:
-    url: str
+    url: str | list[str]
     destination: Path | list[Path]
     size_bytes: int
     checksum: Optional[str] = None
@@ -83,65 +83,66 @@ class Downloader:
             ValidationError: if url or destination is invalid.
             DownloadError: if download fails.
         """
-    
-        self._validate_url(url)
-        dest_path = self._resolve_destination(url, destination)
 
-        if self._is_directory(url):
+        url = self._multiple_urls_split(url)
 
-            logger.info(f"Downloading directory: {url}")
-            directory_download = self.recursive_download(url, dest_path)
+        if isinstance(url, str):
+
+            self._validate_url(url)
+            dest_path = self._resolve_destination(url, destination)
+
+            if self._is_directory(url):
+
+                logger.info(f"Downloading directory: {url}")
+                directory_download = self._recursive_download(url, dest_path)
+                
+                return self._multiple_download_result(url, directory_download)
             
-            total_files = []
-            total_size = 0
-            for file in directory_download:
-                total_files.append(file.destination)
-                total_size += file.size_bytes
+            else:
+                logger.info(f"starting download: {url}")
+                logger.info(f"destination: {dest_path}")
+                try:
+                    response = self._session.get(url, stream=True)
+                    response.raise_for_status()
+                except requests.RequestException as e:
+                    logger.error(f"download request failed: {e}")
+                    raise DownloadError(f"failed to download {url}: {e}") from e
 
-            return DownloadResult(url=url, destination=total_files, size_bytes=total_size, checksum=directory_download[0].checksum)
-        
+                total_size = int(response.headers.get("content-length", 0))
+                if total_size:
+                    logger.info(f"file size: {total_size / (1024 * 1024):.2f} MB")
+
+                # Ensure parent directory exists
+                dest_path.parent.mkdir(parents=True, exist_ok=True)
+
+                downloaded_size = 0
+                md5_hash = hashlib.md5() if calculate_checksum else None
+
+                try:
+                    with open(dest_path, "wb") as f:
+                        for chunk in response.iter_content(chunk_size=self._chunk_size):
+                            if chunk:
+                                f.write(chunk)
+                                downloaded_size += len(chunk)
+
+                                if md5_hash:
+                                    md5_hash.update(chunk)
+
+                                if progress_callback:
+                                    progress_callback(downloaded_size, total_size)
+
+                except OSError as e:
+                    logger.error(f"failed to write file: {e}")
+                    raise DownloadError(f"failed to write to {dest_path}: {e}") from e
+
+                checksum = md5_hash.hexdigest() if md5_hash else None
+
+                logger.info(f"download complete: {downloaded_size / (1024 * 1024):.2f} MB")
+                return DownloadResult(url=url, destination=dest_path, size_bytes=downloaded_size, checksum=checksum)
         else:
-            logger.info(f"starting download: {url}")
-            logger.info(f"destination: {dest_path}")
-            try:
-                response = self._session.get(url, stream=True)
-                response.raise_for_status()
-            except requests.RequestException as e:
-                logger.error(f"download request failed: {e}")
-                raise DownloadError(f"failed to download {url}: {e}") from e
-
-            total_size = int(response.headers.get("content-length", 0))
-            if total_size:
-                logger.info(f"file size: {total_size / (1024 * 1024):.2f} MB")
-
-            # Ensure parent directory exists
-            dest_path.parent.mkdir(parents=True, exist_ok=True)
-
-            downloaded_size = 0
-            md5_hash = hashlib.md5() if calculate_checksum else None
-
-            try:
-                with open(dest_path, "wb") as f:
-                    for chunk in response.iter_content(chunk_size=self._chunk_size):
-                        if chunk:
-                            f.write(chunk)
-                            downloaded_size += len(chunk)
-
-                            if md5_hash:
-                                md5_hash.update(chunk)
-
-                            if progress_callback:
-                                progress_callback(downloaded_size, total_size)
-
-            except OSError as e:
-                logger.error(f"failed to write file: {e}")
-                raise DownloadError(f"failed to write to {dest_path}: {e}") from e
-
-            checksum = md5_hash.hexdigest() if md5_hash else None
-
-            logger.info(f"download complete: {downloaded_size / (1024 * 1024):.2f} MB")
-            # file_installed = {dest_path: downloaded_size}
-            return DownloadResult(url=url, destination=dest_path, size_bytes=downloaded_size, checksum=checksum)
+            
+            download_files = self._multiple_url_download(url, destination)
+            return self._multiple_download_result(url, download_files)
         
     def download_bytes(self, url: str) -> bytes:
         """
@@ -220,7 +221,7 @@ class Downloader:
     def _is_directory(self, url: str) -> bool:
         """check if url points to a directory"""
         try:
-            data = self.directory_contents_json(url)
+            data = self._directory_contents_json(url)
             
             if isinstance(data, dict) and 'items' in data:
                 return True      
@@ -229,8 +230,37 @@ class Downloader:
         
         except (requests.exceptions.RequestException, ValueError):
             return False
+        
+    @staticmethod
+    def _multiple_urls_split(url: str) -> list[str] | str:
+        """split multiple urls into list"""
+        url = url.split(",")
+        if len(url) > 1:
+            logger.info(f"Number of files to download: {len(url)}")
+            return url
+        else:
+            return str(url[0])
+    
+    def _multiple_url_download(self, url: str, destination:Path) -> list[DownloadResult]:
+        """download all files from a list"""
+        download_list = []
+        for file_url in url:
+            result = self.download(file_url, destination)
+            download_list.append(result)
 
-    def directory_contents_json(self, url:str) -> dict:
+        return download_list
+
+    def _multiple_download_result(self, url: list, results: list[DownloadResult]) -> DownloadResult:
+        """return results of multiple files installed"""
+        total_files = []
+        total_size = 0
+        for download_result in results:
+            total_files.append(download_result.destination)
+            total_size += download_result.size_bytes
+        
+        return DownloadResult(url=url, destination=total_files, size_bytes=total_size, checksum=results[0].checksum)
+
+    def _directory_contents_json(self, url:str) -> dict:
         """send json query to url"""
 
         # change url to data.ceda... for json query
@@ -239,7 +269,7 @@ class Downloader:
             url = f'https://data.ceda.ac.uk{parsed_url.path}'
         return self._session.get(f'{url}?json').json()
     
-    def recursive_download(self, url:str, destination:Path) -> list[DownloadResult]:
+    def _recursive_download(self, url:str, destination:Path) -> list[DownloadResult]:
         """
         download all files in a directory
         
@@ -252,7 +282,7 @@ class Downloader:
         """
 
         file_list = []
-        contents = self.directory_contents_json(url)
+        contents = self._directory_contents_json(url)
         for item in contents['items']:
             
             item_url = urljoin(url, item['path'])
@@ -261,7 +291,6 @@ class Downloader:
             file_list.append(result)
 
         return file_list
-
 
 def create_progress_logger(log_interval_mb: float = 10.0) -> ProgressCallback:
     """
@@ -289,7 +318,6 @@ def create_progress_logger(log_interval_mb: float = 10.0) -> ProgressCallback:
             last_logged_mb[0] = downloaded_mb
 
     return log_progress
-
 
 def create_progress_bar(desc: str = "downloading") -> tuple[ProgressCallback, Callable[[], None]]:
     """
