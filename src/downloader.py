@@ -4,10 +4,9 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional
-from urllib.parse import unquote, urlparse, urljoin
+from urllib.parse import unquote, urljoin, urlparse
 
 import requests
-
 from exceptions import DownloadError, ValidationError
 
 logger = logging.getLogger(__name__)
@@ -37,7 +36,7 @@ class Downloader:
         downloader = Downloader(session)
 
         result = downloader.download(url, destination="/path/to/file.nc")   # download to specific path
-        result = downloader.download(url, destination="/download/dir/")     # download to directory (auto-detect filename)
+        result = downloader.download(url, destination="/download/dir/")  # download to directory (auto-detect filename)
 
         def on_progress(downloaded, total):                                 # with progress callback
             print(f"{downloaded}/{total} bytes")
@@ -217,7 +216,7 @@ class Downloader:
             raise ValidationError(f"cannot extract filename from url: {url}")
 
         return filename
-    
+
     def _is_directory(self, url: str) -> bool:
         """check if url points to a directory"""
         try:
@@ -227,7 +226,7 @@ class Downloader:
                 return True      
                       
             return False
-        
+
         except (requests.exceptions.RequestException, ValueError):
             return False
         
@@ -272,7 +271,7 @@ class Downloader:
     def _recursive_download(self, url:str, destination:Path) -> list[DownloadResult]:
         """
         download all files in a directory
-        
+
         Args:
             url: url to download from.
             destination: path to download to
