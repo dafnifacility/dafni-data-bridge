@@ -54,7 +54,7 @@ Examples:
     password = args.password or os.getenv("PASSWORD")
 
     # TODO: not working!
-    if not password:
+    if not password and not args.token:
         parser.error("--password is required when using --username (via --password flag or PASSWORD env var)")
 
     # setup logging
@@ -64,11 +64,18 @@ Examples:
     logger = logging.getLogger(__name__)
 
     try:
+        client = Client.validate_url(url=args.url)
         if args.token:
-            client = Client(token=args.token, timeout=args.timeout, max_retries=args.retries)
+            client = Client(url=args.url, token=args.token)
+        elif args.url.startswith(("ftp://")):
+            client = Client.ftp_login(url=args.url, username=args.username, password=args.password)
         else:
             client = Client.from_credentials(
-                username=args.username, password=args.password, timeout=args.timeout, max_retries=args.retries
+                url=args.url,
+                username=args.username,
+                password=args.password,
+                timeout=args.timeout,
+                max_retries=args.retries,
             )
 
         # download file
