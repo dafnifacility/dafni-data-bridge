@@ -1,4 +1,3 @@
-import hashlib
 import os
 from pathlib import Path
 from typing import Optional
@@ -8,14 +7,16 @@ import requests
 from exceptions import DownloadError
 
 from downloader.base import BaseDownloader
-from downloader.models import DownloadResult, ProgressCallback
-from downloader.utils import (
+from downloader.download_utils import (
+    download_local,
     logger,
     multiple_download_result,
     multiple_url_download,
     multiple_urls_split,
     resolve_destination,
 )
+from downloader.models import DownloadResult, ProgressCallback
+from downloader.s3_upload import S3Client
 
 
 class HTTPDownloader(BaseDownloader):
@@ -68,13 +69,10 @@ class HTTPDownloader(BaseDownloader):
 
         if isinstance(url, str):
             dest_path = resolve_destination(url, destination)
-
             if self._is_directory(url):
                 logger.info(f"Downloading directory: {url}")
                 directory_download = self._recursive_download(url, dest_path, calculate_checksum, progress_callback)
-
                 return multiple_download_result(url, directory_download)
-
             else:
                 logger.info(f"starting download: {url}")
                 logger.info(f"destination: {dest_path}")
@@ -89,34 +87,39 @@ class HTTPDownloader(BaseDownloader):
                 if total_size:
                     logger.info(f"file size: {total_size / (1024 * 1024):.2f} MB")
 
-                # Ensure parent directory exists
-                dest_path.parent.mkdir(parents=True, exist_ok=True)
+                if isinstance(dest_path, Path):
+                    return download_local(
+                        url=url,
+                        dest_path=dest_path,
+                        response=response,
+                        total_size=total_size,
+                        calculate_checksum=calculate_checksum,
+                        progress_callback=progress_callback,
+                        chunk_size=self._chunk_size,
+                    )
 
-                downloaded_size = 0
-                md5_hash = hashlib.md5() if calculate_checksum else None
+                if isinstance(dest_path, dict):
+                    s3_uploader = S3Client(s3_endpoint=dest_path["endpoint"])
+                    # S3 only takes chunk sizes of 5MB
+                    CHUNK_SIZE = 5 * 1024 * 1024
+                    result = s3_uploader.upload_to_s3(
+                        response=response,
+                        bucket=dest_path["bucket"],
+                        object=dest_path["key"],
+                        chunk_size=CHUNK_SIZE,
+                        calculate_checksum=calculate_checksum,
+                        progress_callback=progress_callback,
+                        total_size=total_size,
+                    )
 
-                try:
-                    with open(dest_path, "wb") as f:
-                        for chunk in response.iter_content(chunk_size=self._chunk_size):
-                            if chunk:
-                                f.write(chunk)
-                                downloaded_size += len(chunk)
+                    return DownloadResult(
+                        url=url,
+                        destination=result["destination"],
+                        size_bytes=result["size_bytes"],
+                        checksum=result["checksum"],
+                    )
 
-                                if md5_hash:
-                                    md5_hash.update(chunk)
-
-                                if progress_callback:
-                                    progress_callback(downloaded_size, total_size)
-
-                except OSError as e:
-                    logger.error(f"failed to write file: {e}")
-                    raise DownloadError(f"failed to write to {dest_path}: {e}") from e
-
-                checksum = md5_hash.hexdigest() if md5_hash else None
-
-                logger.info(f"download complete: {downloaded_size / (1024 * 1024):.2f} MB")
-                return DownloadResult(url=url, destination=dest_path, size_bytes=downloaded_size, checksum=checksum)
-        else:
+        if isinstance(url, list):
             download_files = multiple_url_download(
                 url=url,
                 destination=destination,
@@ -169,9 +172,11 @@ class HTTPDownloader(BaseDownloader):
 
         file_list = []
         contents = self._directory_contents_json(url)
+        if isinstance(destination, dict):
+            destination = destination["endpoint"]
         for item in contents["items"]:
             item_url = urljoin(url, item["path"])
-            dest_path = destination / item["name"]
+            dest_path = f"{destination}/{item["name"]}"
             result = self.download(
                 url=item_url,
                 destination=dest_path,
