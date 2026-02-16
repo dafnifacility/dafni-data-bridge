@@ -1,15 +1,12 @@
-import hashlib
 import os
 from ftplib import FTP, error_perm
 from pathlib import Path
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
-from exceptions import DownloadError
-
 from downloader.base import BaseDownloader
-from downloader.models import DownloadResult, ProgressCallback
-from downloader.utils import (
+from downloader.download_utils import (
+    download_local,
     extract_filename,
     logger,
     multiple_download_result,
@@ -17,6 +14,8 @@ from downloader.utils import (
     multiple_urls_split,
     resolve_destination,
 )
+from downloader.models import DownloadResult, ProgressCallback
+from downloader.s3_upload import S3Client
 
 
 class FTPDownloader(BaseDownloader):
@@ -80,32 +79,40 @@ class FTPDownloader(BaseDownloader):
                 logger.info(f"starting download: {url}")
                 logger.info(f"destination: {dest_path}")
 
-                downloaded_size = 0
-                md5_hash = hashlib.md5() if calculate_checksum else None
-                dest_path.parent.mkdir(parents=True, exist_ok=True)
+                if isinstance(dest_path, Path):
+                    return download_local(
+                        url=url,
+                        dest_path=dest_path,
+                        response=self._session,
+                        total_size=total_size,
+                        calculate_checksum=calculate_checksum,
+                        progress_callback=progress_callback,
+                        chunk_size=self._chunk_size,
+                        parsed_path=parsed.path,
+                    )
 
-                try:
-                    with open(dest_path, "wb") as file:
+                if isinstance(dest_path, dict):
+                    s3_uploader = S3Client(s3_endpoint=dest_path["endpoint"])
+                    # S3 only takes chunk sizes of 5MB
+                    CHUNK_SIZE = 5 * 1024 * 1024
+                    result = s3_uploader.upload_to_s3(
+                        response=self._session,
+                        bucket=dest_path["bucket"],
+                        object=dest_path["key"],
+                        chunk_size=CHUNK_SIZE,
+                        calculate_checksum=calculate_checksum,
+                        progress_callback=progress_callback,
+                        total_size=total_size,
+                        parsed_path=parsed.path,
+                    )
 
-                        def chunk_download(data):
-                            nonlocal downloaded_size
-                            file.write(data)
-                            downloaded_size += len(data)
-                            md5_hash.update(data)
-
-                            if progress_callback:
-                                progress_callback(downloaded_size, total_size)
-
-                        self._session.retrbinary(f"RETR {parsed.path}", chunk_download, blocksize=self._chunk_size)
-
-                    checksum = md5_hash.hexdigest() if md5_hash else None
-                    logger.info(f"download complete: {downloaded_size / (1024 * 1024):.2f} MB")
-                except OSError as e:
-                    logger.error(f"failed to write file: {e}")
-                    raise DownloadError(f"failed to write to {dest_path}: {e}") from e
-
-                return DownloadResult(url=url, destination=dest_path, size_bytes=downloaded_size, checksum=checksum)
-        else:
+                    return DownloadResult(
+                        url=url,
+                        destination=result["destination"],
+                        size_bytes=result["size_bytes"],
+                        checksum=result["checksum"],
+                    )
+        if isinstance(url, list):
             download_files = multiple_url_download(
                 url=url,
                 destination=destination,
@@ -146,11 +153,12 @@ class FTPDownloader(BaseDownloader):
         contents = self._get_directory_contents(url)
 
         self._session.voidcmd("TYPE I")
+        if isinstance(destination, dict):
+            destination = destination["endpoint"]
 
         for item_url in contents:
             filename = extract_filename(item_url)
-
-            dest_path = destination / filename
+            dest_path = f"{destination}/{filename}"
             result = self.download(
                 url=item_url,
                 destination=dest_path,
