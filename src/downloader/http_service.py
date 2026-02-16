@@ -69,7 +69,6 @@ class HTTPDownloader(BaseDownloader):
 
         if isinstance(url, str):
             dest_path = resolve_destination(url, destination)
-            print("init", dest_path)
             if self._is_directory(url):
                 logger.info(f"Downloading directory: {url}")
                 directory_download = self._recursive_download(url, dest_path, calculate_checksum, progress_callback)
@@ -100,11 +99,7 @@ class HTTPDownloader(BaseDownloader):
                     )
 
                 if isinstance(dest_path, dict):
-                    s3_uploader = S3Client(
-                        s3_endpoint=dest_path["endpoint"],
-                        access="6b7cc8d8764a49c0a8969381d784b8b1",
-                        secret="8bc705109a804930b4a45bbdcbb5ef40",
-                    )
+                    s3_uploader = S3Client(s3_endpoint=dest_path["endpoint"])
                     # S3 only takes chunk sizes of 5MB
                     CHUNK_SIZE = 5 * 1024 * 1024
                     result = s3_uploader.upload_to_s3(
@@ -191,10 +186,3 @@ class HTTPDownloader(BaseDownloader):
             file_list.append(result)
 
         return file_list
-
-    def get_stream(self, url):
-        with self._session.get(url, stream=True) as response:
-            response.raise_for_status()
-            for chunk in response.iter_content(chunk_size=self.chunk_size):
-                if chunk:
-                    yield chunk

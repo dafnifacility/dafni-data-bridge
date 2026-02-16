@@ -15,6 +15,7 @@ from downloader.download_utils import (
     resolve_destination,
 )
 from downloader.models import DownloadResult, ProgressCallback
+from downloader.s3_upload import S3Client
 
 
 class FTPDownloader(BaseDownloader):
@@ -78,17 +79,40 @@ class FTPDownloader(BaseDownloader):
                 logger.info(f"starting download: {url}")
                 logger.info(f"destination: {dest_path}")
 
-                return download_local(
-                    url=url,
-                    dest_path=dest_path,
-                    response=self._session,
-                    total_size=total_size,
-                    calculate_checksum=calculate_checksum,
-                    progress_callback=progress_callback,
-                    chunk_size=self._chunk_size,
-                    parsed_path=parsed.path,
-                )
-        else:
+                if isinstance(dest_path, Path):
+                    return download_local(
+                        url=url,
+                        dest_path=dest_path,
+                        response=self._session,
+                        total_size=total_size,
+                        calculate_checksum=calculate_checksum,
+                        progress_callback=progress_callback,
+                        chunk_size=self._chunk_size,
+                        parsed_path=parsed.path,
+                    )
+
+                if isinstance(dest_path, dict):
+                    s3_uploader = S3Client(s3_endpoint=dest_path["endpoint"])
+                    # S3 only takes chunk sizes of 5MB
+                    CHUNK_SIZE = 5 * 1024 * 1024
+                    result = s3_uploader.upload_to_s3(
+                        response=self._session,
+                        bucket=dest_path["bucket"],
+                        object=dest_path["key"],
+                        chunk_size=CHUNK_SIZE,
+                        calculate_checksum=calculate_checksum,
+                        progress_callback=progress_callback,
+                        total_size=total_size,
+                        parsed_path=parsed.path,
+                    )
+
+                    return DownloadResult(
+                        url=url,
+                        destination=result["destination"],
+                        size_bytes=result["size_bytes"],
+                        checksum=result["checksum"],
+                    )
+        if isinstance(url, list):
             download_files = multiple_url_download(
                 url=url,
                 destination=destination,
@@ -129,11 +153,12 @@ class FTPDownloader(BaseDownloader):
         contents = self._get_directory_contents(url)
 
         self._session.voidcmd("TYPE I")
+        if isinstance(destination, dict):
+            destination = destination["endpoint"]
 
         for item_url in contents:
             filename = extract_filename(item_url)
-
-            dest_path = destination / filename
+            dest_path = f"{destination}/{filename}"
             result = self.download(
                 url=item_url,
                 destination=dest_path,
