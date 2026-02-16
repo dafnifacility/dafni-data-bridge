@@ -29,3 +29,8 @@ class BaseDownloader(ABC):
     ) -> DownloadResult:
         """download file from a given url"""
         pass
+
+    @abstractmethod
+    def get_stream(self, url, chunk_size):
+        """Must return a tuple: (generator_yielding_chunks, total_size)"""
+        pass

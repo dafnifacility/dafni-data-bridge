@@ -26,3 +26,7 @@ class ValidationError(DownloadError):
     """raised when input validation fails."""
 
     pass
+
+
+class BucketNotFoundError(DFTError):
+    pass

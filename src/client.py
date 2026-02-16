@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 from auth import Auth
 from downloader import get_downloader
 from downloader.models import DownloadResult
-from downloader.utils import create_progress_bar
+from downloader.progress_logger import ProgressLogger
 from exceptions import ValidationError
 from requests import Session
 from session import SessionConfig, SessionManager
@@ -94,7 +94,7 @@ class Client:
         close_progress = None
 
         if show_progress:
-            progress_callback, close_progress = create_progress_bar()
+            progress_callback, close_progress = ProgressLogger.create_progress_bar()
 
         try:
             result = self._downloader.download(

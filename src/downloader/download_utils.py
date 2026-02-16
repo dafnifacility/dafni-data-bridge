@@ -1,76 +1,15 @@
+import hashlib
 import logging
 import os
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Optional
 from urllib.parse import unquote, urlparse
 
-from exceptions import ValidationError
+from exceptions import DownloadError, ValidationError
 
 from downloader.models import DownloadResult, ProgressCallback
 
 logger = logging.getLogger(__name__)
-
-
-def create_progress_logger(log_interval_mb: float = 10.0) -> ProgressCallback:
-    """
-    create a progress callback that logs download progress.
-
-    Args:
-        log_interval_mb: log progress every N megabytes.
-
-    Returns:
-        progress callback function.
-    """
-    last_logged_mb = [0.0]
-
-    def log_progress(downloaded: int, total: int) -> None:
-        downloaded_mb = downloaded / (1024 * 1024)
-        total_mb = total / (1024 * 1024) if total else 0
-
-        if downloaded_mb - last_logged_mb[0] >= log_interval_mb:
-            if total_mb > 0:
-                percent = (downloaded / total) * 100
-                logger.info(f"progress: {downloaded_mb:.1f}/{total_mb:.1f} mb ({percent:.1f}%)")
-            else:
-                logger.info(f"progress: {downloaded_mb:.1f} mb downloaded")
-
-            last_logged_mb[0] = downloaded_mb
-
-    return log_progress
-
-
-def create_progress_bar(desc: str = "downloading") -> tuple[ProgressCallback, Callable[[], None]]:
-    """
-    create a simple console progress bar.
-
-    Args:
-        desc: description to show before progress bar.
-
-    Returns:
-        tuple of (progress_callback, close_function).
-    """
-    state = {"last_percent": -1}
-
-    def show_progress(downloaded: int, total: int) -> None:
-        if total <= 0:
-            return
-
-        percent = int((downloaded / total) * 100)
-
-        if percent != state["last_percent"]:
-            bar_length = 40
-            filled = int(bar_length * downloaded / total)
-            bar = "=" * filled + "-" * (bar_length - filled)
-            mb_downloaded = downloaded / (1024 * 1024)
-            mb_total = total / (1024 * 1024)
-
-            print(f"\r{desc}: [{bar}] {percent}% ({mb_downloaded:.1f}/{mb_total:.1f} mb)", end="", flush=True)
-            state["last_percent"] = percent
-
-    def close() -> None:
-        print()  # new line after progress bar
-
-    return show_progress, close
 
 
 def extract_filename(url: str) -> str:
@@ -90,6 +29,14 @@ def resolve_destination(url: str, destination: Optional[str | Path]) -> Path:
 
     filename = extract_filename(url)
 
+    if isinstance(destination, str):
+        parsed = urlparse(destination)
+        if destination.startswith("https://s3"):
+            path = parsed.path.split("/")
+            bucket = path[1]
+            key = f"{path[2]}/{filename}"
+            return {"endpoint": destination, "bucket": bucket, "key": key}
+
     if destination is None:
         return Path.cwd() / filename
 
@@ -102,6 +49,56 @@ def resolve_destination(url: str, destination: Optional[str | Path]) -> Path:
         return dest_path / filename
 
     return dest_path
+
+
+def download_local(
+    url: str,
+    dest_path: str,
+    response,
+    total_size,
+    calculate_checksum,
+    progress_callback,
+    chunk_size,
+    parsed_path: Optional[str] = None,
+) -> DownloadResult:
+    md5_hash = hashlib.md5() if calculate_checksum else None
+    downloaded_size = 0
+
+    try:
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(dest_path, "wb") as f:
+            if url.startswith("https://"):
+                for chunk in response.iter_content(chunk_size=chunk_size):
+                    if chunk:
+                        f.write(chunk)
+                        downloaded_size += len(chunk)
+
+                        if md5_hash:
+                            md5_hash.update(chunk)
+
+                        if progress_callback:
+                            progress_callback(downloaded_size, total_size)
+            else:
+
+                def chunk_download(data):
+                    nonlocal downloaded_size
+                    f.write(data)
+                    downloaded_size += len(data)
+                    md5_hash.update(data)
+
+                    if progress_callback:
+                        progress_callback(downloaded_size, total_size)
+
+                response.retrbinary(f"RETR {parsed_path}", chunk_download, blocksize=chunk_size)
+
+    except OSError as e:
+        logger.error(f"failed to write file: {e}")
+        raise DownloadError(f"failed to write to {dest_path}: {e}") from e
+
+    checksum = md5_hash.hexdigest() if md5_hash else None
+    logger.info(f"download complete: {downloaded_size / (1024 * 1024):.2f} MB")
+
+    return DownloadResult(url=url, destination=dest_path, size_bytes=downloaded_size, checksum=checksum)
 
 
 def multiple_urls_split(url: str) -> list[str] | str:

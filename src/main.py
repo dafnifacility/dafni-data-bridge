@@ -4,7 +4,7 @@ import os
 import sys
 
 from client import Client
-from exceptions import AuthError, DownloadError, TokenValidationError
+from exceptions import AuthError, BucketNotFoundError, DownloadError, TokenValidationError
 from logger import setup_logging
 
 
@@ -102,6 +102,10 @@ Examples:
 
     except DownloadError as e:
         logger.error(f"download failed: {e}")
+        sys.exit(1)
+
+    except BucketNotFoundError as e:
+        logger.error(f"Upload failed {e}")
         sys.exit(1)
 
     except KeyboardInterrupt:
