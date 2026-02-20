@@ -4,7 +4,7 @@ import os
 import sys
 
 from client import Client
-from exceptions import AuthError, BucketNotFoundError, DownloadError, TokenValidationError
+from exceptions import AuthError, BucketNotFoundError, DownloadError, TokenValidationError, ValidationError
 from logger import setup_logging
 
 
@@ -91,6 +91,10 @@ Examples:
             logger.info(f"md5: {result.checksum}")
 
         print(f"\nsuccess: {result.destination}")
+
+    except ValidationError as e:
+        logger.error(f"url validation failed: {e}")
+        sys.exit(1)
 
     except TokenValidationError as e:
         logger.error(f"token validation failed: {e}")
