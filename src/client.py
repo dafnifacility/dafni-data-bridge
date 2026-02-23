@@ -67,8 +67,11 @@ class Client:
     @classmethod
     def ftp_login(cls, url, username, password):
         parsed = urlparse(url)
+        host = parsed.hostname
+        port = parsed.port or 21
         logger.info(f"Connecting to server: {parsed.netloc}")
-        ftp_session = FTP(parsed.netloc)
+        ftp_session = FTP()
+        ftp_session.connect(host, port)
         ftp_session.login(username, password)
         ftp_session.voidcmd("TYPE I")
         return cls(url=url, session=ftp_session)

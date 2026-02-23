@@ -31,11 +31,12 @@ def resolve_destination(url: str, destination: Optional[str | Path]) -> Path:
 
     if isinstance(destination, str):
         parsed = urlparse(destination)
-        if destination.startswith("https://s3"):
+        if destination.startswith("https://"):
             path = parsed.path.split("/")
-            bucket = path[1]
-            key = f"{path[2]}/{filename}"
-            return {"endpoint": destination, "bucket": bucket, "key": key}
+            bucket = parsed.netloc.split(".")[0]
+            endpoint = "https://" + parsed.netloc.replace(f"{bucket}.", "")
+            key = f"{path[1]}/{filename}"
+            return {"endpoint": endpoint, "bucket": bucket, "key": key}
 
     if destination is None:
         return Path.cwd() / filename
