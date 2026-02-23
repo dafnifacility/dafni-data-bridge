@@ -8,10 +8,10 @@ import boto3
 import botocore
 import requests
 from botocore.config import Config
-from exceptions import BucketNotFoundError
 from mypy_boto3_s3 import S3Client as S3ClientBoto3
 
-from downloader.models import ProgressCallback
+from ceda_download_tool.downloader.models import ProgressCallback
+from ceda_download_tool.exceptions import BucketNotFoundError
 
 logger = logging.getLogger(__name__)
 

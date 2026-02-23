@@ -5,9 +5,8 @@ from pathlib import Path
 from typing import Optional
 from urllib.parse import unquote, urlparse
 
-from exceptions import DownloadError, ValidationError
-
-from downloader.models import DownloadResult, ProgressCallback
+from ceda_download_tool.downloader.models import DownloadResult, ProgressCallback
+from ceda_download_tool.exceptions import DownloadError, ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +49,13 @@ def resolve_destination(url: str, destination: Optional[str | Path]) -> Path:
         return dest_path / filename
 
     return dest_path
+
+
+def append_bucket_url(destination: dict) -> str:
+    """append bucket name to s3 endpoint for recursive downloads"""
+
+    parsed = urlparse(destination["endpoint"])
+    return f"https://{destination["bucket"]}.{parsed.netloc}/{destination['key']}"
 
 
 def download_local(
@@ -120,7 +126,7 @@ def multiple_url_download(
     session=None,
 ) -> list[DownloadResult]:
     """download all files from list of"""
-    from downloader import get_downloader
+    from ceda_download_tool.downloader import get_downloader
 
     download_list = []
     for file_url in url:

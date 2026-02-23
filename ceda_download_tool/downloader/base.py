@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from downloader.models import DownloadResult, ProgressCallback
+from ceda_download_tool.downloader.models import DownloadResult, ProgressCallback
 
 
 class BaseDownloader(ABC):

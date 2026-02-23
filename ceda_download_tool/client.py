@@ -4,13 +4,14 @@ from pathlib import Path
 from typing import Optional
 from urllib.parse import urlparse
 
-from auth import Auth
-from downloader import get_downloader
-from downloader.models import DownloadResult
-from downloader.progress_logger import ProgressLogger
-from exceptions import ValidationError
 from requests import Session
-from session import SessionConfig, SessionManager
+
+from ceda_download_tool.auth import Auth
+from ceda_download_tool.downloader import get_downloader
+from ceda_download_tool.downloader.models import DownloadResult
+from ceda_download_tool.downloader.progress_logger import ProgressLogger
+from ceda_download_tool.exceptions import ValidationError
+from ceda_download_tool.session import SessionConfig, SessionManager
 
 logger = logging.getLogger(__name__)
 

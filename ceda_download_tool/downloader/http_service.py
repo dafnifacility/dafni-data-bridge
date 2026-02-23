@@ -4,10 +4,10 @@ from typing import Optional
 from urllib.parse import urljoin, urlparse
 
 import requests
-from exceptions import DownloadError
 
-from downloader.base import BaseDownloader
-from downloader.download_utils import (
+from ceda_download_tool.downloader.base import BaseDownloader
+from ceda_download_tool.downloader.download_utils import (
+    append_bucket_url,
     download_local,
     logger,
     multiple_download_result,
@@ -15,8 +15,9 @@ from downloader.download_utils import (
     multiple_urls_split,
     resolve_destination,
 )
-from downloader.models import DownloadResult, ProgressCallback
-from downloader.s3_upload import S3Client
+from ceda_download_tool.downloader.models import DownloadResult, ProgressCallback
+from ceda_download_tool.downloader.s3_upload import S3Client
+from ceda_download_tool.exceptions import DownloadError
 
 
 class HTTPDownloader(BaseDownloader):
@@ -169,11 +170,12 @@ class HTTPDownloader(BaseDownloader):
 
     def _recursive_download(self, url, destination, calculate_checksum, progress_callback) -> list[DownloadResult]:
         """download all files in a directory"""
-
+        print("init", destination)
         file_list = []
         contents = self._directory_contents_json(url)
         if isinstance(destination, dict):
-            destination = destination["endpoint"]
+            destination = append_bucket_url(destination)
+            print(destination)
         for item in contents["items"]:
             item_url = urljoin(url, item["path"])
             dest_path = f"{destination}/{item["name"]}"

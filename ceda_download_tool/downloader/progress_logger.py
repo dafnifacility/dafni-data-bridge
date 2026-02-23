@@ -1,7 +1,7 @@
 import logging
 from typing import Callable
 
-from downloader.models import ProgressCallback
+from ceda_download_tool.downloader.models import ProgressCallback
 
 logger = logging.getLogger(__name__)
 

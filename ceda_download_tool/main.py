@@ -3,9 +3,15 @@ import logging
 import os
 import sys
 
-from client import Client
-from exceptions import AuthError, BucketNotFoundError, DownloadError, TokenValidationError, ValidationError
-from logger import setup_logging
+from ceda_download_tool.client import Client
+from ceda_download_tool.exceptions import (
+    AuthError,
+    BucketNotFoundError,
+    DownloadError,
+    TokenValidationError,
+    ValidationError,
+)
+from ceda_download_tool.logger import setup_logging
 
 
 def main():
@@ -14,16 +20,16 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 
-Examples:
-  # download with token
-  python main.py --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --dest ./data/
+    Examples:
+    # download with token
+    python main.py --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --dest ./data/
 
-  # generate token and download
-  python main.py --username USER --password PASS --url https://dap.ceda.ac.uk/...
+    # generate token and download
+    python main.py --username USER --password PASS --url https://dap.ceda.ac.uk/...
 
-  # download with debug logging
-  python main.py --token YOUR_TOKEN --url URL --debug
-        """,
+    # download with debug logging
+    python main.py --token YOUR_TOKEN --url URL --debug
+            """,
     )
 
     # authentication options

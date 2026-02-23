@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
-from downloader.base import BaseDownloader
-from downloader.download_utils import (
+from ceda_download_tool.downloader.base import BaseDownloader
+from ceda_download_tool.downloader.download_utils import (
     download_local,
     extract_filename,
     logger,
@@ -14,8 +14,8 @@ from downloader.download_utils import (
     multiple_urls_split,
     resolve_destination,
 )
-from downloader.models import DownloadResult, ProgressCallback
-from downloader.s3_upload import S3Client
+from ceda_download_tool.downloader.models import DownloadResult, ProgressCallback
+from ceda_download_tool.downloader.s3_upload import S3Client
 
 
 class FTPDownloader(BaseDownloader):
