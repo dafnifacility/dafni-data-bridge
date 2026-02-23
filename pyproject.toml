@@ -1,5 +1,5 @@
 [project]
-name = "dft"
+name = "CEDA-Download-Tool"
 version = "0.1.0"
 description = "data federation tool"
 readme = "README.md"
@@ -9,8 +9,14 @@ dependencies = [
     "boto3>=1.42.47",
     "cdsapi>=0.7.7",
     "ipykernel>=6.30.1",
+    "moto[all,ec2,s3]>=5.1.21",
     "mypy-boto3-s3>=1.42.37",
+    "pre-commit>=4.5.1",
+    "pyftpdlib>=2.2.0",
     "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "requests-mock>=1.12.1",
+    "ruff>=0.15.1",
 ]
 
 [tool.ruff]
@@ -23,3 +29,6 @@ exclude = [
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
