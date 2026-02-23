@@ -1,0 +1,55 @@
+kind: M
+api_version: v1beta3
+metadata:
+  display_name: Dataset Download Tool Model
+  name: download-tool
+  summary: Download datasets from CEDA archive or Jasmin
+  type: model
+  publisher: DAFNI
+  contact_point_name:  DAFNI
+  contact_point_email: info@dafni.ac.uk
+  description: >
+    This model allows you to download datasets directly to DAFNI from CEDA or JASMIN. Allowing you to run training models
+spec:
+  inputs:
+    parameters:
+      - name: USERNAME
+        title: Username
+        description: CEDA username (requires --password)
+        type: string
+        default: anonymous
+        required: true
+
+      - name: PASSWORD
+        title: Password
+        description: CEDA password (required with --username)
+        type: string
+        default: anonymous
+        required: true
+
+      - name: URL
+        title: URL
+        description: URL of file/directory to download
+        type: string
+        default: Enter URL
+        required: true
+      
+      - name: DEST
+        title: Destination
+        description: destination of file/directory to download
+        type: string
+        default: Enter Destination
+        required: true
+
+      - name: CHECKSUM
+        title: Checksum
+        description: generate checksum
+        type: boolean
+        default: true
+        required: false
+
+  outputs:
+      datasets:
+      - name: data
+        type: dir
+        description: downlaoded files
