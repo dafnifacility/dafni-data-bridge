@@ -29,4 +29,6 @@ class ValidationError(DownloadError):
 
 
 class BucketNotFoundError(DFTError):
+    """raised when S3 Bucket is not found."""
+
     pass

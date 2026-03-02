@@ -5,14 +5,14 @@ from typing import Callable, Optional
 
 @dataclass
 class DownloadResult:
-    """
-    Represents the metadata of downloaded files.
+    """Represents the metadata of downloaded files.
 
     Attributes:
         url: The source URL or a list of URLs from which data was retrieved.
         destination: The local Path or list of Paths where files were saved.
         size_bytes: The total size of the downloaded data in bytes.
         checksum: An optional hash (e.g., MD5, SHA-256) for file verification
+
     """
 
     url: str | list[str]
