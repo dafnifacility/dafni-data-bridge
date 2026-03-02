@@ -80,7 +80,7 @@ def mock_ftp_server(tmp_path):
 
 @pytest.fixture(autouse=True)
 def reset_logging():
-    """ensure logs are reset so there are no conflicts"""
+    """Ensure logs are reset so there are no conflicts"""
     yield
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)

@@ -3,8 +3,9 @@ import sys
 from unittest.mock import patch
 
 import boto3
-from main import main
 from moto import mock_aws
+
+from ceda_download_tool.main import main
 
 
 @mock_aws

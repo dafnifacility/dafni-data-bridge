@@ -1,22 +1,29 @@
 [project]
-name = "CEDA-Download-Tool"
-version = "0.1.0"
-description = "data federation tool"
+name = "ceda-download-tool"
+authors = [{name="Muhammad Mohsin", email="muhammad.mohsin@stfc.ac.uk"},]
+version = "0.1.4"
+description = "Download tool to install datasets"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "beautifulsoup4>=4.14.3",
     "boto3>=1.42.47",
+    "bs4>=0.0.2",
     "cdsapi>=0.7.7",
     "ipykernel>=6.30.1",
     "moto[all,ec2,s3]>=5.1.21",
     "mypy-boto3-s3>=1.42.37",
-    "pre-commit>=4.5.1",
+    "paramiko>=4.0.0",
+]
+
+[project.optional-dependencies]
+tests = [
     "pyftpdlib>=2.2.0",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "requests-mock>=1.12.1",
     "ruff>=0.15.1",
+    "moto[all,ec2,s3]>=5.1.21",
+    "pre-commit>=4.5.1",
 ]
 
 [tool.ruff]
@@ -30,5 +37,17 @@ exclude = [
 quote-style = "double"
 indent-style = "space"
 
+[build-system]
+requires = ["uv_build >= 0.10.0, <0.11.0"]
+build-backend = "uv_build"
+
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["ceda_download_tool"]
+
+[tool.uv.build-backend]
+module-name = "ceda_download_tool"
+module-root = ""
+
+[project.scripts]
+ceda-download-tool = "ceda_download_tool.main:main"
+cdtool = "ceda_download_tool.main:main"
