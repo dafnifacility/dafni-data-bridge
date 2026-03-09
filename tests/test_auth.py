@@ -2,7 +2,8 @@ import sys
 from unittest.mock import patch
 
 import pytest
-from main import main
+
+from ceda_download_tool.main import main
 
 
 def test_token_auth(mock_token, mock_file, requests_mock, tmp_path):
@@ -11,7 +12,7 @@ def test_token_auth(mock_token, mock_file, requests_mock, tmp_path):
     dest_dir.mkdir()
 
     test_args = [
-        "main.py",
+        "ceda-download-tool ",
         "--token",
         "mock-token-abc",
         "--url",
@@ -25,7 +26,6 @@ def test_token_auth(mock_token, mock_file, requests_mock, tmp_path):
         main()
 
     file_request = requests_mock.request_history[0]
-
     assert file_request.headers["Authorization"] == "Bearer mock-token-abc"
 
 
@@ -34,7 +34,7 @@ def test_auth_login(mock_token, mock_file, requests_mock, tmp_path):
     dest_dir = tmp_path / "data"
     dest_dir.mkdir()
 
-    test_args = [
+    cmd = [
         "main.py",
         "--username",
         "testuser",
@@ -47,7 +47,7 @@ def test_auth_login(mock_token, mock_file, requests_mock, tmp_path):
         "--checksum",
     ]
 
-    with patch.object(sys, "argv", test_args):
+    with patch.object(sys, "argv", cmd):
         main()
 
     file_request = requests_mock.request_history[0]

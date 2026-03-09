@@ -35,6 +35,25 @@ ceda-download-tool \
     --dest ./data/ \
     --checksum --debug
 
+# 5. From FTP server
+ceda-download-tool \
+    -u anonymous -p user@email.com \
+    --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724155203-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02083-v2.30.nc"\
+    --dest https://mmceda.s3.echo.stfc.ac.uk/ftp --checksum
+
+# 6. From Jasmin GWS Access
+ceda-download-tool --no_auth --url "https://gws-access.jasmin.ac.uk/public/acpc/acpc/pmarin/Base_States_Apr2020/CAPE_CIN_basestateshear_pdifML500_.pdf" --dest ./data/ --checksum
+
+# 7. From SSH
+ceda-download-tool --ssh "ip.jasmin.ac.uk" --username username -key_file ~/.ssh/jasmin.key --ssh-download-path /gws/path/to/file --dest ./data/
+
+# Download to S3 bucket
+ceda-download-tool \
+    -u $USERNAME -p $PASSWORD \
+    --url "https://data.ceda.ac.uk/badc/cmip6/data/CMIP6/HighResMIP/BCC/BCC-CSM2-HR/highresSST-present/r1i1p1f1/Amon/ts/gn/files" \
+    --dest https://bucket.s3.endpoint/key \
+    --checksum --debug
+
 # building package
 uv build -n --clear
 uv run --with dist/ceda_download_tool-0.1.0-py3-none-any.whl --no-project -- python -c "import ceda_download_tool" --refresh-package

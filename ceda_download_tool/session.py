@@ -28,16 +28,16 @@ class SessionConfig:
 
 
 class SessionManager:
-    """
-    manages http sessions with retry logic and authentication.
+    """manages http sessions with retry logic and authentication.
 
-    example:
+    Example:
         auth = TokenAuth(token="your_token")              # with token authentication
         manager = SessionManager(auth=auth)
         session = manager.session
 
         config = SessionConfig(timeout=60, max_retries=5) # custom configuration
         manager = SessionManager(auth=auth, config=config)
+
     """
 
     def __init__(self, auth: Optional[Auth] = None, config: Optional[SessionConfig] = None):
@@ -92,8 +92,7 @@ class SessionManager:
 
 
 def create_session(timeout: int = 30, auth: Optional[Auth] = None, max_retries: int = 3) -> requests.Session:
-    """
-    create a configured requests session (convenience function).
+    """Create a configured requests session (convenience function).
 
     Args:
         timeout: request timeout in seconds.
@@ -102,6 +101,7 @@ def create_session(timeout: int = 30, auth: Optional[Auth] = None, max_retries: 
 
     Returns:
         configured requests.Session instance.
+
     """
     config = SessionConfig(timeout=timeout, max_retries=max_retries)
     manager = SessionManager(auth=auth, config=config)

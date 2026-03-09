@@ -25,21 +25,21 @@ class TokenInfo:
 
 
 class Auth:
-    """
-    Example:
-        auth = Auth(token="your_access_token")               # with existing token
-        auth = Auth.from_credentials("username", "password") # generate new token
+    """Example:
+    auth = Auth(token="your_access_token")               # with existing token
+    auth = Auth.from_credentials("username", "password") # generate new token
+
     """
 
     def __init__(self, token: str):
-        """
-        initialize with an existing access token
+        """Initialize with an existing access token
 
         Args:
             token: a valid jwt ceda access token
 
         Raises:
             TokenValidationError: if token is empty or invalid format.
+
         """
         self._validate_token(token)
         self._token_info = TokenInfo(access_token=token)
@@ -47,8 +47,7 @@ class Auth:
 
     @classmethod
     def from_credentials(cls, username: str, password: str, timeout: int = 30) -> "Auth":
-        """
-        generate a new access token from ceda credentials.
+        """Generate a new access token from ceda credentials.
 
         Args:
             username: ceda account username.
@@ -61,6 +60,7 @@ class Auth:
         Raises:
             AuthError: if token generation fails.
             TokenValidationError: if credentials are invalid.
+
         """
         cls._validate_credentials(username, password)
 

@@ -8,14 +8,14 @@ logger = logging.getLogger(__name__)
 
 class ProgressLogger:
     def create_progress_logger(log_interval_mb: float = 10.0) -> ProgressCallback:
-        """
-        create a progress callback that logs download progress.
+        """Create a progress callback that logs download progress.
 
         Args:
             log_interval_mb: log progress every N megabytes.
 
         Returns:
             progress callback function.
+
         """
         last_logged_mb = [0.0]
 
@@ -35,14 +35,14 @@ class ProgressLogger:
         return log_progress
 
     def create_progress_bar(desc: str = "downloading") -> tuple[ProgressCallback, Callable[[], None]]:
-        """
-        create a simple console progress bar.
+        """Create a simple console progress bar.
 
         Args:
             desc: description to show before progress bar.
 
         Returns:
             tuple of (progress_callback, close_function).
+
         """
         state = {"last_percent": -1}
 

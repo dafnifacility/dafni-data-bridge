@@ -10,8 +10,7 @@ def setup_logging(
     log_format: Optional[str] = None,
     date_format: Optional[str] = None,
 ) -> logging.Logger:
-    """
-    Args:
+    """Args:
         level: logging level (e.g., logging.INFO, logging.DEBUG)
         log_file: optional path to log file. If provided, logs to both console and file
         log_format: custom log format string
@@ -26,6 +25,7 @@ def setup_logging(
             level=logging.DEBUG,
             log_file="downloads.log"
         )
+
     """
     if log_format is None:
         log_format = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"

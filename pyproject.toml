@@ -7,9 +7,12 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "boto3>=1.42.47",
+    "bs4>=0.0.2",
     "cdsapi>=0.7.7",
     "ipykernel>=6.30.1",
+    "moto[all,ec2,s3]>=5.1.21",
     "mypy-boto3-s3>=1.42.37",
+    "paramiko>=4.0.0",
 ]
 
 [project.optional-dependencies]

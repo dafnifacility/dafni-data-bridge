@@ -2,7 +2,8 @@ import sys
 from unittest.mock import patch
 
 import pytest
-from main import main
+
+from ceda_download_tool.main import main
 
 
 def test_local_download(mock_file, requests_mock, tmp_path):

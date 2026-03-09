@@ -1,17 +1,15 @@
-import ftplib
 import hashlib
 import logging
 import os
-from typing import Optional
+from typing import Iterable, Optional
 
 import boto3
-import botocore
-import requests
 from botocore.config import Config
+from botocore.exceptions import ClientError
 from mypy_boto3_s3 import S3Client as S3ClientBoto3
 
 from ceda_download_tool.downloader.models import ProgressCallback
-from ceda_download_tool.exceptions import BucketNotFoundError
+from ceda_download_tool.exceptions import AuthError, BucketNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -21,14 +19,16 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 class S3Client:
-    """
-    S3 file uploader class
+    """S3 file uploader class
 
     This class opens an S3 client and uploads chunks
 
     Args:
         s3_endpoint: str of endpoint to s3
+
     """
+
+    CHUNK_SIZE = 5 * 1024 * 1024
 
     def __init__(self, s3_endpoint):
         self._client: S3ClientBoto3 = boto3.client(
@@ -40,79 +40,82 @@ class S3Client:
             config=CONFIG,
         )
 
-    # TODO method size too long refactor client class to handle download logic
     def upload_to_s3(
         self,
-        response: ftplib.FTP | requests.Session,
+        chunk_iter: Iterable[bytes],
         bucket: str,
-        object: str,
-        chunk_size: int,
+        key: str,
+        total_size: float = 0,
         calculate_checksum: bool = False,
         progress_callback: Optional[ProgressCallback] = None,
-        total_size: float = 0,
-        parsed_path: Optional[str] = None,
     ) -> dict:
         md5_hash = hashlib.md5() if calculate_checksum else None
         downloaded_size = 0
+
         try:
-            part_upload_init = self._client.create_multipart_upload(Bucket=bucket, Key=object)
+            part_upload_init = self._client.create_multipart_upload(Bucket=bucket, Key=key)
             upload_id = part_upload_init["UploadId"]
             parts_list = []
             part_num = 1
+            uploaded_size = 0
+            buffer = bytearray()
 
-            match response:
-                case requests.models.Response():
-                    for chunk in response.iter_content(chunk_size=chunk_size):
-                        part_upload = self._client.upload_part(
-                            Body=chunk, Bucket=bucket, Key=object, PartNumber=part_num, UploadId=upload_id
-                        )
+            for chunk in chunk_iter:
+                buffer.extend(chunk)
+                uploaded_size += len(chunk)
 
-                        if md5_hash:
-                            md5_hash.update(chunk)
+                if md5_hash:
+                    md5_hash.update(chunk)
 
-                        if progress_callback:
-                            progress_callback(downloaded_size, total_size)
+                if len(buffer) >= self.CHUNK_SIZE:
+                    etag = self._upload_part(bucket, key, upload_id, part_num, bytes(buffer))
+                    parts_list.append({"PartNumber": part_num, "ETag": etag})
+                    part_num += 1
+                    buffer.clear()
 
-                        parts_list.append({"PartNumber": part_num, "ETag": part_upload["ETag"]})
-                        part_num += 1
+                if progress_callback:
+                    progress_callback(downloaded_size, total_size)
 
-                case ftplib.FTP():
-                    buffer = bytearray()
+            if buffer:
+                etag = self._upload_part(bucket, key, upload_id, part_num, bytes(buffer))
+                parts_list.append({"PartNumber": part_num, "ETag": etag})
 
-                    def chunk_download(data):
-                        nonlocal downloaded_size, part_num, buffer
-                        buffer.extend(data)
-                        downloaded_size += len(data)
-                        md5_hash.update(data)
-                        if len(buffer) >= chunk_size:
-                            part_upload = self._client.upload_part(
-                                Body=bytes(buffer), Bucket=bucket, Key=object, PartNumber=part_num, UploadId=upload_id
-                            )
-                            parts_list.append({"PartNumber": part_num, "ETag": part_upload["ETag"]})
-                            part_num += 1
-                            buffer.clear()
-
-                        if progress_callback:
-                            progress_callback(downloaded_size, total_size)
-
-                    response.retrbinary(f"RETR {parsed_path}", chunk_download, blocksize=chunk_size)
-                    if len(buffer) > 0:
-                        part_upload = self._client.upload_part(
-                            Body=bytes(buffer), Bucket=bucket, Key=object, PartNumber=part_num, UploadId=upload_id
-                        )
-                        parts_list.append({"PartNumber": part_num, "ETag": part_upload["ETag"]})
-
-            s3_result = self._client.complete_multipart_upload(
-                Bucket=bucket, Key=object, UploadId=upload_id, MultipartUpload={"Parts": parts_list}
+            result = self._client.complete_multipart_upload(
+                Bucket=bucket,
+                Key=key,
+                UploadId=upload_id,
+                MultipartUpload={"Parts": parts_list},
             )
+
             checksum = md5_hash.hexdigest() if md5_hash else None
-            logger.info(f"upload complete: {downloaded_size / (1024 * 1024):.2f} MB")
 
-            return {"destination": s3_result["Location"], "size_bytes": downloaded_size, "checksum": checksum}
+            return {
+                "destination": result["Location"],
+                "size_bytes": uploaded_size,
+                "checksum": checksum,
+            }
+        except self._client.exceptions.NoSuchBucket:
+            logger.error("bucket not found")
+            raise BucketNotFoundError(
+                f"failed to upload to bucket: {bucket}" "please use aws format: https://[BUCKET].[S3 ENDPOINT]/DIR"
+            )
+        except ClientError as e:
+            logger.error(f"client error {e}")
+            raise AuthError(f"Cannot access {bucket}: {e}")
 
-        except botocore.exceptions.ClientError as error:
-            error_response = error.response["Error"]["Code"]
-
-            if error_response == "NoSuchBucket":
-                logger.error(f"Upload failed {error_response}")
-                raise BucketNotFoundError(f"Failed to upload to bucket {bucket}: {error_response}") from error
+    def _upload_part(
+        self,
+        bucket: str,
+        key: str,
+        upload_id: str,
+        part_number: int,
+        data: bytes,
+    ) -> str:
+        response = self._client.upload_part(
+            Bucket=bucket,
+            Key=key,
+            PartNumber=part_number,
+            UploadId=upload_id,
+            Body=data,
+        )
+        return response["ETag"]

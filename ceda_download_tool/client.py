@@ -1,24 +1,25 @@
 import logging
-from ftplib import FTP
+from ftplib import FTP, error_perm
 from pathlib import Path
+from socket import gaierror
 from typing import Optional
 from urllib.parse import urlparse
 
+from paramiko import AuthenticationException, SSHClient
 from requests import Session
 
 from ceda_download_tool.auth import Auth
 from ceda_download_tool.downloader import get_downloader
 from ceda_download_tool.downloader.models import DownloadResult
 from ceda_download_tool.downloader.progress_logger import ProgressLogger
-from ceda_download_tool.exceptions import ValidationError
-from ceda_download_tool.session import SessionConfig, SessionManager
+from ceda_download_tool.exceptions import AuthError, ValidationError
+from ceda_download_tool.session import create_session
 
 logger = logging.getLogger(__name__)
 
 
 class Client:
-    """
-    high-level client for downloading data from ceda archives,
+    """high-level client for downloading data from ceda archives,
     provides simple interface combining authentication, session, downloads
 
     Example:
@@ -30,6 +31,7 @@ class Client:
 
         client = Client.ftp_login("anonymous", "user@email.com") # with ftp with email as password
         result = client.download(url)
+
     """
 
     def __init__(
@@ -40,7 +42,7 @@ class Client:
         timeout: int = 30,
         max_retries: int = 3,
     ):
-        if token:
+        if token or token == "no_auth":
             self._token = token
             self._session = self.create_session(token=token, timeout=timeout, max_retries=max_retries)
         else:
@@ -55,15 +57,24 @@ class Client:
     ) -> "Client":
         logger.info(f"Generating token for user: {username}")
         auth = Auth.from_credentials(username, password, timeout=timeout)
-        session = cls.create_session(token=auth.token, timeout=timeout, max_retries=max_retries)
+        session = create_session(auth=auth)
         return cls(url=url, session=session)
 
     @staticmethod
     def create_session(token, timeout, max_retries):
-        auth = Auth(token=token)
-        config = SessionConfig(timeout=timeout, max_retries=max_retries)
-        session_manager = SessionManager(auth=auth, config=config)
-        return session_manager.session
+        auth = Auth(token=token) if token != "no_auth" else None
+        return create_session(auth=auth)
+
+    @classmethod
+    def ssh_client(cls, url, hostname, username, key_filename) -> "Client":
+        ssh = SSHClient()
+        ssh.load_system_host_keys()
+        try:
+            ssh.connect(hostname=hostname, username=username, key_filename=key_filename)
+            return cls(url=url, session=ssh)
+        except AuthenticationException as e:
+            logger.error(f"Could not access {hostname}: {e}")
+            raise AuthError(f"Could not access {hostname}: {e}")
 
     @classmethod
     def ftp_login(cls, url, username, password):
@@ -71,11 +82,18 @@ class Client:
         host = parsed.hostname
         port = parsed.port or 21
         logger.info(f"Connecting to server: {parsed.netloc}")
-        ftp_session = FTP()
-        ftp_session.connect(host, port)
-        ftp_session.login(username, password)
-        ftp_session.voidcmd("TYPE I")
-        return cls(url=url, session=ftp_session)
+        try:
+            ftp_session = FTP()
+            ftp_session.connect(host, port)
+            ftp_session.login(username, password)
+            ftp_session.voidcmd("TYPE I")
+            return cls(url=url, session=ftp_session)
+        except gaierror as e:
+            logger.error(f"Could not access {url}")
+            raise ValidationError(f"Invalid URL: {url}: {e}")
+        except error_perm as e:
+            logger.error("Access error! NOTE: use anonymous as username and email as password for CEDA FTP")
+            raise AuthError(f"Could not access {url}: {e}")
 
     def download(
         self,
@@ -84,8 +102,7 @@ class Client:
         show_progress: bool = True,
         calculate_checksum: bool = False,
     ) -> DownloadResult:
-        """
-        Args:
+        """Args:
             url: url to download
             destination: target file path or directory
             show_progress: whether to show progress bar
@@ -93,6 +110,7 @@ class Client:
 
         Returns:
             DownloadResult
+
         """
         progress_callback = None
         close_progress = None
@@ -112,18 +130,6 @@ class Client:
                 close_progress()
 
         return result
-
-    def download_bytes(self, url: str) -> bytes:
-        """
-        download file content to memory
-
-        Args:
-            url: url to download
-
-        Returns:
-            file content as bytes
-        """
-        return self._downloader.download_bytes(url)
 
     @staticmethod
     def validate_url(url: str) -> None:
