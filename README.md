@@ -31,7 +31,7 @@ ceda-download-tool \
 # 4. A list of files
 ceda-download-tool \
     -u $USERNAME -p $PASSWORD \
-    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/FILES_ON_TAPE.txt?download=1, https://dap.ceda.ac.uk/badc/cmip6/data/CMIP6/HighResMIP/BCC/BCC-CSM2-HR/highresSST-present/r1i1p1f1/Amon/ts/gn/files/d20200815/ts_Amon_BCC-CSM2-HR_highresSST-present_r1i1p1f1_gn_200001-201412.nc"\
+    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/FILES_ON_TAPE.txt?download=1| https://dap.ceda.ac.uk/badc/cmip6/data/CMIP6/HighResMIP/BCC/BCC-CSM2-HR/highresSST-present/r1i1p1f1/Amon/ts/gn/files/d20200815/ts_Amon_BCC-CSM2-HR_highresSST-present_r1i1p1f1_gn_200001-201412.nc"\
     --dest ./data/ \
     --checksum --debug
 
