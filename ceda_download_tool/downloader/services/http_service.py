@@ -82,6 +82,8 @@ class HTTPDownloader(BaseDownloader):
         try:
             response = self._session.get(url, stream=True)
             response.raise_for_status()
+            if response.headers["Content-Type"] == "text/html; charset=utf-8":
+                raise DownloadError("File not accesssible! Check login or file URL")
         except requests.RequestException as e:
             logger.error(
                 f"download request failed: {e} \nNOTE:"

@@ -29,10 +29,11 @@ def resolve_destination(url: str, destination: Optional[str | Path]) -> Path:
     if isinstance(destination, str):
         parsed = urlparse(destination)
 
-        if destination.startswith("https://"):
+        if destination.startswith(("https://", "http://")):
+            print(parsed)
             path = parsed.path.split("/")
             bucket = parsed.netloc.split(".")[0]
-            endpoint = "https://" + parsed.netloc.replace(f"{bucket}.", "")
+            endpoint = parsed.scheme + "://" + parsed.netloc.replace(f"{bucket}.", "")
             key = f"{path[1]}/{filename}"
             return {"endpoint": endpoint, "bucket": bucket, "key": key}
 

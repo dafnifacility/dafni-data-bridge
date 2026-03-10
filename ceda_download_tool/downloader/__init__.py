@@ -1,3 +1,4 @@
+import os
 from ftplib import FTP
 from typing import Optional
 
@@ -9,6 +10,8 @@ from ceda_download_tool.downloader.services.http_gws import HTTPDownloaderGWS
 from ceda_download_tool.downloader.services.http_service import HTTPDownloader
 from ceda_download_tool.downloader.services.ssh_service import SSHDownloader
 
+GWS_HOST = os.environ.get("GWS_BASE_URL", "https://gws-access")
+
 
 def get_downloader(url: str, session: Optional[Session | FTP | SSHClient] = None):
     """Factory function to call appropriate downloader instance based on protocol
@@ -18,7 +21,7 @@ def get_downloader(url: str, session: Optional[Session | FTP | SSHClient] = None
         session: A session object for the connection.
 
     """
-    if url.startswith("https://gws-access"):
+    if url.startswith(GWS_HOST):
         return HTTPDownloaderGWS(session=session)
     elif url.startswith(("http://", "https://")):
         return HTTPDownloader(session=session)
