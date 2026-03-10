@@ -52,5 +52,5 @@ module-name = "ceda_download_tool"
 module-root = ""
 
 [project.scripts]
-ceda-download-tool = "ceda_download_tool.main:main"
-cdtool = "ceda_download_tool.main:main"
+ceda-download-tool = "ceda_download_tool.cli.main:main"
+cdtool = "ceda_download_tool.cli.main:main"

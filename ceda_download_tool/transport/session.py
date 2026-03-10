@@ -6,7 +6,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from ceda_download_tool.auth import Auth
+from ceda_download_tool.transport.auth import Auth
 
 logger = logging.getLogger(__name__)
 

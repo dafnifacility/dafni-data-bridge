@@ -8,12 +8,12 @@ from urllib.parse import urlparse
 from paramiko import AuthenticationException, SSHClient
 from requests import Session
 
-from ceda_download_tool.auth import Auth
 from ceda_download_tool.downloader import get_downloader
 from ceda_download_tool.downloader.models import DownloadResult
 from ceda_download_tool.downloader.progress_logger import ProgressLogger
 from ceda_download_tool.exceptions import AuthError, ValidationError
-from ceda_download_tool.session import create_session
+from ceda_download_tool.transport.auth import Auth
+from ceda_download_tool.transport.session import create_session
 
 logger = logging.getLogger(__name__)
 
