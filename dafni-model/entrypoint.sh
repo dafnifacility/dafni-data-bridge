@@ -1,8 +1,8 @@
 #!/bin/sh
 
 ceda-download-tool \
-    -u "$USERNAME" \
-    -p "$PASSWORD" \
+    --username "$USERNAME" 
+    --p\
     --url "$URL" \
-    --dest "$DEST" \
+    --dest "/data/outputs/" \
     --checksum --debug
