@@ -91,9 +91,7 @@ class ConfigLoader:
         For each key in file_data, only apply it when the CLI did not provide a value.
         """
         merged = vars(cli_args).copy()
-
-        # argparse defaults for store_true actions are None
-        defaults = {None, ""}
+        defaults = {None, "", False}
 
         for key, file_value in file_data.items():
             if key == "config":
@@ -101,7 +99,10 @@ class ConfigLoader:
             if key not in merged:
                 continue
             if merged[key] in defaults:
-                merged[key] = file_value
+                if isinstance(merged[key], bool):
+                    merged[key] = True
+                else:
+                    merged[key] = file_value
 
         return argparse.Namespace(**merged)
 
