@@ -10,7 +10,7 @@ def test_ftp_login(mock_ftp_server, tmp_path):
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "--username",
             "anonymous",
             "--password",
@@ -38,7 +38,7 @@ def test_ftp_login_failed(mock_ftp_server, tmp_path):
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "--username",
             "wrongusername",
             "--password",
