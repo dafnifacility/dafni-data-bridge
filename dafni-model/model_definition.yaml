@@ -19,8 +19,16 @@ spec:
         description: URL of file/directory to download
         type: string
         default: Enter URL
+        required: false
+
+    dataslots:
+      - name: cli-args
+        description: >
+          Username/Password/url
+        default:
+          - 149da5d4-4fa6-4750-92a0-ece7f4cd4a96
+        path: /data/inputs/
         required: true
-        
   outputs:
       datasets:
       - name: data

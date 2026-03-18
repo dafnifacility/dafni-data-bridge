@@ -7,6 +7,8 @@ COPY ceda_download_tool-0.1.4-py3-none-any.whl /src/ceda_download_tool-0.1.4-py3
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install /src/ceda_download_tool-0.1.4-py3-none-any.whl --no-cache-dir
 
+RUN mkdir -p /data/inputs
+
 RUN mkdir -p /data/outputs
 
 COPY entrypoint.sh /entrypoint.sh
