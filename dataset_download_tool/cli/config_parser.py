@@ -3,7 +3,7 @@ import json
 import logging
 from pathlib import Path
 
-from ceda_download_tool.exceptions import ValidationError
+from dataset_download_tool.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 

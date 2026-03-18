@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Optional
 from urllib.parse import unquote, urlparse
 
-from ceda_download_tool.downloader.models import DownloadResult, ProgressCallback
-from ceda_download_tool.exceptions import ValidationError
+from dataset_download_tool.downloader.models import DownloadResult, ProgressCallback
+from dataset_download_tool.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ def multiple_url_download(
     session=None,
 ) -> list[DownloadResult]:
     """Download all files from list of"""
-    from ceda_download_tool.downloader import get_downloader
+    from dataset_download_tool.downloader import get_downloader
 
     download_list = []
     for file_url in url:

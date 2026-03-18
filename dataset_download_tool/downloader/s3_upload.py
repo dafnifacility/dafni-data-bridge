@@ -8,8 +8,8 @@ from botocore.config import Config
 from botocore.exceptions import ClientError
 from mypy_boto3_s3 import S3Client as S3ClientBoto3
 
-from ceda_download_tool.downloader.models import ProgressCallback
-from ceda_download_tool.exceptions import AuthError, BucketNotFoundError
+from dataset_download_tool.downloader.models import ProgressCallback
+from dataset_download_tool.exceptions import AuthError, BucketNotFoundError
 
 logger = logging.getLogger(__name__)
 

@@ -8,16 +8,16 @@ from typing import Iterable, Optional
 import requests
 from paramiko import SSHClient
 
-from ceda_download_tool.downloader.download_utils import (
+from dataset_download_tool.downloader.download_utils import (
     logger,
     multiple_download_result,
     multiple_url_download,
     multiple_urls_split,
     resolve_destination,
 )
-from ceda_download_tool.downloader.models import DownloadResult, ProgressCallback
-from ceda_download_tool.downloader.s3_upload import S3Client
-from ceda_download_tool.exceptions import ValidationError
+from dataset_download_tool.downloader.models import DownloadResult, ProgressCallback
+from dataset_download_tool.downloader.s3_upload import S3Client
+from dataset_download_tool.exceptions import ValidationError
 
 
 class BaseDownloader(ABC):

@@ -5,10 +5,10 @@ from typing import Optional
 from paramiko import SSHClient
 from requests import Session
 
-from ceda_download_tool.downloader.services.ftp_service import FTPDownloader
-from ceda_download_tool.downloader.services.http_gws import HTTPDownloaderGWS
-from ceda_download_tool.downloader.services.http_service import HTTPDownloader
-from ceda_download_tool.downloader.services.ssh_service import SSHDownloader
+from dataset_download_tool.downloader.services.ftp_service import FTPDownloader
+from dataset_download_tool.downloader.services.http_gws import HTTPDownloaderGWS
+from dataset_download_tool.downloader.services.http_service import HTTPDownloader
+from dataset_download_tool.downloader.services.ssh_service import SSHDownloader
 
 GWS_HOST = os.environ.get("GWS_BASE_URL", "https://gws-access")
 

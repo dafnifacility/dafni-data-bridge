@@ -1,8 +1,8 @@
 import paramiko
 
-from ceda_download_tool.downloader.base import BaseDownloader
-from ceda_download_tool.downloader.download_utils import append_bucket_url, extract_filename
-from ceda_download_tool.downloader.models import DownloadResult
+from dataset_download_tool.downloader.base import BaseDownloader
+from dataset_download_tool.downloader.download_utils import append_bucket_url, extract_filename
+from dataset_download_tool.downloader.models import DownloadResult
 
 
 class SSHDownloader(BaseDownloader):

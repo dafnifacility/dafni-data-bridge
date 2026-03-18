@@ -3,14 +3,14 @@ from ftplib import FTP, error_perm
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
-from ceda_download_tool.downloader.base import BaseDownloader
-from ceda_download_tool.downloader.download_utils import (
+from dataset_download_tool.downloader.base import BaseDownloader
+from dataset_download_tool.downloader.download_utils import (
     append_bucket_url,
     extract_filename,
     logger,
 )
-from ceda_download_tool.downloader.models import DownloadResult, ProgressCallback
-from ceda_download_tool.exceptions import ValidationError
+from dataset_download_tool.downloader.models import DownloadResult, ProgressCallback
+from dataset_download_tool.exceptions import ValidationError
 
 
 class FTPDownloader(BaseDownloader):

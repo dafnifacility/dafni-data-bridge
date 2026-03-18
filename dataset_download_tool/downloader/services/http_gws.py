@@ -2,9 +2,9 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
-from ceda_download_tool.downloader.download_utils import append_bucket_url
-from ceda_download_tool.downloader.models import DownloadResult
-from ceda_download_tool.downloader.services.http_service import HTTPDownloader
+from dataset_download_tool.downloader.download_utils import append_bucket_url
+from dataset_download_tool.downloader.models import DownloadResult
+from dataset_download_tool.downloader.services.http_service import HTTPDownloader
 
 
 class HTTPDownloaderGWS(HTTPDownloader):
