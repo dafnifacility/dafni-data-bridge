@@ -61,7 +61,7 @@ class ConfigLoader:
         download_group.add_argument("--url", help="url to download")
         download_group.add_argument("--ssh-download-path", "-dp", help="path of file to download")
         parser.add_argument(
-            "--dest", "-d", default=".", help="destination path or directory (default: current directory)"
+            "--dest", "-d", help="destination path or directory (default: current directory)"
         )
         parser.add_argument("--checksum", action="store_true", help="calculate md5 checksum of downloaded file")
         parser.add_argument("--no-progress", action="store_true", help="disable progress bar")
@@ -92,7 +92,7 @@ class ConfigLoader:
         """
         merged = vars(cli_args).copy()
         defaults = {None, "", False}
-
+    
         for key, file_value in file_data.items():
             if key == "config":
                 continue

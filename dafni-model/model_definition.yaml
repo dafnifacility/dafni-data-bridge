@@ -14,20 +14,19 @@ metadata:
 spec:
   inputs:
     parameters:
-      - name: URL
-        title: URL
-        description: URL of file/directory to download
-        type: string
-        default: Enter URL
-        required: false
-
+      - name: ISDAFNI
+        title: Running on DAFNI
+        type: boolean
+        default: True
+        description: True or False
+        required: True
     dataslots:
-      - name: cli-args
+      - name: download-args
         description: >
           Username/Password/url
         default:
-          - 149da5d4-4fa6-4750-92a0-ece7f4cd4a96
-        path: /data/inputs/
+          - e7e573e1-40db-48e5-9314-c674b275fa4c
+        path: inputs/
         required: true
   outputs:
       datasets:
