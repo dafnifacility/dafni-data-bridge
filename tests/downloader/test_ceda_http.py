@@ -9,7 +9,7 @@ def test_file_access(file_url, tmp_path):
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "--token",
             "mock-token-ab",
             "--url",
@@ -35,7 +35,7 @@ def test_file_access_failure(file_url, tmp_path):
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "--token",
             "mock-token-ab",
             "--url",
@@ -64,7 +64,7 @@ def test_local_download_ceda(file_url, auth_url, tmp_path, monkeypatch):
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "--username",
             "testuser",
             "--password",
@@ -98,7 +98,7 @@ def test_multiple_local_download_ceda(file_url, file_url_2, auth_url, tmp_path, 
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "--username",
             "testuser",
             "--password",
@@ -134,7 +134,7 @@ def test_directory_local_download(mock_ceda_directory, file_url, file_url_2, aut
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "--username",
             "testuser",
             "--password",

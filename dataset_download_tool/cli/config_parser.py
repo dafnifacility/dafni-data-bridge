@@ -3,7 +3,7 @@ import json
 import logging
 from pathlib import Path
 
-from ceda_download_tool.exceptions import ValidationError
+from dataset_download_tool.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ class ConfigLoader:
         download_group.add_argument("--url", help="url to download")
         download_group.add_argument("--ssh-download-path", "-dp", help="path of file to download")
         parser.add_argument(
-            "--dest", "-d", default=".", help="destination path or directory (default: current directory)"
+            "--dest", "-d", help="destination path or directory (default: current directory)"
         )
         parser.add_argument("--checksum", action="store_true", help="calculate md5 checksum of downloaded file")
         parser.add_argument("--no-progress", action="store_true", help="disable progress bar")
@@ -91,17 +91,18 @@ class ConfigLoader:
         For each key in file_data, only apply it when the CLI did not provide a value.
         """
         merged = vars(cli_args).copy()
-
-        # argparse defaults for store_true actions are None
-        defaults = {None, ""}
-
+        defaults = {None, "", False}
+    
         for key, file_value in file_data.items():
             if key == "config":
                 continue
             if key not in merged:
                 continue
             if merged[key] in defaults:
-                merged[key] = file_value
+                if isinstance(merged[key], bool):
+                    merged[key] = True
+                else:
+                    merged[key] = file_value
 
         return argparse.Namespace(**merged)
 

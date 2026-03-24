@@ -1,8 +1,8 @@
 [project]
-name = "ceda-download-tool"
+name = "dataset-download-tool"
 authors = [{name="Muhammad Mohsin", email="muhammad.mohsin@stfc.ac.uk"},]
 version = "0.1.4"
-description = "Download tool to install datasets"
+description = "Download tool to install datasets from CEDA/JASMIN"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -45,12 +45,12 @@ requires = ["uv_build >= 0.10.0, <0.11.0"]
 build-backend = "uv_build"
 
 [tool.pytest.ini_options]
-pythonpath = ["ceda_download_tool"]
+pythonpath = ["dataset_download_tool"]
 
 [tool.uv.build-backend]
-module-name = "ceda_download_tool"
+module-name = "dataset_download_tool"
 module-root = ""
 
 [project.scripts]
-ceda-download-tool = "ceda_download_tool.cli.main:main"
-cdtool = "ceda_download_tool.cli.main:main"
+dataset-download-tool = "dataset_download_tool.cli.main:main"
+ddtool = "dataset_download_tool.cli.main:main"

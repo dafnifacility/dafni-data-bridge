@@ -9,7 +9,7 @@ def test_s3_upload_http(file_url, auth_url, moto_s3_server):
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "--token",
             "mock-token-abc",
             "--url",

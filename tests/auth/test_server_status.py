@@ -12,7 +12,7 @@ def test_server_access_failure(file_url, auth_url, tmp_path, monkeypatch):
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "--token",
             "mock-token-abc",
             "--url",

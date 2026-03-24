@@ -1,16 +1,16 @@
 import logging
 import sys
 
-from ceda_download_tool.cli.config_parser import ConfigLoader
-from ceda_download_tool.exceptions import (
+from dataset_download_tool.cli.config_parser import ConfigLoader
+from dataset_download_tool.exceptions import (
     AuthError,
     BucketNotFoundError,
     DownloadError,
     TokenValidationError,
     ValidationError,
 )
-from ceda_download_tool.logger import setup_logging
-from ceda_download_tool.transport.client import Client
+from dataset_download_tool.logger import setup_logging
+from dataset_download_tool.transport.client import Client
 
 
 def main():

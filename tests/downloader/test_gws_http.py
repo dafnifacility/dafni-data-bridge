@@ -7,7 +7,7 @@ def test_file_download(file_gws_url, tmp_path):
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "-n",
             "--url",
             file_gws_url.url_for("/dir/file.nc"),
@@ -30,7 +30,7 @@ def test_directory_download(directory_gws_url, file_gws_url, file_gws_url_2, tmp
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "-n",
             "--url",
             directory_gws_url.url_for("/dir/"),

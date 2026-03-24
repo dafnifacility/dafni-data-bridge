@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 import requests
 
-from ceda_download_tool.exceptions import AuthError, TokenValidationError
+from dataset_download_tool.exceptions import AuthError, TokenValidationError
 
 TOKEN_CREATE_URL = os.environ.get("TOKEN_CREATE_URL", "https://services.ceda.ac.uk/api/token/create/")
 JWT_PATTERN = re.compile(os.environ.get("JWT_PATTERN", r"^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$"))

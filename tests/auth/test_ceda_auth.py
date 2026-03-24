@@ -12,7 +12,7 @@ def test_token_auth(file_url, auth_url, tmp_path, monkeypatch):
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "--token",
             "mock-token-abc",
             "--url",
@@ -40,7 +40,7 @@ def test_login_url(file_url, auth_url, tmp_path, monkeypatch):
 
     result = subprocess.run(
         [
-            "ceda-download-tool",
+            "dataset-download-tool",
             "--username",
             "testuser",
             "--password",
