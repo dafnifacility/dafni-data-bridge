@@ -3,23 +3,13 @@ import os
 import subprocess
 import sys
  
-gPATHI = ""
-gPATHO = ""
+script_dir = os.path.dirname(os.path.abspath(__file__))
+inputs_path = os.path.join(script_dir, "data", "inputs")
+outputs_path = os.path.join(script_dir, "data", "outputs")
  
-isDAFNI = os.environ.get("ISDAFNI")
+os.makedirs(outputs_path, exist_ok=True)
  
-if isDAFNI == "True":
-    pren = os.environ.get("HOMEDRIVE", "") if os.name == "nt" else "/"
-    gPATHI = os.path.join(pren, "data", "inputs")
-    gPATHO = os.path.join(pren, "data", "outputs")
-else:
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    gPATHI = os.path.join(script_dir, "data", "inputs")
-    gPATHO = os.path.join(script_dir, "data", "outputs")
- 
-os.makedirs(gPATHO, exist_ok=True)
- 
-LOG_FILE = os.path.join(gPATHO, "download.log")
+LOG_FILE = os.path.join(outputs_path, "download.log")
  
 logging.basicConfig(
     level=logging.INFO,
@@ -30,35 +20,30 @@ logging.basicConfig(
     ],
 )
 logger = logging.getLogger(__name__)
- 
-logger.info("ISDAFNI environment variable = %s (%s)", isDAFNI, type(isDAFNI).__name__)
- 
-if isDAFNI == "True":
-    logger.info("Running within DAFNI — output path: %s", gPATHO)
-else:
-    logger.info("Not running within DAFNI — using local paths")
- 
+
+logger.info("Running within DAFNI — output path: %s", outputs_path)
+
 logger.info("Python version: %s", sys.version)
-logger.info("Input  path : %s", gPATHI)
-logger.info("Output path : %s", gPATHO)
+logger.info("Input  path : %s", inputs_path)
+logger.info("Output path : %s", outputs_path)
 logger.info("Log file    : %s", LOG_FILE)
  
 CONFIG_FILENAME = "download_args.json"
-config_path = os.path.join(gPATHI, CONFIG_FILENAME)
+config_path = os.path.join(inputs_path, CONFIG_FILENAME)
  
 if not os.path.isfile(config_path):
     logger.error("Config file not found: %s", config_path)
     sys.exit(0)
  
 logger.info("Using config file: %s", config_path)
- 
+
+# Hard code output path, so user doesn't overwrite it
 cmd = [
     "dataset-download-tool",
     "--config",
     config_path,
     "--dest",
-    gPATHO,
-    "--checksum",
+    outputs_path,
     "--log-file",
     LOG_FILE,
 ]
@@ -79,11 +64,11 @@ try:
         logger.warning("Tool stderr:\n%s", result.stderr.strip())
  
 except FileNotFoundError:
-    logger.error("ceda-download-tool not found. " "Make sure it is installed and on your PATH.")
+    logger.error("dataset-download-tool not found. " "Make sure it is installed and on your PATH.")
     sys.exit(0)
  
 except subprocess.CalledProcessError as exc:
-    logger.error("ceda-download-tool exited with code %d.", exc.returncode)
+    logger.error("dataset-download-tool exited with code %d.", exc.returncode)
     if exc.stdout:
         logger.error("stdout:\n%s", exc.stdout.strip())
     if exc.stderr:

@@ -1,13 +1,11 @@
 FROM python:3.12-slim
-ENV ISDAFNI=True
 WORKDIR /src
 
-COPY dataset_download_tool-0.1.4-py3-none-any.whl /src/dataset_download_tool-0.1.4-py3-none-any.whl
+ARG GITHUB_TOKEN
 
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install /src/dataset_download_tool-0.1.4-py3-none-any.whl --no-cache-dir
-
-RUN rm dataset_download_tool-0.1.4-py3-none-any.whl
+RUN apt-get update && apt-get install -y --no-install-recommends git && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install "git+https://${GITHUB_TOKEN}@github.com/dafnifacility/dataset-download-tool.git"
 
 RUN mkdir -p /data/outputs
 
