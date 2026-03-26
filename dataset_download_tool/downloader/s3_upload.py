@@ -1,12 +1,14 @@
 import hashlib
 import logging
 import os
-from typing import Iterable, Optional
+from typing import Iterable, Optional, TYPE_CHECKING
 
 import boto3
 from botocore.config import Config
 from botocore.exceptions import ClientError
-from mypy_boto3_s3 import S3Client as S3ClientBoto3
+
+if TYPE_CHECKING:
+    from mypy_boto3_s3 import S3Client as S3ClientBoto3
 
 from dataset_download_tool.downloader.models import ProgressCallback
 from dataset_download_tool.exceptions import AuthError, BucketNotFoundError

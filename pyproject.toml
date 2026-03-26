@@ -9,24 +9,26 @@ dependencies = [
     "boto3>=1.42.47",
     "bs4>=0.0.2",
     "cdsapi>=0.7.7",
-    "ipykernel>=6.30.1",
-    "mypy-boto3-s3>=1.42.37",
+    "paramiko>=4.0.0",
 ]
 
 [project.optional-dependencies]
+dev = [
+    "mypy-boto3-s3>=1.42.37",   
+    "ipykernel>=6.30.1",        
+    "pre-commit>=4.5.1",
+    "ruff>=0.15.1",
+]
 tests = [
     "pyftpdlib>=2.2.0",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "requests-mock>=1.12.1",
-    "ruff>=0.15.1",
-    "moto[all,ec2,s3]>=5.1.21",
-    "pre-commit>=4.5.1",
+    "moto[s3,ec2]>=5.1.21",    
     "flask>=3.1.3",
     "flask-cors>=6.0.2",
     "paramiko>=4.0.0",
     "pytest-httpserver>=1.1.5",
-    "moto[all,ec2,s3]>=5.1.21",
 ]
 
 [tool.ruff]
