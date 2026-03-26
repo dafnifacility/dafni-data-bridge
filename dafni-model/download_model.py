@@ -3,9 +3,9 @@ import os
 import subprocess
 import sys
  
-script_dir = os.path.dirname(os.path.abspath(__file__))
-inputs_path = os.path.join(script_dir, "data", "inputs")
-outputs_path = os.path.join(script_dir, "data", "outputs")
+pren = os.environ.get("HOMEDRIVE", "") if os.name == "nt" else "/"
+inputs_path = os.path.join(pren, "data", "inputs")
+outputs_path = os.path.join(pren, "data", "outputs")
  
 os.makedirs(outputs_path, exist_ok=True)
  
