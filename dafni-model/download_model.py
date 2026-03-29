@@ -2,15 +2,15 @@ import logging
 import os
 import subprocess
 import sys
- 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-inputs_path = os.path.join(script_dir, "data", "inputs")
-outputs_path = os.path.join(script_dir, "data", "outputs")
- 
+
+# ------------------ Set input and output directory ------------------ #
+pren = os.environ.get("HOMEDRIVE", "") if os.name == "nt" else "/"
+inputs_path = os.path.join(pren, "data", "inputs")
+outputs_path = os.path.join(pren, "data", "outputs")
 os.makedirs(outputs_path, exist_ok=True)
- 
+
+# ------------------ Setup logging to output log file ------------------ # 
 LOG_FILE = os.path.join(outputs_path, "download.log")
- 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -21,35 +21,35 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# ------------------ Debugging info ------------------ #
 logger.info("Running within DAFNI — output path: %s", outputs_path)
-
 logger.info("Python version: %s", sys.version)
 logger.info("Input  path : %s", inputs_path)
 logger.info("Output path : %s", outputs_path)
 logger.info("Log file    : %s", LOG_FILE)
- 
+
+# ------------------ Set input args file name ------------------ #
 CONFIG_FILENAME = "download_args.json"
 config_path = os.path.join(inputs_path, CONFIG_FILENAME)
- 
 if not os.path.isfile(config_path):
     logger.error("Config file not found: %s", config_path)
-    sys.exit(0)
+    sys.exit(0) # use exit 0 so the dafni model passes and produces output log, may not prduce log if set to 1
  
 logger.info("Using config file: %s", config_path)
 
-# Hard code output path, so user doesn't overwrite it
+# ------------------ Set cmd args ------------------ #
 cmd = [
     "dataset-download-tool",
     "--config",
     config_path,
-    "--dest",
-    outputs_path,
+    "--dest", # DO NOT CHANGE OUTPUT PATH WHEN RUNNING ON DAFNI, HERE OR IN CONFIG FILE
+    outputs_path, 
     "--log-file",
     LOG_FILE,
 ]
- 
+
+# ------------------ Run command and handle any errors ------------------ #
 logger.info("Starting download — command: %s", " ".join(cmd))
- 
 try:
     result = subprocess.run(
         cmd,
@@ -65,7 +65,7 @@ try:
  
 except FileNotFoundError:
     logger.error("dataset-download-tool not found. " "Make sure it is installed and on your PATH.")
-    sys.exit(0)
+    sys.exit(0) 
  
 except subprocess.CalledProcessError as exc:
     logger.error("dataset-download-tool exited with code %d.", exc.returncode)
