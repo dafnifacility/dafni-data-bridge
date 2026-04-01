@@ -54,4 +54,4 @@ module-root = ""
 
 [project.scripts]
 dataset-download-tool = "dataset_download_tool.cli.main:main"
-ddtool = "dataset_download_tool.cli.main:main"
+ddt = "dataset_download_tool.cli.main:main"

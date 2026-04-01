@@ -5,21 +5,20 @@ It saves the downloaded files to a specified destination, such as a local disk o
 
 It supports authentication via CEDA tokens, username/password, or SSH keys, and can optionally verify file integrity using MD5 checksums.
 
-## Installation
+## 📦 Installation
 
 ```bash
 pip install git+https://github.com/dafnifacility/dataset-download-tool.git
 ```
 
 
-The tool can be used TODO
+The tool can be used in
 
 1. CLI
 2. DAFNI Model
-3. API -- 
+3. API -- (TODO)
 
-
-## CLI
+## 🖥️ CLI
 
 ```
 dataset-download-tool -h
@@ -174,51 +173,48 @@ dataset-download-tool --ssh ssh.ceda.ac.uk --ssh-download-path /remote/path/to/f
 
 **12. No auth + CEDA URL + S3 destination:**
 
-Can be used with any download mechanism only `--dest` points to an S3 bucket
+> **Note:** You must have your S3 endpoint setup with ACCESS and SECRET key set as environment variables
+> ```bash
+>$ export ACCESS_KEY=[access_key]
+>$ export SECRET_KEY=[secret_key]
+>```
+
+Can be used with any download mechanism only `--dest` should point to a S3 bucket
 
 ```bash
-dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/... --dest https://bucket.s3.echo..ac.uk/path --checksum
+dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/... --dest https://bucket.s3.echo..ac.uk/key --checksum
 ```
-
-> **Note:** You must have your S3 endpoint setup with ACCESS and SECRET key set as environment variables
 
 #### Save to Local Filesystem
 
-**13. TODO:**
-
-
+**13. No auth + CEDA URL + dest:**
 ```bash
-TODO
+dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/path/to/public/file --dest ./data/
 ```
 
 ---
 
-### Config File
-
-TODO: 
-
+### 📝 Config File
 Use a JSON config file to avoid repeating flags.
-
 
 Use the example config `config.example.json`
 
 ```bash
-cp config.example.json config.json
+$ cp config.example.json config.json
 ``` 
 
 ```bash
-dataset-download-tool --config config.json
+$ dataset-download-tool --config config.json
 ```
 
-⚠️ TODO: Expand it config file + override a single flag:
-
+Any CLI arg will overwrite config path. In the example config we set `"dest": "./data/",` but you can overwrite that in the CLI:
 ```bash
 dataset-download-tool --config config.json --dest /different/path/
 ```
 
 ---
 
-### Logging & Debugging
+### 🛠️ Logging & Debugging
 
 **Enable debug logging:**
 
@@ -288,42 +284,66 @@ dataset-download-tool \
   --log-file ./download.log
 ```
 
-Shorthand (ddtool)
+Shorthand (ddt)
 
-All commands can be run using `ddtool` instead of `dataset-download-tool`:
+All commands can be run using `ddt` instead of `dataset-download-tool`:
 
 ```bash
-ddtool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --dest ./data/
-ddtool -t YOUR_TOKEN -u USER -p PASS -d ./data/
+ddt --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --dest ./data/
+ddt -t YOUR_TOKEN -u USER -p PASS -d ./data/
 ```
 
 ---
 
-### Environment Variables
+### 🌍 Environment Variables
 
-TODO: does this tool take PASSWORD as env or other as well? Write a sentence.
-
+We can call environment variables when running in CLI.
 
 | Variable   | Equivalent Flag | Description           |
 | ---------- | --------------- | --------------------- |
+| `USERNAME` | `--username`    | CEDA account Username |
 | `PASSWORD` | `--password`    | CEDA account password |
+| `URL`      | `--url`         | CEDA file URL         |
+| `DEST`     | `--dest`        | downlaod path         |
+
+Set env variable
+```bash
+$ export USERNAME=username
+$ export PASSWORD=password
+```
+**Username/password with all options:**
+```bash
+dataset-download-tool \
+  --username $USERNAME \
+  --password $PASSWORD \
+  --url https://dap.ceda.ac.uk/path/to/file \
+  --dest ./data/ \
+  --checksum \
+  --timeout 60 \
+  --retries 5 \
+  --debug \
+  --log-file ./download.log
+```
+---
+
+## 📊 DAFNI Model
+
+The download tool can be used on the DAFNI Platform. Please refer to the [`MODEL_README.md`](/dafni-model/readme/MODEL_README.md). This goes over all steps on how setup the model to download the datasets on DAFNI workflows.
 
 ---
 
-## DAFNI Model
-
-TODO: Link it
-
----
-
-## API
+## 🌿 API
 
 TODO:
 
 ---
 
-## Resources
+## 📋 Resources
 
 TODO: CEDA data, token, login 
 
-1. [CEDA: Using Archive Access Tokens](https://cds.climate.copernicus.eu/how-to-api)
+1. [CEDA: Create Archive Access Tokens](https://help.ceda.ac.uk/article/5100-archive-access-tokens)
+2. [CEDA: Accounts Login or Register Information](https://help.ceda.ac.uk/article/39-ceda-account)
+3. [CEDA: Datasets Help](https://help.ceda.ac.uk/category/13-archiving-data-with-ceda)
+4. [JASMiN: GWS Setup](https://help.jasmin.ac.uk/docs/short-term-project-storage/apply-for-access-to-a-gws/)
+5. [JASMiN: Public GWS Access Data](https://gws-access.jasmin.ac.uk/)
