@@ -9,7 +9,7 @@ inputs_path = os.path.join(pren, "data", "inputs")
 outputs_path = os.path.join(pren, "data", "outputs")
 os.makedirs(outputs_path, exist_ok=True)
 
-# ------------------ Setup logging to output log file ------------------ # 
+# ------------------ Setup logging to output log file ------------------ #
 LOG_FILE = os.path.join(outputs_path, "download.log")
 logging.basicConfig(
     level=logging.INFO,
@@ -29,12 +29,12 @@ logger.info("Output path : %s", outputs_path)
 logger.info("Log file    : %s", LOG_FILE)
 
 # ------------------ Set input args file name ------------------ #
-CONFIG_FILENAME = "download_args.json"
+CONFIG_FILENAME = "config.json"
 config_path = os.path.join(inputs_path, CONFIG_FILENAME)
 if not os.path.isfile(config_path):
     logger.error("Config file not found: %s", config_path)
-    sys.exit(0) # use exit 0 so the dafni model passes and produces output log, may not prduce log if set to 1
- 
+    sys.exit(0)  # use exit 0 so the dafni model passes and produces output log, may not prduce log if set to 1
+
 logger.info("Using config file: %s", config_path)
 
 # ------------------ Set cmd args ------------------ #
@@ -42,8 +42,8 @@ cmd = [
     "dataset-download-tool",
     "--config",
     config_path,
-    "--dest", # DO NOT CHANGE OUTPUT PATH WHEN RUNNING ON DAFNI, HERE OR IN CONFIG FILE
-    outputs_path, 
+    "--dest",  # DO NOT CHANGE OUTPUT PATH WHEN RUNNING ON DAFNI, HERE OR IN CONFIG FILE
+    outputs_path,
     "--log-file",
     LOG_FILE,
 ]
@@ -62,11 +62,11 @@ try:
         logger.info("Tool stdout:\n%s", result.stdout.strip())
     if result.stderr:
         logger.warning("Tool stderr:\n%s", result.stderr.strip())
- 
+
 except FileNotFoundError:
-    logger.error("dataset-download-tool not found. " "Make sure it is installed and on your PATH.")
-    sys.exit(0) 
- 
+    logger.error("dataset-download-tool not found. Make sure it is installed and on your PATH.")
+    sys.exit(0)
+
 except subprocess.CalledProcessError as exc:
     logger.error("dataset-download-tool exited with code %d.", exc.returncode)
     if exc.stdout:

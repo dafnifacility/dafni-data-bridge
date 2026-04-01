@@ -1,0 +1,8 @@
+{
+  "token": "YOUR_TOKEN",
+  "url": "https://dap.ceda.ac.uk/path/to/file",
+  "dest": "./data/",
+  "checksum": true,
+  "retries": 5,
+  "timeout": 60
+}
