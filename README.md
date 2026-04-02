@@ -11,6 +11,11 @@ It supports authentication via CEDA tokens, username/password, or SSH keys, and 
 pip install git+https://github.com/dafnifacility/dataset-download-tool.git
 ```
 
+Using `uv`:
+
+```bash
+uv add git+https://github.com/dafnifacility/dataset-download-tool.git
+```
 
 The tool can be used in
 
@@ -50,7 +55,6 @@ The following flags are mutually exclusive and **cannot** be used together:
 |         |                       |
 | ------- | --------------------- |
 | `--url` | `--ssh-download-path` |
-
 
 ---
 
@@ -160,7 +164,6 @@ dataset-download-tool --no-auth --url https://gws-access.jasmin.ac.uk/path/to/fi
 dataset-download-tool --username anonymous --password user@email.com --url ftp://anon-ftp.ceda.ac.uk/ --dest ./data/
 ```
 
-
 #### SSH Downloads
 
 **11. SSH + private key + destination:**
@@ -174,10 +177,11 @@ dataset-download-tool --ssh ssh.ceda.ac.uk --ssh-download-path /remote/path/to/f
 **12. No auth + CEDA URL + S3 destination:**
 
 > **Note:** You must have your S3 endpoint setup with ACCESS and SECRET key set as environment variables
+>
 > ```bash
->$ export ACCESS_KEY=[access_key]
->$ export SECRET_KEY=[secret_key]
->```
+> $ export ACCESS_KEY=[access_key]
+> $ export SECRET_KEY=[secret_key]
+> ```
 
 Can be used with any download mechanism only `--dest` should point to a S3 bucket
 
@@ -188,6 +192,7 @@ dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/... --dest https://
 #### Save to Local Filesystem
 
 **13. No auth + CEDA URL + dest:**
+
 ```bash
 dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/path/to/public/file --dest ./data/
 ```
@@ -195,26 +200,28 @@ dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/path/to/public/file
 ---
 
 ### 📝 Config File
+
 Use a JSON config file to avoid repeating flags.
 
 Use the example config `config.example.json`
 
 ```bash
 $ cp config.example.json config.json
-``` 
+```
 
 ```bash
 $ dataset-download-tool --config config.json
 ```
 
 Any CLI arg will overwrite config path. In the example config we set `"dest": "./data/",` but you can overwrite that in the CLI:
+
 ```bash
 dataset-download-tool --config config.json --dest /different/path/
 ```
 
 ---
 
-### 🛠️ Logging & Debugging
+### Logging & Debugging
 
 **Enable debug logging:**
 
@@ -235,7 +242,6 @@ dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --debu
 ```
 
 ---
-
 
 ### Various Examples
 
@@ -295,7 +301,7 @@ ddt -t YOUR_TOKEN -u USER -p PASS -d ./data/
 
 ---
 
-### 🌍 Environment Variables
+### Environment Variables
 
 We can call environment variables when running in CLI.
 
@@ -307,11 +313,14 @@ We can call environment variables when running in CLI.
 | `DEST`     | `--dest`        | downlaod path         |
 
 Set env variable
+
 ```bash
 $ export USERNAME=username
 $ export PASSWORD=password
 ```
+
 **Username/password with all options:**
+
 ```bash
 dataset-download-tool \
   --username $USERNAME \
@@ -324,6 +333,7 @@ dataset-download-tool \
   --debug \
   --log-file ./download.log
 ```
+
 ---
 
 ## 📊 DAFNI Model
@@ -340,7 +350,7 @@ TODO:
 
 ## 📋 Resources
 
-TODO: CEDA data, token, login 
+TODO: CEDA data, token, login
 
 1. [CEDA: Create Archive Access Tokens](https://help.ceda.ac.uk/article/5100-archive-access-tokens)
 2. [CEDA: Accounts Login or Register Information](https://help.ceda.ac.uk/article/39-ceda-account)

@@ -1,0 +1,12 @@
+[project]
+name = "api-example"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dataset-download-tool",
+]
+
+[tool.uv.sources]
+dataset-download-tool = { git = "ssh://git@github.com/dafnifacility/dataset-download-tool.git" }

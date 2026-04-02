@@ -1,6 +1,23 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.12"
+
+[manifest]
+members = [
+    "api-example",
+    "dataset-download-tool",
+]
+
+[[package]]
+name = "api-example"
+version = "0.1.0"
+source = { virtual = "api-example" }
+dependencies = [
+    { name = "dataset-download-tool" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "dataset-download-tool", editable = "." }]
 
 [[package]]
 name = "appnope"
