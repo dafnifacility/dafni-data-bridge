@@ -52,6 +52,11 @@ pythonpath = ["dataset_download_tool"]
 module-name = "dataset_download_tool"
 module-root = ""
 
+[tool.uv.workspace]
+members = [
+    "api-example",
+]
+
 [project.scripts]
 dataset-download-tool = "dataset_download_tool.cli.main:main"
 ddt = "dataset_download_tool.cli.main:main"
