@@ -111,10 +111,10 @@ dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_I
 Connect to an SSH server and download a file by remote path.
 
 ```bash
-dataset-download-tool --ssh <SSH server ip> --ssh-download-path <File path to download> --key-filename <SSH auth key> --dest ./data/
+dataset-download-tool --username <username for ssh server> --ssh <SSH server ip> --ssh-download-path <File path to download> --key-filename <SSH auth key> --dest ./data/
 
 # example 1:
-dataset-download-tool --ssh login.jasmin.ac.uk --ssh-download-path /gws/j07/remote/file.nc --key-filename ~/.ssh/id_rsa --dest ./data/
+dataset-download-tool --username $USERNAME --ssh login.jasmin.ac.uk --ssh-download-path /gws/j07/remote/file.nc --key-filename ~/.ssh/id_rsa --dest ./data/
 ```
  
 ### ⬇️ Download Options
@@ -225,11 +225,11 @@ dataset-download-tool --username anonymous --password user@email.com --url ftp:/
 **11. SSH + private key + destination:**
 
 ```bash
-dataset-download-tool --ssh <SSH ip> --ssh-download-path <file path to download> --key-filename <path to SSH key> --dest <path where to download> --checksum
+dataset-download-tool --username <username for ssh server> --ssh <SSH ip> --ssh-download-path <file path to download> --key-filename <path to SSH key> --dest <path where to download> --checksum
 
 
 # example 1:
-dataset-download-tool --ssh login.jasmin.ac.uk --ssh-download-path /jws/j07/path/to/file --key-filename ~/.ssh/id_rsa --dest ./data/ --checksum
+dataset-download-tool --username $USERNAME --ssh login.jasmin.ac.uk --ssh-download-path /jws/j07/path/to/file --key-filename ~/.ssh/id_rsa --dest ./data/ --checksum
 ```
 
 #### Save to S3

@@ -116,14 +116,17 @@ class ConfigLoader:
         if config.ssh and not config.username:
             self.parser.error("--ssh can only be used with --username")
 
+        if config.ssh and config.url:
+            self.parser.error("please use --ssh-download-path with ssh download not --url")
+
         if config.no_auth and config.ssh:
             self.parser.error("--ssh cannot be used with --no-auth")
 
         if config.url and config.ssh_download_path:
             self.parser.error("--url cannot be used with --ssh-download-path")
 
-        if not config.url:
-            self.parser.error("--url is required (provide it on the CLI or set 'url' in your config file).")
+        if not config.url and not config.ssh_download_path:
+            self.parser.error("please provide download path with --url or --ssh-download-path")
 
     def parse(self, argv=None) -> argparse.Namespace:
         """
