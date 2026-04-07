@@ -295,7 +295,7 @@ dataset-download-tool --config config.json --dest /different/path/
 **No auth + CEDA URL + destination + checksum:**
 ```JSON
 {
-  "no_auth"="",
+  "no_auth":"",
   "url": "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1",
   "dest": "./data/",
   "checksum": "",
