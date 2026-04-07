@@ -129,6 +129,9 @@ dataset-download-tool --no-auth --url <url of the source file> --dest <path wher
 # example 1:
 
 dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1 --dest ./data/
+
+# example 2 public file (check if file exists in CEDA):
+dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/neodc/casix/seawifs_primary_production/data/1998/SeaWiFS_PP1998001.nc?download=1 --dest ./data/
 ```
 
 **2. Token + CEDA URL + destination:**
@@ -147,6 +150,9 @@ dataset-download-tool --token <your token> --url <url of the source file> --dest
 
 # example 1:
 dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/ --checksum
+
+# example 2 restricted file to registered users only (check if file exists in CEDA):
+dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/neodc/sister/data/QM2/KML/2012/Alice_GE_2012W02_QM2.kmz?download=1 --dest ./data/ --checksum
 ```
 
 **4. Token + URL + no progress bar:**
@@ -156,6 +162,9 @@ dataset-download-tool --token <your token> --url <url of the source file> --dest
 
 # example 1:
 dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/ --no-progress
+
+# example 2 restricted file to registered users only (check if file exists in CEDA):
+dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/neodc/sister/data/QM2/KML/2012/Alice_GE_2012W02_QM2.kmz?download=1 --dest ./data/ --no-progress
 ```
 
 **5. Token + CEDA URL + custom timeout and retries:**
@@ -175,6 +184,9 @@ dataset-download-tool --username $USERNAME --password $PASSWORD --url https://da
 
 # example 2 with credentaials in CLI:
 dataset-download-tool --username Username --password P4ssW0rd --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
+
+# example 3 restricted file to registered users only (check if file exists in CEDA):
+dataset-download-tool --username $USERNAME --password $PASSWORD --url https://dap.ceda.ac.uk/neodc/sister/data/QM2/KML/2012/Alice_GE_2012W02_QM2.kmz?download=1 --dest ./data/
 ```
 
 **7. No auth + CEDA URL list + destination:**
