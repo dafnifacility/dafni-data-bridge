@@ -34,9 +34,9 @@ The tool supports the following parameters:
 | Flag                       | Shorthand     | Description                                                |
 | -------------------------- | ------------- | ---------------------------------------------------------- |
 | `--config FILE`            | `-c FILE`     | Path to JSON config containing download options            |
-| `--token TOKEN`            | `-t TOKEN`    | CEDA access token                                          |
-| `--username USERNAME`      | `-u USERNAME` | CEDA username (requires `--password`)                      |
-| `--password PASSWORD`      | `-p PASSWORD` | CEDA password (or set via `PASSWORD` env var)              |
+| `--token CEDA_TOKEN`            | `-t CEDA_TOKEN`    | CEDA access token                                          |
+| `--username CEDA_USERNAME`      | `-u CEDA_USERNAME` | CEDA username (requires `--password`)                      |
+| `--password CEDA_PASSWORD`      | `-p CEDA_PASSWORD` | CEDA password (or set via `CEDA_PASSWORD` env var)              |
 | `--no-auth`                | `-n`          | Use when file requires no credentials                      |
 | `--ssh SSH`                |               | Connect to SSH server                                      |
 | `--url URL`                |               | URL to download                                            |
@@ -58,11 +58,11 @@ The following flags are mutually exclusive and **cannot** be used together: `--u
 In the case of sensative information we can use env variables. These are set like any normal shell commands:
 
 ```bash
-$ export USERNAME=<username>
-$ export PASSWORD=<password>
-$ export TOKEN=<token>
+$ export CEDA_USERNAME=<username>
+$ export CEDA_PASSWORD=<password>
+$ export CEDA_TOKEN=<token>
 ```
-We can then call them when running the CLI tool with `$<VARIABLE>` E.G. `$USERNAME` (further examples in [Authentication Methods](#-authentication-methods) section).
+We can then call them when running the CLI tool with `$<VARIABLE>` E.G. `$CEDA_USERNAME` (further examples in [Authentication Methods](#-authentication-methods) section).
 
 ---
 
@@ -76,7 +76,6 @@ For publicly accessible files that require no credentials.
 dataset-download-tool --no-auth --url <url of the source file> --dest <path where to save>
 
 # example 1:
-
 dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1 --dest ./data/
 ```
 
@@ -88,12 +87,12 @@ Authenticate using a CEDA credentails. Please see the [link](https://accounts.ce
 dataset-download-tool --username <user name> --password <password> --url <url of the source file> --dest <path where to save>
 
 # example 1 with ENV variables:
-dataset-download-tool --username $USERNAME --password $PASSWORD --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
+dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 
 # example 2 with credentaials passed directly in the CLI:
 dataset-download-tool --username johndoe --password P4ssW0rd --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 ```
-If `$(pwd)/data/TOKEN_CHECK` contains: "Congratulations, you have successfuly authenticated with CEDA using a token." this means that the credentails worked correctly and you are able to install files from CEDA Archive correctly.
+If the downloaded `./data/TOKEN_CHECK` contains: "Congratulations, you have successfuly authenticated with CEDA using a token." this means that the credentails worked correctly and you are able to install files from CEDA Archive correctly.
 
 **3. Token Authentication**
 
@@ -103,7 +102,7 @@ Authenticate using a CEDA access token. Please see the [link](https://services-b
 dataset-download-tool --token <your token> --url <url of the source file> --dest <path where to save>
 
 # example 1 with ENV variables:
-dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
+dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 ```
 
 **4. SSH Authentication for Remote Filesystem Access**
@@ -114,7 +113,7 @@ Connect to an SSH server and download a file by remote path.
 dataset-download-tool --username <username for ssh server> --ssh <SSH server ip> --ssh-download-path <File path to download> --key-filename <SSH auth key> --dest ./data/
 
 # example 1:
-dataset-download-tool --username $USERNAME --ssh login.jasmin.ac.uk --ssh-download-path /gws/j07/remote/file.nc --key-filename ~/.ssh/id_rsa --dest ./data/
+dataset-download-tool --username $CEDA_USERNAME --ssh login.jasmin.ac.uk --ssh-download-path /gws/j07/remote/file.nc --key-filename ~/.ssh/id_rsa --dest ./data/
 ```
  
 ### ⬇️ Download Options
@@ -127,7 +126,6 @@ dataset-download-tool --username $USERNAME --ssh login.jasmin.ac.uk --ssh-downlo
 dataset-download-tool --no-auth --url <url of the source file> --dest <path where to save>
 
 # example 1:
-
 dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1 --dest ./data/
 
 # example 2 public file (check if file exists in CEDA):
@@ -140,7 +138,7 @@ dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/neodc/casix/seawifs
 dataset-download-tool --token <your token> --url <url of the source file> --dest <path where to save>
 
 # example 1 with ENV variables:
-dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
+dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 ```
 
 **3. Token + CEDA URL + checksum verification:**
@@ -149,10 +147,10 @@ dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_I
 dataset-download-tool --token <your token> --url <url of the source file> --dest <path where to save> --checksum
 
 # example 1:
-dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/ --checksum
+dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/ --checksum
 
 # example 2 restricted file to registered users only (check if file exists in CEDA):
-dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/neodc/sister/data/QM2/KML/2012/Alice_GE_2012W02_QM2.kmz?download=1 --dest ./data/ --checksum
+dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/neodc/sister/data/QM2/KML/2012/Alice_GE_2012W02_QM2.kmz?download=1 --dest ./data/ --checksum
 ```
 
 **4. Token + URL + no progress bar:**
@@ -161,10 +159,10 @@ dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/neodc/sister/d
 dataset-download-tool --token <your token> --url <url of the source file> --dest <path where to save> --no-progress
 
 # example 1:
-dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/ --no-progress
+dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/ --no-progress
 
 # example 2 restricted file to registered users only (check if file exists in CEDA):
-dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/neodc/sister/data/QM2/KML/2012/Alice_GE_2012W02_QM2.kmz?download=1 --dest ./data/ --no-progress
+dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/neodc/sister/data/QM2/KML/2012/Alice_GE_2012W02_QM2.kmz?download=1 --dest ./data/ --no-progress
 ```
 
 **5. Token + CEDA URL + custom timeout and retries:**
@@ -173,20 +171,20 @@ dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/neodc/sister/d
 dataset-download-tool --token <your token> --url <url of the source file> --dest <path where to save> --timeout 60 --retries 5
 
 # example 1:
-dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/ --timeout 60 --retries 5
+dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/ --timeout 60 --retries 5
 ```
 
 **6. Username/password + CEDA URL + destination:**
 
 ```bash
 # example 1 with ENV variables:
-dataset-download-tool --username $USERNAME --password $PASSWORD --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
+dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 
 # example 2 with credentaials in CLI:
 dataset-download-tool --username Username --password P4ssW0rd --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 
 # example 3 restricted file to registered users only (check if file exists in CEDA):
-dataset-download-tool --username $USERNAME --password $PASSWORD --url https://dap.ceda.ac.uk/neodc/sister/data/QM2/KML/2012/Alice_GE_2012W02_QM2.kmz?download=1 --dest ./data/
+dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url https://dap.ceda.ac.uk/neodc/sister/data/QM2/KML/2012/Alice_GE_2012W02_QM2.kmz?download=1 --dest ./data/
 ```
 
 **7. No auth + CEDA URL list + destination:**
@@ -195,7 +193,7 @@ dataset-download-tool --username $USERNAME --password $PASSWORD --url https://da
 dataset-download-tool --no-auth --url "<url of the source file 1> | <url of the source file 2> " --dest <path where to save>
 
 # example 1:
-dataset-download-tool --username $USERNAME --password $PASSWORD --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1 | https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/FILES_ON_TAPE.txt?download=1" --dest ./data/
+dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1 | https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/FILES_ON_TAPE.txt?download=1" --dest ./data/
 ```
 
 > **Note:** each file url is seperated with a `|`
@@ -239,9 +237,8 @@ dataset-download-tool --username anonymous --password user@email.com --url ftp:/
 ```bash
 dataset-download-tool --username <username for ssh server> --ssh <SSH ip> --ssh-download-path <file path to download> --key-filename <path to SSH key> --dest <path where to download> --checksum
 
-
-# example 1:
-dataset-download-tool --username $USERNAME --ssh login.jasmin.ac.uk --ssh-download-path /jws/j07/path/to/file --key-filename ~/.ssh/id_rsa --dest ./data/ --checksum
+# example 1: FIXME:
+dataset-download-tool --username $CEDA_USERNAME --ssh login.jasmin.ac.uk --ssh-download-path /jws/j07/path/to/file --key-filename ~/.ssh/id_rsa --dest ./data/ --checksum
 ```
 
 #### Save to S3
@@ -259,7 +256,6 @@ Can be used with any download mechanism only `--dest` should point to a S3 bucke
 
 ```bash
 dataset-download-tool --no-auth --url <url to download> --dest https://<bucket>.<S3 endpoint>/<key> --checksum
-
 
 # example 1:
 dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/00README.txt?download=1 --dest https://bucket.s3.echo..ac.uk/key --checksum
@@ -293,18 +289,9 @@ dataset-download-tool --config <json file path>
 dataset-download-tool --config config.json
 ```
 
+**Example config files**
 
-Any CLI arg will overwrite config variable. For example, in the example config we set `"dest": "./data/",` but you can overwrite that in the CLI using:
-
-```bash
-dataset-download-tool --config config.json --dest /different/path/
-```
-
-### Config Examples
-
-> **NOTE:** All booleans variable are set to false unless invoked. To invoke them in config you can include them by setting them to `=""` e.g `"checksum": "",`
-
-**No auth + CEDA URL + destination + checksum:**
+No auth + CEDA URL + destination + checksum:
 ```JSON
 {
   "no_auth":"",
@@ -314,25 +301,30 @@ dataset-download-tool --config config.json --dest /different/path/
 }
 ```
 
-**Token + CEDA URL + destination + checksum:**
+Token + CEDA URL + destination + checksum:
 ```JSON
 {
-  "token": "<TOKEN>",
+  "token": "<CEDA_TOKEN>",
   "url": "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1",
   "dest": "./data/",
   "checksum": "",
 }
 ```
 
-**Token environment variable + CEDA URL + destination + checksum:**
+Token environment variable + CEDA URL + destination + checksum:
 ```JSON
 {
-  "token": "$TOKEN",
+  "token": "$CEDA_TOKEN",
   "url": "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1",
   "dest": "./data/",
   "checksum": "",
 }
 ```
+
+> NOTE:
+> - All booleans variable are set to false unless invoked. To invoke them in config you can include them by setting them to `=""` e.g `"checksum": "",`
+> - Any CLI arg will overwrite config variable. For example, in the example config we set `"dest": "./data/",` but you can overwrite that in the CLI using: ` dataset-download-tool --config config.json --dest /different/path/`
+ 
 
 ### Shorthand (ddt)
 
@@ -340,28 +332,27 @@ All commands can be run using `ddt` instead of `dataset-download-tool`:
 
 ```bash
 ddt --token <your token> --url https://dap.ceda.ac.uk/... --dest ./data/
-ddt -t YOUR_TOKEN -u USER -p PASS -d ./data/
 ```
-s
+
 
 ### Logging & Debugging
 
-**Enable debug logging:**
+Enable debug logging:
 
 ```bash
-dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/... --debug
+dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/... --debug
 ```
 
-**Write logs to a file:**
+Write logs to a file:
 
 ```bash
-dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/... --log-file ./download.log
+dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/... --log-file ./download.log
 ```
 
-**Debug logging to file:**
+Debug logging to file:
 
 ```bash
-dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/... --debug --log-file ./download.log
+dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/... --debug --log-file ./download.log
 ```
 
 ---
@@ -379,9 +370,7 @@ The download tool can be used on the DAFNI Platform. Please refer to the [`MODEL
 
 ---
 
-## 📋 Resources
-
-TODO: CEDA data, token, login
+## Resources
 
 1. [CEDA: Create Archive Access Tokens](https://help.ceda.ac.uk/article/5100-archive-access-tokens)
 2. [CEDA: Accounts Login or Register Information](https://help.ceda.ac.uk/article/39-ceda-account)
