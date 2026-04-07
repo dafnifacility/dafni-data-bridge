@@ -19,11 +19,11 @@ uv add git+https://github.com/dafnifacility/dataset-download-tool.git
 
 The tool can be used in
 
-1. CLI
-2. DAFNI Model
-3. API -- (TODO)
+1. [🖥️ CLI](#1-️-cli)
+2. 🌿 API
+3. 📊 DAFNI Model
 
-## 🖥️ CLI
+## 1. 🖥️ CLI 
 
 ```
 dataset-download-tool -h
@@ -50,38 +50,64 @@ The tool supports the following parameters:
 | `--debug`                  |               | Enable debug logging                                       |
 | `--log-file FILE`          |               | Path to log file                                           |
 
-The following flags are mutually exclusive and **cannot** be used together:
+The following flags are mutually exclusive and **cannot** be used together: `--url` and  `--ssh-download-path` TODO:
 
-|         |                       |
-| ------- | --------------------- |
-| `--url` | `--ssh-download-path` |
+
+Environment Variables
+
+TODO: In cases like user name or password you can set them using env variables just like any shell commans.  
+We can call environment variables when running in CLI.
+
+
+```bash
+$ export USERNAME=<username>
+$ export PASSWORD=<password>
+$ export YOUR_TOKEN=<token>
+```
+
+We will use use USERNAME ....
 
 ---
 
 ### 🔐 Authentication Methods
+
+TODO: all command template should be updated followed by one or more examples.
+
 
 **1. No Authentication**
 
 For publicly accessible files that require no credentials.
 
 ```bash
+dataset-download-tool --no-auth --url <url of the source file> --dest <path where to save>
+
+# example 1:
+
 dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/path/to/public/file --dest ./data/
+
+
 ```
 
-**2. Token Authentication**
+**2. Username & Password Authentication**
 
-Authenticate using a CEDA access token.
+Authenticate using a CEDA access token. Please see the [link]() to get CEDA token.
+Authenticate using your CEDA credentials. The tool will generate a token automatically. 
+
+```bash
+dataset-download-tool --username <user name> --password <password> --url <url>
+
+# example 1:
+dataset-download-tool --username $USERNAME --password $PASSWORD --url <url>
+```
+
+**3. Token Authentication**
+
+Authenticate using a CEDA access token. Please see the [link]() to get CEDA token.
 
 ```bash
 dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/path/to/file --dest ./data/
-```
 
-**3. Username & Password Authentication**
-
-Authenticate using your CEDA credentials. The tool will generate a token automatically.
-
-```bash
-dataset-download-tool --username USER --password PASS --url https://dap.ceda.ac.uk/path/to/file
+# example 1:
 ```
 
 **4. SSH Authentication for Remote Filesystem Access**
@@ -90,11 +116,17 @@ Connect to an SSH server and download a file by remote path.
 
 ```bash
 dataset-download-tool --ssh ssh.ceda.ac.uk --ssh-download-path /path/to/remote/file --key-filename ~/.ssh/id_rsa --dest ./data/
-```
 
----
+# example 1:
+
+```
+ 
+
 
 ### ⬇️ Download Options
+
+TODO: all command template should be updated followed by one or more examples.
+
 
 #### HTTP Downloads
 
@@ -102,36 +134,48 @@ dataset-download-tool --ssh ssh.ceda.ac.uk --ssh-download-path /path/to/remote/f
 
 ```bash
 dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --dest ./data/
+
+# example 1:
 ```
 
 **2. Token + CEDA URL + checksum verification:**
 
 ```bash
 dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --dest ./data/ --checksum
+
+# example 1:
 ```
 
 **3. Token + URL + no progress bar:**
 
 ```bash
 dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/...  --dest ./data/ --no-progress
+
+# example 1:
 ```
 
 **4. Token + CEDA URL + custom timeout and retries:**
 
 ```bash
 dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --timeout 60 --retries 5
+
+# example 1:
 ```
 
 **5. Username/password + CEDA URL + destination:**
 
 ```bash
 dataset-download-tool --username USER --password PASS --url https://dap.ceda.ac.uk/... --dest ./data/
+
+# example 1:
 ```
 
 **6. Username/password + CEDA URL list + destination:**
 
 ```bash
 dataset-download-tool --username USER --password PASS --url "https://dap.ceda.ac.uk/file1.nc... | https://dap.ceda.ac.uk/file2.nc..." --dest ./data/
+
+# example 1:
 ```
 
 > **Note:** each file url is seperated with a `|`
@@ -140,6 +184,8 @@ dataset-download-tool --username USER --password PASS --url "https://dap.ceda.ac
 
 ```bash
 dataset-download-tool --username USER --password PASS --url "https://dap.ceda.ac.uk/directory..." --dest ./data/
+
+# example 1:
 ```
 
 > **Note:** all files in the directory are installed
@@ -148,12 +194,17 @@ dataset-download-tool --username USER --password PASS --url "https://dap.ceda.ac
 
 ```bash
 dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/... --dest ./data/ --checksum
+
+# example 1:
 ```
 
 **9. No auth + GWS URL + destination:**
 
 ```bash
 dataset-download-tool --no-auth --url https://gws-access.jasmin.ac.uk/path/to/file... --dest ./data/ --checksum
+
+
+# example 1:
 ```
 
 #### FTP downloads
@@ -162,6 +213,9 @@ dataset-download-tool --no-auth --url https://gws-access.jasmin.ac.uk/path/to/fi
 
 ```bash
 dataset-download-tool --username anonymous --password user@email.com --url ftp://anon-ftp.ceda.ac.uk/ --dest ./data/
+
+
+# example 1:
 ```
 
 #### SSH Downloads
@@ -170,6 +224,9 @@ dataset-download-tool --username anonymous --password user@email.com --url ftp:/
 
 ```bash
 dataset-download-tool --ssh ssh.ceda.ac.uk --ssh-download-path /remote/path/to/file --key-filename ~/.ssh/id_rsa --dest ./data/ --checksum
+
+
+# example 1:
 ```
 
 #### Save to S3
@@ -187,6 +244,9 @@ Can be used with any download mechanism only `--dest` should point to a S3 bucke
 
 ```bash
 dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/... --dest https://bucket.s3.echo..ac.uk/key --checksum
+
+
+# example 1:
 ```
 
 #### Save to Local Filesystem
@@ -195,55 +255,41 @@ dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/... --dest https://
 
 ```bash
 dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/path/to/public/file --dest ./data/
+
+# example 1:
 ```
 
----
+ 
 
 ### 📝 Config File
+
+TODO: There should be few more examples.
+
 
 Use a JSON config file to avoid repeating flags.
 
 Use the example config `config.example.json`
 
 ```bash
-$ cp config.example.json config.json
+dataset-download-tool --config <json file>
+
+# example 1:
+cp config.example.json config.json
+dataset-download-tool --config config.json
 ```
 
-```bash
-$ dataset-download-tool --config config.json
-```
 
-Any CLI arg will overwrite config path. In the example config we set `"dest": "./data/",` but you can overwrite that in the CLI:
+Any CLI arg will overwrite config path. For example, in the example config we set `"dest": "./data/",` but you can overwrite that in the CLI using:
 
 ```bash
 dataset-download-tool --config config.json --dest /different/path/
 ```
 
----
-
-### Logging & Debugging
-
-**Enable debug logging:**
-
-```bash
-dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --debug
-```
-
-**Write logs to a file:**
-
-```bash
-dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --log-file ./download.log
-```
-
-**Debug logging to file:**
-
-```bash
-dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --debug --log-file ./download.log
-```
-
----
 
 ### Various Examples
+
+TODO: delete this section and move the examples there. 
+Example means it can be copy paste to terminal and iy should work.
 
 **Full HTTP download with all options:**
 
@@ -299,52 +345,39 @@ ddt --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --dest ./data/
 ddt -t YOUR_TOKEN -u USER -p PASS -d ./data/
 ```
 
----
 
-### Environment Variables
+### Logging & Debugging
 
-We can call environment variables when running in CLI.
-
-| Variable   | Equivalent Flag | Description           |
-| ---------- | --------------- | --------------------- |
-| `USERNAME` | `--username`    | CEDA account Username |
-| `PASSWORD` | `--password`    | CEDA account password |
-| `URL`      | `--url`         | CEDA file URL         |
-| `DEST`     | `--dest`        | downlaod path         |
-
-Set env variable
+**Enable debug logging:**
 
 ```bash
-$ export USERNAME=username
-$ export PASSWORD=password
+dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --debug
 ```
 
-**Username/password with all options:**
+**Write logs to a file:**
 
 ```bash
-dataset-download-tool \
-  --username $USERNAME \
-  --password $PASSWORD \
-  --url https://dap.ceda.ac.uk/path/to/file \
-  --dest ./data/ \
-  --checksum \
-  --timeout 60 \
-  --retries 5 \
-  --debug \
-  --log-file ./download.log
+dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --log-file ./download.log
 ```
 
----
+**Debug logging to file:**
 
-## 📊 DAFNI Model
-
-The download tool can be used on the DAFNI Platform. Please refer to the [`MODEL_README.md`](/dafni-model/readme/MODEL_README.md). This goes over all steps on how setup the model to download the datasets on DAFNI workflows.
+```bash
+dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --debug --log-file ./download.log
+```
 
 ---
 
 ## 🌿 API
 
 TODO:
+
+---
+
+
+## 📊 DAFNI Model
+
+The download tool can be used on the DAFNI Platform. Please refer to the [`MODEL_README.md`](/dafni-model/readme/MODEL_README.md). This goes over all steps on how setup the model to download the datasets on DAFNI workflows.
 
 ---
 
