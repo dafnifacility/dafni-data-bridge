@@ -115,7 +115,7 @@ dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/path/to/fi
 Connect to an SSH server and download a file by remote path.
 
 ```bash
-dataset-download-tool --ssh ssh.ceda.ac.uk --ssh-download-path /path/to/remote/file --key-filename ~/.ssh/id_rsa --dest ./data/
+dataset-download-tool --ssh login.jasmin.ac.uk --ssh-download-path /gws/j07/remote/file.nc --key-filename ~/.ssh/id_rsa --dest ./data/
 
 # example 1:
 
@@ -149,7 +149,7 @@ dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --dest
 **3. Token + URL + no progress bar:**
 
 ```bash
-dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/...  --dest ./data/ --no-progress
+dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1  --dest ./data/ --no-progress
 
 # example 1:
 ```
@@ -157,7 +157,7 @@ dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/...  --des
 **4. Token + CEDA URL + custom timeout and retries:**
 
 ```bash
-dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --timeout 60 --retries 5
+dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --timeout 60 --retries 5
 
 # example 1:
 ```
@@ -165,7 +165,7 @@ dataset-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --time
 **5. Username/password + CEDA URL + destination:**
 
 ```bash
-dataset-download-tool --username USER --password PASS --url https://dap.ceda.ac.uk/... --dest ./data/
+dataset-download-tool --username USER --password PASS --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 
 # example 1:
 ```
@@ -173,7 +173,7 @@ dataset-download-tool --username USER --password PASS --url https://dap.ceda.ac.
 **6. Username/password + CEDA URL list + destination:**
 
 ```bash
-dataset-download-tool --username USER --password PASS --url "https://dap.ceda.ac.uk/file1.nc... | https://dap.ceda.ac.uk/file2.nc..." --dest ./data/
+dataset-download-tool --username USER --password PASS --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1 | https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/FILES_ON_TAPE.txt?download=1" --dest ./data/
 
 # example 1:
 ```
@@ -183,7 +183,7 @@ dataset-download-tool --username USER --password PASS --url "https://dap.ceda.ac
 **7. Username/password + CEDA URL directory + destination:**
 
 ```bash
-dataset-download-tool --username USER --password PASS --url "https://dap.ceda.ac.uk/directory..." --dest ./data/
+dataset-download-tool --username USER --password PASS --url "https://data.ceda.ac.uk/badc/ar6_wg1/data/ch_07/inputdata_ch7_fig18/v20220721/" --dest ./data/
 
 # example 1:
 ```
@@ -193,7 +193,7 @@ dataset-download-tool --username USER --password PASS --url "https://dap.ceda.ac
 **8. No auth + CEDA URL + destination:**
 
 ```bash
-dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/... --dest ./data/ --checksum
+dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/00README.txt?download=1 --dest ./data/ --checksum
 
 # example 1:
 ```
@@ -201,7 +201,7 @@ dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/... --dest ./data/ 
 **9. No auth + GWS URL + destination:**
 
 ```bash
-dataset-download-tool --no-auth --url https://gws-access.jasmin.ac.uk/path/to/file... --dest ./data/ --checksum
+dataset-download-tool --no-auth --url https://gws-access.jasmin.ac.uk/public/accord/ACCORD_SEAsia/GRIDT/SEAsia_HAD_5d_19910101_19911231_gridT.nc --dest ./data/ --checksum
 
 
 # example 1:
@@ -212,7 +212,7 @@ dataset-download-tool --no-auth --url https://gws-access.jasmin.ac.uk/path/to/fi
 **10 .Username/password + URL + destination:**
 
 ```bash
-dataset-download-tool --username anonymous --password user@email.com --url ftp://anon-ftp.ceda.ac.uk/ --dest ./data/
+dataset-download-tool --username anonymous --password user@email.com --url ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/ --dest ./data/
 
 
 # example 1:
@@ -223,7 +223,7 @@ dataset-download-tool --username anonymous --password user@email.com --url ftp:/
 **11. SSH + private key + destination:**
 
 ```bash
-dataset-download-tool --ssh ssh.ceda.ac.uk --ssh-download-path /remote/path/to/file --key-filename ~/.ssh/id_rsa --dest ./data/ --checksum
+dataset-download-tool --ssh login.jasmin.ac.uk --ssh-download-path /jws/j07/path/to/file --key-filename ~/.ssh/id_rsa --dest ./data/ --checksum
 
 
 # example 1:
@@ -243,7 +243,7 @@ dataset-download-tool --ssh ssh.ceda.ac.uk --ssh-download-path /remote/path/to/f
 Can be used with any download mechanism only `--dest` should point to a S3 bucket
 
 ```bash
-dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/... --dest https://bucket.s3.echo..ac.uk/key --checksum
+dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/00README.txt?download=1  --dest https://bucket.s3.echo..ac.uk/key --checksum
 
 
 # example 1:
@@ -254,7 +254,7 @@ dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/... --dest https://
 **13. No auth + CEDA URL + dest:**
 
 ```bash
-dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/path/to/public/file --dest ./data/
+dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/00README.txt?download=1 --dest ./data/
 
 # example 1:
 ```
@@ -296,7 +296,7 @@ Example means it can be copy paste to terminal and iy should work.
 ```bash
 dataset-download-tool \
   --token YOUR_TOKEN \
-  --url https://dap.ceda.ac.uk/path/to/file \
+  --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 \
   --dest ./data/ \
   --checksum \
   --timeout 60 \
@@ -327,7 +327,7 @@ dataset-download-tool \
 dataset-download-tool \
   --username USER \
   --password PASS \
-  --url https://dap.ceda.ac.uk/path/to/file \
+  --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 \
   --dest ./data/ \
   --checksum \
   --timeout 60 \
