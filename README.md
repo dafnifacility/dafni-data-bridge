@@ -90,8 +90,8 @@ dataset-download-tool --username <user name> --password <password> --url <url of
 # example 1 with ENV variables:
 dataset-download-tool --username $USERNAME --password $PASSWORD --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 
-# example 2 with credentaials in CLI:
-dataset-download-tool --username Username --password P4ssW0rd --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
+# example 2 with credentaials passed directly in the CLI:
+dataset-download-tool --username johndoe --password P4ssW0rd --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 ```
 If `$(pwd)/data/TOKEN_CHECK` contains: "Congratulations, you have successfuly authenticated with CEDA using a token." this means that the credentails worked correctly and you are able to install files from CEDA Archive correctly.
 
@@ -100,7 +100,7 @@ If `$(pwd)/data/TOKEN_CHECK` contains: "Congratulations, you have successfuly au
 Authenticate using a CEDA access token. Please see the [link](https://services-beta.ceda.ac.uk/account/token/) to get CEDA token given you have already signed up for CEDA.
 
 ```bash
-dataset-download-tool --token <YOUR_TOKEN> --url <url of the source file> --dest <path where to save>
+dataset-download-tool --token <your token> --url <url of the source file> --dest <path where to save>
 
 # example 1 with ENV variables:
 dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
@@ -134,7 +134,7 @@ dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/0
 **2. Token + CEDA URL + destination:**
 
 ```bash
-dataset-download-tool --token <YOUR_TOKEN> --url <url of the source file> --dest <path where to save>
+dataset-download-tool --token <your token> --url <url of the source file> --dest <path where to save>
 
 # example 1 with ENV variables:
 dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
@@ -143,7 +143,7 @@ dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_I
 **3. Token + CEDA URL + checksum verification:**
 
 ```bash
-dataset-download-tool --token YOUR_TOKEN --url <url of the source file> --dest <path where to save> --checksum
+dataset-download-tool --token <your token> --url <url of the source file> --dest <path where to save> --checksum
 
 # example 1:
 dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/ --checksum
@@ -152,7 +152,7 @@ dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_I
 **4. Token + URL + no progress bar:**
 
 ```bash
-dataset-download-tool --token <YOUR_TOKEN> --url <url of the source file> --dest <path where to save> --no-progress
+dataset-download-tool --token <your token> --url <url of the source file> --dest <path where to save> --no-progress
 
 # example 1:
 dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/ --no-progress
@@ -161,7 +161,7 @@ dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_I
 **5. Token + CEDA URL + custom timeout and retries:**
 
 ```bash
-dataset-download-tool --token <YOUR_TOKEN> --url <url of the source file> --dest <path where to save> --timeout 60 --retries 5
+dataset-download-tool --token <your token> --url <url of the source file> --dest <path where to save> --timeout 60 --retries 5
 
 # example 1:
 dataset-download-tool --token $TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/ --timeout 60 --retries 5
@@ -327,7 +327,7 @@ dataset-download-tool --config config.json --dest /different/path/
 All commands can be run using `ddt` instead of `dataset-download-tool`:
 
 ```bash
-ddt --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --dest ./data/
+ddt --token <your token> --url https://dap.ceda.ac.uk/... --dest ./data/
 ddt -t YOUR_TOKEN -u USER -p PASS -d ./data/
 ```
 s
