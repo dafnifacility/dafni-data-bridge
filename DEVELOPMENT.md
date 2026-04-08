@@ -22,39 +22,103 @@ Receiving objects: 100% (288/288), 1.23 MiB | 4.56 MiB/s, done.
 
 $ cd dataset-download-tool
 ```
+
 ### s3cmd setup 
 
+**Option -1:**
+
+Setup locally, if you do not have could s3 instance access:
+
+
+```sh
+docker run -p 9000:9000 -p 9001:9001 \
+  -e "MINIO_ROOT_USER=minioadmin" \
+  -e "MINIO_ROOT_PASSWORD=minioadmin" \
+  quay.io/minio/minio server /data --console-address ":9001"
+```
+Open in browser `http://localhost:9001` and login with: `username: minioadmin password: minioadmin`
+
+
+
+
+Configure s3cmd for MinIO
+
+```sh
+export ACCESS_KEY=minioadmin
+export SECRET_KEY=minioadmin
+```
+
+```sh
+s3cmd --configure
+```
+
+```sh
+Access Key: minioadmin
+Secret Key: minioadmin
+
+Default Region: us-east-1
+S3 Endpoint: localhost:9000
+
+DNS-style bucket template:
+%(bucket)s.localhost:9000
+
+Use HTTPS: False
+```
+
+
+
+
+**Option 2:**
+
+s3.echo.stfc.ac.uk ..TODO: **
+
+
 You do not need to install s3cmd to upload to a S3 bucket but you can use it for testing purposes.
-```bash
-$ uv pip install s3cmd
-```
-
-All you need to set are the access and secret key for upload:
 
 ```bash
-$ export ACCESS_KEY=[access_key]
-$ export SECRET_KEY=[secret_key]
+uv pip install s3cmd
 ```
 
-To access the bucket and view data you can configure s3cmd
+Set are the access and secret key before configuring s3cmd with teh following commands. 
+
 ```bash
-$ s3cmd --configure
-  Access Key: [access_key]
-  Secret Key: [secret_key]
-  Default Region: US
-  S3 Endpoint: s3.echo.stfc.ac.uk
-  DNS-style bucket+hostname:port template for accessing a bucket: s3.echo.stfc.ac.uk
-  Encryption password: 
-  Path to GPG program: /usr/bin/gpg
-  Use HTTPS protocol: True
-  HTTP Proxy server name: 
-  HTTP Proxy server port: 0
+export ACCESS_KEY=[access_key]
+export SECRET_KEY=[secret_key]
 ```
+
+Configure s3cmd.
+
+```bash
+s3cmd --configure
+```
+
+The following configurations to be set.
+
+```
+Access Key: [access_key]
+Secret Key: [secret_key]
+Default Region: US
+S3 Endpoint: s3.echo.stfc.ac.uk
+DNS-style bucket+hostname:port template for accessing a bucket: %(bucket)s.s3.echo.stfc.ac.uk
+Encryption password: 
+Path to GPG program: /usr/bin/gpg
+Use HTTPS protocol: True
+HTTP Proxy server name: 
+HTTP Proxy server port: 0
+
+
+
+Test access with supplied credentials? [Y/n] n
+```
+
 Then use s3cmd to list the buckets
 
 ```bash
 $ s3cmd ls
 ```
+
+**Option 3: NER DSE S3**
+
 
 
 ## 📦 Environment Setup

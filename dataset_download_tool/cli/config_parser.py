@@ -24,15 +24,13 @@ class ConfigLoader:
             epilog="""
             Examples:
             # download with token
-            ceda-download-tool --token YOUR_TOKEN --url https://dap.ceda.ac.uk/... --dest ./data/
+            dataset-download-tool  --token CEDA_TOKEN --url https://dap.ceda.ac.uk/... --dest ./data/
 
             # generate token and download
-            ceda-download-tool --username USER --password PASS --url https://dap.ceda.ac.uk/...
+           dataset-download-tool  --username CEDA_USERNAME --password CEDA_PASSWORD --url https://dap.ceda.ac.uk/...
 
             # download with debug logging
-            ceda-download-tool --token YOUR_TOKEN --url URL --debug
-
-            cdtool can be used as shorthand for ceda-download-tool
+            dataset-download-tool  --token CEDA_TOKEN --url URL --debug
             """,
         )
 
@@ -51,7 +49,7 @@ class ConfigLoader:
             "--password",
             "-p",
             type=str,
-            help="ceda password (required with --username). can also be set via PASSWORD env var",
+            help="ceda password (required with --username). can also be set via CEDA_PASSWORD env var",
         )
         auth_group.add_argument("--no-auth", "-n", action="store_true", help="if file does not need any credentails")
         parser.add_argument("--ssh", help="connect to ssh server")

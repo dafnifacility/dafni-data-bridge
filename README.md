@@ -5,6 +5,15 @@ It saves the downloaded files to a specified destination, such as a local disk o
 
 It supports authentication via CEDA tokens, username/password, or SSH keys, and can optionally verify file integrity using MD5 checksums.
 
+
+## Prerequisite
+
+TODO:
+- CEDA access and token
+- JASMIN access
+- GWS access
+
+
 ## 📦 Installation
 
 ```bash
@@ -23,7 +32,7 @@ The tool can be used in
 2. [🌿 API](#-api)
 3. [📊 DAFNI Model](#-dafni-model)
 
-## 1. 🖥️ CLI 
+## 1. 🖥️ CLI
 
 ```
 dataset-download-tool -h
@@ -31,37 +40,39 @@ dataset-download-tool -h
 
 The tool supports the following parameters:
 
-| Flag                       | Shorthand     | Description                                                |
-| -------------------------- | ------------- | ---------------------------------------------------------- |
-| `--config FILE`            | `-c FILE`     | Path to JSON config containing download options            |
-| `--token CEDA_TOKEN`            | `-t CEDA_TOKEN`    | CEDA access token                                          |
-| `--username CEDA_USERNAME`      | `-u CEDA_USERNAME` | CEDA username (requires `--password`)                      |
-| `--password CEDA_PASSWORD`      | `-p CEDA_PASSWORD` | CEDA password (or set via `CEDA_PASSWORD` env var)              |
-| `--no-auth`                | `-n`          | Use when file requires no credentials                      |
-| `--ssh SSH`                |               | Connect to SSH server                                      |
-| `--url URL`                |               | URL to download                                            |
-| `--ssh-download-path PATH` | `-dp PATH`    | Path of file to download over SSH                          |
-| `--dest DEST`              | `-d DEST`     | Destination path or directory (default: current directory) |
-| `--checksum`               |               | Calculate MD5 checksum of downloaded file                  |
-| `--no-progress`            |               | Disable progress bar                                       |
-| `--timeout TIMEOUT`        |               | Request timeout in seconds (default: 30)                   |
-| `--retries RETRIES`        |               | Maximum retry attempts (default: 3)                        |
-| `--key-filename FILE`      | `-kf FILE`    | SSH private key file                                       |
-| `--debug`                  |               | Enable debug logging                                       |
-| `--log-file FILE`          |               | Path to log file                                           |
+| Flag                       | Shorthand          | Description                                                |
+| -------------------------- | ------------------ | ---------------------------------------------------------- |
+| `--config FILE`            | `-c FILE`          | Path to JSON config containing download options            |
+| `--token CEDA_TOKEN`       | `-t CEDA_TOKEN`    | CEDA access token                                          |
+| `--username CEDA_USERNAME` | `-u CEDA_USERNAME` | CEDA username (requires `--password`)                      |
+| `--password CEDA_PASSWORD` | `-p CEDA_PASSWORD` | CEDA password (or set via `CEDA_PASSWORD` env var)         |
+| `--no-auth`                | `-n`               | Use when file requires no credentials                      |
+| `--ssh SSH`                |                    | Connect to SSH server                                      |
+| `--url URL`                |                    | URL to download                                            |
+| `--ssh-download-path PATH` | `-dp PATH`         | Path of file to download over SSH                          |
+| `--dest DEST`              | `-d DEST`          | Destination path or directory (default: current directory) |
+| `--checksum`               |                    | Calculate MD5 checksum of downloaded file                  |
+| `--no-progress`            |                    | Disable progress bar                                       |
+| `--timeout TIMEOUT`        |                    | Request timeout in seconds (default: 30)                   |
+| `--retries RETRIES`        |                    | Maximum retry attempts (default: 3)                        |
+| `--key-filename FILE`      | `-kf FILE`         | SSH private key file                                       |
+| `--debug`                  |                    | Enable debug logging                                       |
+| `--log-file FILE`          |                    | Path to log file                                           |
 
-The following flags are mutually exclusive and **cannot** be used together: `--url` and  `--ssh-download-path` do to conflicts, `url` is specifically used to download from `http/s` or `ftp` sources, and `--ssh-download-path` for JASMiN GWS server.
-
+The following flags are mutually exclusive and **cannot** be used together: `--url` and `--ssh-download-path` do to conflicts, `url` is specifically used to download from `http/s` or `ftp` sources, and `--ssh-download-path` for JASMiN GWS server.
 
 #### Environment Variables
 
 In the case of sensative information we can use env variables. These are set like any normal shell commands:
 
 ```bash
-$ export CEDA_USERNAME=<username>
-$ export CEDA_PASSWORD=<password>
-$ export CEDA_TOKEN=<token>
+export CEDA_USERNAME=<username>
+export CEDA_PASSWORD=<password>
+export CEDA_TOKEN=<token>
+export JASMIN_USERNAME=<jasmin gws username>
+
 ```
+
 We can then call them when running the CLI tool with `$<VARIABLE>` E.G. `$CEDA_USERNAME` (further examples in [Authentication Methods](#-authentication-methods) section).
 
 ---
@@ -81,7 +92,8 @@ dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/0
 
 **2. Username & Password Authentication**
 
-Authenticate using a CEDA credentails. Please see the [link](https://accounts.ceda.ac.uk/realms/ceda/login-actions/registration?client_id=account-console&tab_id=H-sQE2Qp8_I) to register for CEDA Archive account. Authenticating using your CEDA credentials will generate a token automatically.
+Authenticate using a CEDA credentails. 
+Please see the [link](https://accounts.ceda.ac.uk/realms/ceda/login-actions/registration?client_id=account-console&tab_id=H-sQE2Qp8_I) to register for CEDA Archive account. Authenticating using your CEDA credentials will generate a token automatically.
 
 ```bash
 dataset-download-tool --username <user name> --password <password> --url <url of the source file> --dest <path where to save>
@@ -92,6 +104,7 @@ dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url 
 # example 2 with credentaials passed directly in the CLI:
 dataset-download-tool --username johndoe --password P4ssW0rd --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 ```
+
 If the downloaded `./data/TOKEN_CHECK` contains: "Congratulations, you have successfuly authenticated with CEDA using a token." this means that the credentails worked correctly and you are able to install files from CEDA Archive correctly.
 
 **3. Token Authentication**
@@ -115,7 +128,7 @@ dataset-download-tool --username <username for ssh server> --ssh <SSH server ip>
 # example 1:
 dataset-download-tool --username $CEDA_USERNAME --ssh login.jasmin.ac.uk --ssh-download-path /gws/j07/remote/file.nc --key-filename ~/.ssh/id_rsa --dest ./data/
 ```
- 
+
 ### ⬇️ Download Options
 
 #### HTTP Downloads
@@ -228,6 +241,7 @@ dataset-download-tool --username anonymous --password <user email> --url <ftp fi
 # example 1:
 dataset-download-tool --username anonymous --password user@email.com --url ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/ --dest ./data/
 ```
+
 > **NOTE** CEDA FTP server is public, and is accessed with `anonymous` + `email` as username and password. [More information](https://help.ceda.ac.uk/article/280-ftp) can be found on the CEDA help page
 
 #### SSH Downloads
@@ -235,10 +249,13 @@ dataset-download-tool --username anonymous --password user@email.com --url ftp:/
 **11. SSH + private key + destination:**
 
 ```bash
-dataset-download-tool --username <username for ssh server> --ssh <SSH ip> --ssh-download-path <file path to download> --key-filename <path to SSH key> --dest <path where to download> --checksum
+dataset-download-tool --username <username for ssh server> --ssh <source ssh machine ip> --ssh-download-path <source file path to download> --key-filename <path to SSH key> --dest <path where to download> --checksum
 
-# example 1: FIXME:
-dataset-download-tool --username $CEDA_USERNAME --ssh login.jasmin.ac.uk --ssh-download-path /jws/j07/path/to/file --key-filename ~/.ssh/id_rsa --dest ./data/ --checksum
+# example 1: downloading existing file from GWS
+dataset-download-tool --username $JASMIN_USERNAME --ssh xfer-vm-01.jasmin.ac.uk --ssh-download-path /gws/pw/j07/perf_testing/1GB.zip --key-filename ~/.ssh/<jasmin ssh private key> --dest ./data/ --checksum
+
+# example 2: downloading existing folder from GWS
+dataset-download-tool --username $JASMIN_USERNAME --ssh xfer-vm-01.jasmin.ac.uk --ssh-download-path /gws/pw/j07/perf_testing/mtrceda/testdir --key-filename ~/.ssh/<jasmin ssh private key> --dest ./data/ --checksum
 ```
 
 #### Save to S3
@@ -272,12 +289,12 @@ dataset-download-tool --no-auth --url <url to download> --dest <path to save>
 dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/00README.txt?download=1 --dest ./data/
 ```
 
- 
 ### 📝 Config File
 
 Use a JSON config file to avoid repeating flags.
 
 Use the example config `config.example.json`
+
 ```bash
 cp config.example.json config.json
 ```
@@ -292,6 +309,7 @@ dataset-download-tool --config config.json
 **Example config files**
 
 No auth + CEDA URL + destination + checksum:
+
 ```JSON
 {
   "no_auth":"",
@@ -302,9 +320,10 @@ No auth + CEDA URL + destination + checksum:
 ```
 
 Token + CEDA URL + destination + checksum:
+
 ```JSON
 {
-  "token": "<CEDA_TOKEN>",
+  "token": <ceda token>,
   "url": "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1",
   "dest": "./data/",
   "checksum": "",
@@ -312,9 +331,10 @@ Token + CEDA URL + destination + checksum:
 ```
 
 Token environment variable + CEDA URL + destination + checksum:
+
 ```JSON
 {
-  "token": "$CEDA_TOKEN",
+  "token": <ceda token>,
   "url": "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1",
   "dest": "./data/",
   "checksum": "",
@@ -322,9 +342,9 @@ Token environment variable + CEDA URL + destination + checksum:
 ```
 
 > NOTE:
+>
 > - All booleans variable are set to false unless invoked. To invoke them in config you can include them by setting them to `=""` e.g `"checksum": "",`
 > - Any CLI arg will overwrite config variable. For example, in the example config we set `"dest": "./data/",` but you can overwrite that in the CLI using: ` dataset-download-tool --config config.json --dest /different/path/`
- 
 
 ### Shorthand (ddt)
 
@@ -333,7 +353,6 @@ All commands can be run using `ddt` instead of `dataset-download-tool`:
 ```bash
 ddt --token <your token> --url https://dap.ceda.ac.uk/... --dest ./data/
 ```
-
 
 ### Logging & Debugging
 
@@ -362,7 +381,6 @@ dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/... --deb
 TODO:
 
 ---
-
 
 ## 📊 DAFNI Model
 
