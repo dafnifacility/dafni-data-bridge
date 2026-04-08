@@ -43,13 +43,14 @@ class ConfigLoader:
             metavar="FILE",
             help="Path to JSON config file",
         )
-        auth_group.add_argument("--token", "-t", help="ceda access token")
-        auth_group.add_argument("--username", "-u", type=str, help="ceda username (requires --password)")
+        auth_group.add_argument("--token", "-t", metavar="CEDA_TOKEN", help="ceda access token")
+        auth_group.add_argument("--username", "-u", metavar="CEDA_USERNAME", type=str, help="ceda username (requires --password)")
         parser.add_argument(
             "--password",
             "-p",
+            metavar="CEDA_PASSWORD",
             type=str,
-            help="ceda password (required with --username). can also be set via CEDA_PASSWORD env var",
+            help="ceda password (required with --username)",
         )
         auth_group.add_argument("--no-auth", "-n", action="store_true", help="if file does not need any credentails")
         parser.add_argument("--ssh", help="connect to ssh server")
