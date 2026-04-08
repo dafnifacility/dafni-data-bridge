@@ -19,7 +19,19 @@ Using `uv`:
 uv add git+https://github.com/dafnifacility/dataset-download-tool.git
 ```
 
-The tool can be used in
+Open the document
+
+```sh
+uv sync --extra docs
+uv run mkdocs serve
+uv run mkdocs serve --livereload
+```
+
+
+--- 
+
+TODO: delete once cross checked!
+
 
 1. [🖥️ CLI](#1-️-cli)
 2. [🌿 API](#-api)
@@ -268,7 +280,7 @@ dataset-download-tool --username $JASMIN_USERNAME --ssh xfer-vm-01.jasmin.ac.uk 
 
 ### Save to S3
 
-> **Note:** You must have your S3 endpoint setup with ACCESS and SECRET key set as environment variables. The tool scans for ACCESS_KEY and SECRET_KEY as ENV varibles. [DEVELOPMENT.md](/docs/DEVELOPMENT.md) goes over S3 setup if needed.
+> **Note:** You must have your S3 endpoint setup with ACCESS and SECRET key set as environment variables. The tool scans for ACCESS_KEY and SECRET_KEY as ENV variables. See the [Development Setup](docs/developer-guide/setup.md#s3-setup-optional) guide for S3 configuration.
 >
 > ```bash
 > $ export ACCESS_KEY=[access_key]
