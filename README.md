@@ -5,14 +5,13 @@ It saves the downloaded files to a specified destination, such as a local disk o
 
 It supports authentication via CEDA tokens, username/password, or SSH keys, and can optionally verify file integrity using MD5 checksums.
 
-
 ## Prerequisite
 
 TODO:
+
 - CEDA access and token
 - JASMIN access
 - GWS access
-
 
 ## 📦 Installation
 
@@ -63,7 +62,7 @@ The following flags are mutually exclusive and **cannot** be used together: `--u
 
 #### Environment Variables
 
-In the case of sensative information we can use env variables. These are set like any normal shell commands:
+In the case of sensitive information we can use env variables. These are set like any normal shell commands:
 
 ```bash
 export CEDA_USERNAME=<username>
@@ -92,7 +91,7 @@ dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/0
 
 **2. Username & Password Authentication**
 
-Authenticate using a CEDA credentails. 
+Authenticate using a CEDA credentails.
 Please see the [link](https://accounts.ceda.ac.uk/realms/ceda/login-actions/registration?client_id=account-console&tab_id=H-sQE2Qp8_I) to register for CEDA Archive account. Authenticating using your CEDA credentials will generate a token automatically.
 
 ```bash
@@ -105,7 +104,7 @@ dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url 
 dataset-download-tool --username johndoe --password P4ssW0rd --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 ```
 
-If the downloaded `./data/TOKEN_CHECK` contains: "Congratulations, you have successfuly authenticated with CEDA using a token." this means that the credentails worked correctly and you are able to install files from CEDA Archive correctly.
+If the downloaded `./data/TOKEN_CHECK` contains: "Congratulations, you have successfully authenticated with CEDA using a token." this means that the credentials worked correctly and you are able to install files from CEDA Archive correctly.
 
 **3. Token Authentication**
 
@@ -206,10 +205,10 @@ dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url 
 dataset-download-tool --no-auth --url "<url of the source file 1> | <url of the source file 2> " --dest <path where to save>
 
 # example 1:
-dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1 | https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/FILES_ON_TAPE.txt?download=1" --dest ./data/
+dataset-download-tool --no-auth --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1 | https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/FILES_ON_TAPE.txt?download=1"
 ```
 
-> **Note:** each file url is seperated with a `|`
+> **Note:** each file url is separated with a `|`
 
 **8. No auth + CEDA URL directory + destination:**
 
@@ -220,7 +219,7 @@ dataset-download-tool --no-auth --url <Dir URL> --dest <path where to save>
 dataset-download-tool --no-auth --url https://data.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989 --dest ./data/
 ```
 
-> **Note:** all files in the directory are installed
+> **Note:** all files in the directory are downloaded.
 
 **9. No auth + GWS URL + destination:**
 
@@ -251,10 +250,10 @@ dataset-download-tool --username anonymous --password user@email.com --url ftp:/
 ```bash
 dataset-download-tool --username <username for ssh server> --ssh <source ssh machine ip> --ssh-download-path <source file path to download> --key-filename <path to SSH key> --dest <path where to download> --checksum
 
-# example 1: downloading existing file from GWS
+# example 1: downloading a file from GWS
 dataset-download-tool --username $JASMIN_USERNAME --ssh xfer-vm-01.jasmin.ac.uk --ssh-download-path /gws/pw/j07/perf_testing/1GB.zip --key-filename ~/.ssh/<jasmin ssh private key> --dest ./data/ --checksum
 
-# example 2: downloading existing folder from GWS
+# example 2: downloading a folder from GWS
 dataset-download-tool --username $JASMIN_USERNAME --ssh xfer-vm-01.jasmin.ac.uk --ssh-download-path /gws/pw/j07/perf_testing/mtrceda/testdir --key-filename ~/.ssh/<jasmin ssh private key> --dest ./data/ --checksum
 ```
 
@@ -315,7 +314,7 @@ No auth + CEDA URL + destination + checksum:
   "no_auth":"",
   "url": "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1",
   "dest": "./data/",
-  "checksum": "",
+  "checksum": ""
 }
 ```
 
@@ -326,18 +325,19 @@ Token + CEDA URL + destination + checksum:
   "token": <ceda token>,
   "url": "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1",
   "dest": "./data/",
-  "checksum": "",
+  "checksum": ""
 }
 ```
 
 Token environment variable + CEDA URL + destination + checksum:
+FIXME: Where is environment set? The config is same as above
 
 ```JSON
 {
   "token": <ceda token>,
   "url": "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1",
   "dest": "./data/",
-  "checksum": "",
+  "checksum": ""
 }
 ```
 
@@ -351,7 +351,7 @@ Token environment variable + CEDA URL + destination + checksum:
 All commands can be run using `ddt` instead of `dataset-download-tool`:
 
 ```bash
-ddt --token <your token> --url https://dap.ceda.ac.uk/... --dest ./data/
+ddt --help
 ```
 
 ### Logging & Debugging
@@ -384,7 +384,7 @@ TODO:
 
 ## 📊 DAFNI Model
 
-The download tool can be used on the DAFNI Platform. Please refer to the [`MODEL_README.md`](/dafni-model/readme/MODEL_README.md). This goes over all steps on how setup the model to download the datasets on DAFNI workflows.
+The download tool can be used on the DAFNI Platform. Please refer to the [`MODEL_README.md`](/example-dafni-model/readme/MODEL_README.md). This goes over all steps on how setup the model to download the datasets on DAFNI workflows.
 
 ---
 
