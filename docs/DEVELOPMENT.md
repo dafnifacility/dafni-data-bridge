@@ -13,19 +13,24 @@ Before you begin, ensure you have the following installed:
 
 ### Clone the repository:
 ```bash
-$ git clone https://github.com/dafnifacility/dataset-download-tool.git
+git clone https://github.com/dafnifacility/dataset-download-tool.git
 Cloning into 'dataset-download-tool'...
 remote: Enumerating objects: 288, done.
 remote: Counting objects: 100% (288/288), done.
 remote: Compressing objects: 100% (180/180), done.
 Receiving objects: 100% (288/288), 1.23 MiB | 4.56 MiB/s, done.
 
-$ cd dataset-download-tool
+cd dataset-download-tool
 ```
 
 ### s3cmd setup 
 
-**Option -1:**
+You do not need to install s3cmd to upload to a S3 bucket but you can use it for testing purposes.
+
+```bash
+uv pip install s3cmd
+```
+**Option 1:**
 
 Setup locally, if you do not have could s3 instance access:
 
@@ -39,9 +44,7 @@ docker run -p 9000:9000 -p 9001:9001 \
 Open in browser `http://localhost:9001` and login with: `username: minioadmin password: minioadmin`
 
 
-
-
-Configure s3cmd for MinIO
+In a new console configure s3cmd for MinIO:
 
 ```sh
 export ACCESS_KEY=minioadmin
@@ -55,35 +58,23 @@ s3cmd --configure
 ```sh
 Access Key: minioadmin
 Secret Key: minioadmin
-
 Default Region: us-east-1
 S3 Endpoint: localhost:9000
-
-DNS-style bucket template:
-%(bucket)s.localhost:9000
-
+DNS-style bucket template: localhost:9000
 Use HTTPS: False
 ```
 
-
-
-
 **Option 2:**
 
-s3.echo.stfc.ac.uk ..TODO: **
+For internal users you can access the STFC Cloud S3 buckets. To access STFC Echo S3 you have to setup Openstack CLI and create EC2 credentials. 
 
+First follow the setup procedure in [setup_stfc_echo.md](setup_stfc_echo.md), then you can carry on with the s3cmd config
 
-You do not need to install s3cmd to upload to a S3 bucket but you can use it for testing purposes.
-
-```bash
-uv pip install s3cmd
-```
-
-Set are the access and secret key before configuring s3cmd with teh following commands. 
+Set access and secret key before configuring s3cmd with the following commands. 
 
 ```bash
-export ACCESS_KEY=[access_key]
-export SECRET_KEY=[secret_key]
+export ACCESS_KEY=[your access_key]
+export SECRET_KEY=[your secret_key]
 ```
 
 Configure s3cmd.
@@ -95,20 +86,18 @@ s3cmd --configure
 The following configurations to be set.
 
 ```
-Access Key: [access_key]
-Secret Key: [secret_key]
+Access Key: [your access_key]
+Secret Key: [your secret_key]
 Default Region: US
 S3 Endpoint: s3.echo.stfc.ac.uk
-DNS-style bucket+hostname:port template for accessing a bucket: %(bucket)s.s3.echo.stfc.ac.uk
+DNS-style bucket+hostname:port template for accessing a bucket: s3.echo.stfc.ac.uk
 Encryption password: 
 Path to GPG program: /usr/bin/gpg
 Use HTTPS protocol: True
 HTTP Proxy server name: 
 HTTP Proxy server port: 0
 
-
-
-Test access with supplied credentials? [Y/n] n
+Test access with supplied credentials? [Y/n] y
 ```
 
 Then use s3cmd to list the buckets
@@ -119,7 +108,7 @@ $ s3cmd ls
 
 **Option 3: NER DSE S3**
 
-
+TODO [WHEN WE GET ACCESS TO NERC PLATFORM]
 
 ## 📦 Environment Setup
 

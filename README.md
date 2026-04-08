@@ -8,12 +8,6 @@ It supports authentication via CEDA tokens, username/password, or SSH keys, and 
 
 ## Prerequisite
 
-TODO:
-- CEDA access and token
-- JASMIN access
-- GWS access
-
-
 ## 📦 Installation
 
 ```bash
@@ -66,11 +60,10 @@ The following flags are mutually exclusive and **cannot** be used together: `--u
 In the case of sensative information we can use env variables. These are set like any normal shell commands:
 
 ```bash
-export CEDA_USERNAME=<username>
-export CEDA_PASSWORD=<password>
-export CEDA_TOKEN=<token>
-export JASMIN_USERNAME=<jasmin gws username>
-
+export CEDA_USERNAME=<ceda username>
+export CEDA_PASSWORD=<ceda password>
+export CEDA_TOKEN=<ceda token>
+export JASMIN_USERNAME=<jasmin username>
 ```
 
 We can then call them when running the CLI tool with `$<VARIABLE>` E.G. `$CEDA_USERNAME` (further examples in [Authentication Methods](#-authentication-methods) section).
@@ -126,7 +119,7 @@ Connect to an SSH server and download a file by remote path.
 dataset-download-tool --username <username for ssh server> --ssh <SSH server ip> --ssh-download-path <File path to download> --key-filename <SSH auth key> --dest ./data/
 
 # example 1:
-dataset-download-tool --username $CEDA_USERNAME --ssh login.jasmin.ac.uk --ssh-download-path /gws/j07/remote/file.nc --key-filename ~/.ssh/id_rsa --dest ./data/
+dataset-download-tool --username $JASMIN_USERNAME --ssh xfer-vm-01.jasmin.ac.uk --ssh-download-path /gws/pw/j07/perf_testing/1GB.zip --key-filename ~/.ssh/<SSH secret key> --dest ./data/
 ```
 
 ### ⬇️ Download Options
@@ -166,7 +159,7 @@ dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/badc/ARCH
 dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/neodc/sister/data/QM2/KML/2012/Alice_GE_2012W02_QM2.kmz?download=1 --dest ./data/ --checksum
 ```
 
-**4. Token + URL + no progress bar:**
+**4. Token + CEDA URL + no progress bar:**
 
 ```bash
 dataset-download-tool --token <your token> --url <url of the source file> --dest <path where to save> --no-progress
@@ -194,7 +187,7 @@ dataset-download-tool --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/badc/ARCH
 dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 
 # example 2 with credentaials in CLI:
-dataset-download-tool --username Username --password P4ssW0rd --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
+dataset-download-tool --username johndoe --password P4ssW0rd --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 
 # example 3 restricted file to registered users only (check if file exists in CEDA):
 dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url https://dap.ceda.ac.uk/neodc/sister/data/QM2/KML/2012/Alice_GE_2012W02_QM2.kmz?download=1 --dest ./data/
@@ -227,8 +220,15 @@ dataset-download-tool --no-auth --url https://data.ceda.ac.uk/badc/ARCHIVE_INFO/
 ```bash
 dataset-download-tool --no-auth --url <GWS URL> --dest <path where to save> --checksum
 
-# example 1:
-dataset-download-tool --no-auth --url https://gws-access.jasmin.ac.uk/public/accord/ACCORD_SEAsia/GRIDT/SEAsia_HAD_5d_19910101_19911231_gridT.nc --dest ./data/ --checksum
+# example 1 single file:
+dataset-download-tool --no-auth --url https://gws-access.jasmin.ac.uk/public/perf-testing/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc --dest ./data/ --checksum
+
+# example 2 list of files download:
+dataset-download-tool --no-auth --url "https://gws-access.jasmin.ac.uk/public/perf
+-testing/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc | https://gws-access.jasmin.ac.uk/public/perf-testing/testdir/SEAsia_HAD_1m_19920101_19921231_gridU.nc" --dest ./data/ --checksum
+
+# example 3 directory download:
+dataset-download-tool --no-auth --url https://gws-access.jasmin.ac.uk/public/perf-testing/testdir/ --dest ./data/ --checksum
 ```
 
 #### FTP downloads
@@ -238,8 +238,14 @@ dataset-download-tool --no-auth --url https://gws-access.jasmin.ac.uk/public/acc
 ```bash
 dataset-download-tool --username anonymous --password <user email> --url <ftp file url> --dest <path where to save>
 
-# example 1:
-dataset-download-tool --username anonymous --password user@email.com --url ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/ --dest ./data/
+# example 1 single file:
+dataset-download-tool --username anonymous --password johndoe@email.com --url ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc --dest ./data/
+
+# example 2 list of files to download:
+dataset-download-tool --username anonymous --password johndoe@email.com --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc | ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724155203-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02083-v2.30.nc" --dest ./data/
+
+# example 3 directory downlaod:
+dataset-download-tool --username anonymous --password johndoe@email.com --url ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/-dest ./data/
 ```
 
 > **NOTE** CEDA FTP server is public, and is accessed with `anonymous` + `email` as username and password. [More information](https://help.ceda.ac.uk/article/280-ftp) can be found on the CEDA help page
@@ -249,18 +255,21 @@ dataset-download-tool --username anonymous --password user@email.com --url ftp:/
 **11. SSH + private key + destination:**
 
 ```bash
-dataset-download-tool --username <username for ssh server> --ssh <source ssh machine ip> --ssh-download-path <source file path to download> --key-filename <path to SSH key> --dest <path where to download> --checksum
+dataset-download-tool --username <username for ssh server> --ssh <source ssh machine ip> --ssh-download-path <source file path to download> --key-filename <path to SSH private key> --dest <path where to download> --checksum
 
-# example 1: downloading existing file from GWS
-dataset-download-tool --username $JASMIN_USERNAME --ssh xfer-vm-01.jasmin.ac.uk --ssh-download-path /gws/pw/j07/perf_testing/1GB.zip --key-filename ~/.ssh/<jasmin ssh private key> --dest ./data/ --checksum
+# example 1: downloading existing file from GWS SSH
+dataset-download-tool --username $JASMIN_USERNAME --ssh xfer-vm-01.jasmin.ac.uk --ssh-download-path /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc --key-filename ~/.ssh/<jasmin ssh private key> --dest ./data/ --checksum
 
-# example 2: downloading existing folder from GWS
+# example 2: downloading list of files from GWS SSH
+dataset-download-tool --username $JASMIN_USERNAME --ssh xfer-vm-01.jasmin.ac.uk --ssh-download-path "/gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc | /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19920101_19921231_gridU.nc" --key-filename ~/.ssh/jasmin.key --dest ./data/ --checksum
+
+# example 3: downloading existing folder from GWS SSH
 dataset-download-tool --username $JASMIN_USERNAME --ssh xfer-vm-01.jasmin.ac.uk --ssh-download-path /gws/pw/j07/perf_testing/mtrceda/testdir --key-filename ~/.ssh/<jasmin ssh private key> --dest ./data/ --checksum
 ```
 
-#### Save to S3
+### Save to S3
 
-> **Note:** You must have your S3 endpoint setup with ACCESS and SECRET key set as environment variables. The tool scans for ACCESS_KEY and SECRET_KEY as ENV varibles.
+> **Note:** You must have your S3 endpoint setup with ACCESS and SECRET key set as environment variables. The tool scans for ACCESS_KEY and SECRET_KEY as ENV varibles. [DEVELOPMENT.md](/docs/DEVELOPMENT.md) goes over S3 setup if needed.
 >
 > ```bash
 > $ export ACCESS_KEY=[access_key]
@@ -274,8 +283,11 @@ Can be used with any download mechanism only `--dest` should point to a S3 bucke
 ```bash
 dataset-download-tool --no-auth --url <url to download> --dest https://<bucket>.<S3 endpoint>/<key> --checksum
 
-# example 1:
-dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/00README.txt?download=1 --dest https://bucket.s3.echo..ac.uk/key --checksum
+# example 1 minio S3 example:
+dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/00README.txt?download=1 --dest http://test.localhost:9000/data/ --checksum
+
+# example 2 STFC cloud echo S3:
+dataset-download-tool --no-auth --url https://dap.ceda.ac.uk/badc/00README.txt?download=1 --dest https://bucket.s3.echo.stfc.ac.uk/key --checksum
 ```
 
 #### Save to Local Filesystem
@@ -351,7 +363,7 @@ Token environment variable + CEDA URL + destination + checksum:
 All commands can be run using `ddt` instead of `dataset-download-tool`:
 
 ```bash
-ddt --token <your token> --url https://dap.ceda.ac.uk/... --dest ./data/
+ddt --token $CEDA_TOKEN --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 --dest ./data/
 ```
 
 ### Logging & Debugging
