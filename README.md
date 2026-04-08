@@ -27,11 +27,16 @@ uv run mkdocs serve
 uv run mkdocs serve --livereload
 ```
 
+## Publish as page
 
---- 
+Go to https://github.com/dafnifacility/dataset-download-tool/settings/pages
+
+- Set Source to GitHub Actions
+- The docs will then be available at https://dafnifacility.github.io/dataset-download-tool/.
+
+---
 
 TODO: delete once cross checked!
-
 
 1. [🖥️ CLI](#1-️-cli)
 2. [🌿 API](#-api)
