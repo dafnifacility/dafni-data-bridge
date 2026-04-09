@@ -5,7 +5,7 @@ from socket import gaierror
 from typing import Optional
 from urllib.parse import urlparse
 
-from paramiko import AuthenticationException, SSHClient
+from paramiko import AuthenticationException, AutoAddPolicy, SSHClient
 from requests import Session
 
 from dataset_download_tool.downloader import get_downloader
@@ -69,12 +69,19 @@ class Client:
     def ssh_client(cls, url, hostname, username, key_filename) -> "Client":
         ssh = SSHClient()
         ssh.load_system_host_keys()
+        ssh.set_missing_host_key_policy(AutoAddPolicy())
         try:
             ssh.connect(hostname=hostname, username=username, key_filename=key_filename)
             return cls(url=url, session=ssh)
         except AuthenticationException as e:
-            logger.error(f"Could not access {hostname}: {e}")
-            raise AuthError(f"Could not access {hostname}: {e}")
+            logger.error(f"Could not access {hostname}")
+            raise AuthError(f"Please check username or key: {e}")
+        except gaierror as e:
+            logger.error(e)
+            raise ValidationError(f"Could not access {hostname}, please enter valid host")
+        except FileNotFoundError as e:
+            logger.error(e)
+            raise ValidationError("Please insert valid path for key")
 
     @classmethod
     def ftp_login(cls, url, username, password):
