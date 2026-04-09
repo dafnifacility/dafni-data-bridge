@@ -87,7 +87,7 @@ class HTTPDownloader(BaseDownloader):
         except requests.RequestException as e:
             logger.error(
                 f"download request failed: {e} \nNOTE:"
-                'If you are downloading a directory please ensure url ends with "/" e.g. https://url.com/dir'
+                'Please ensure you have access to file'
             )
             raise DownloadError(f"failed to download {url}: {e}") from e
 

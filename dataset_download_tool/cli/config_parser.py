@@ -109,6 +109,9 @@ class ConfigLoader:
         if config.username and not config.ssh and not config.password:
             self.parser.error("--username requires --password unless --ssh is used")
 
+        if config.ssh_download_path and not config.ssh:
+            self.parser.error("please give --ssh server")
+
         if config.token and config.ssh:
             self.parser.error("--ssh cannot be used with --token")
 
