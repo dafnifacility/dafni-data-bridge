@@ -19,16 +19,34 @@ Using `uv`:
 uv add git+https://github.com/dafnifacility/dataset-download-tool.git
 ```
 
+```sh
+source ./.venv/bin/activate
+```
+
+Run examples together:
+
+```bash
+export CEDA_USERNAME=...
+export CEDA_PASSWORD=...
+export CEDA_TOKEN=...
+export JASMIN_USERNAME=...
+export ACCESS_KEY=...
+export SECRET_KEY=...
+./scripts/run_cli_examples.sh
+```
+
+## Documentation
+
 Open the document:
 
 ```sh
 uv sync --extra docs
 uv run mkdocs serve
 # live reload during editing
-uv run mkdocs serve --livereload 
+uv run mkdocs serve --livereload
 ```
 
-## Publish as page
+### Publish as page
 
 Go to https://github.com/dafnifacility/dataset-download-tool/settings/pages
 
