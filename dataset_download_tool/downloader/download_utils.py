@@ -30,11 +30,16 @@ def resolve_destination(url: str, destination: Optional[str | Path]) -> Path:
         parsed = urlparse(destination)
 
         if destination.startswith(("https://", "http://")):
-            print(parsed)
-            path = parsed.path.split("/")
+            subdir = parsed.path.strip("/")
+            if not subdir:
+                raise ValidationError(
+                    f"S3 destination '{destination}' is missing a directory. "
+                    "Please provide a destination in the format: "
+                    "https://[BUCKET].[S3 ENDPOINT]/DIR (e.g. https://mybucket.s3.example.com/mydir)"
+                )
             bucket = parsed.netloc.split(".")[0]
             endpoint = parsed.scheme + "://" + parsed.netloc.replace(f"{bucket}.", "")
-            key = f"{path[1]}/{filename}"
+            key = f"{subdir}/{filename}"
             return {"endpoint": endpoint, "bucket": bucket, "key": key}
 
         if destination.startswith("s3://"):
