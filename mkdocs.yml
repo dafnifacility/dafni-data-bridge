@@ -80,6 +80,7 @@ nav:
   - Developer Guide:
     - Development Setup: developer-guide/setup.md
     - Architecture: developer-guide/architecture.md
+    - Design: developer-guide/design.md
     - Extending the Tool: developer-guide/extending.md
     - Testing: developer-guide/testing.md
   - API Reference:
