@@ -62,9 +62,8 @@ Open the document:
 
 ```sh
 uv sync --extra docs
-uv run mkdocs serve
-# live reload during editing
-uv run mkdocs serve --livereload
+uv run mkdocs serve --livereload # live reload during editing
+uv run mkdocs serve              # without live reloading 
 ```
 
 ### Publish as page
@@ -73,19 +72,3 @@ Go to https://github.com/dafnifacility/dataset-download-tool/settings/pages
 
 - Set Source to GitHub Actions
 - The docs will then be available at https://dafnifacility.github.io/dataset-download-tool/.
-
-
-
-
-## commands
-
-```sh
-
-dataset-download-tool \
-    --username $JASMIN_USERNAME \
-    --ssh xfer-vm-01.jasmin.ac.uk \
-    --ssh-download-path "/gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc | /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19920101_19921231_gridU.nc" \
-    --key-filename ~/.ssh/jasmin-gws-data-transfer-tool \
-    --dest ./data --checksum
-
-```

@@ -50,7 +50,7 @@ def test_file_access_failure(file_url, tmp_path):
 
     file.check_assertions()
     assert result.returncode == 1
-    assert "File not accesssible! Check login or file URL" in result.stdout
+    assert "File not accessible" in result.stdout
 
 
 def test_local_download_ceda(file_url, auth_url, tmp_path, monkeypatch):

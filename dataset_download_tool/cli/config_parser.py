@@ -26,11 +26,16 @@ class ConfigLoader:
             # download with token
             dataset-download-tool  --token CEDA_TOKEN --url https://dap.ceda.ac.uk/... --dest ./data/
 
+            # download multiple files (use quotes!)
+            dataset-download-tool  --token CEDA_TOKEN --url "url1 | url2" --dest ./data/
+
             # generate token and download
-           dataset-download-tool  --username CEDA_USERNAME --password CEDA_PASSWORD --url https://dap.ceda.ac.uk/...
+            dataset-download-tool  --username CEDA_USERNAME --password CEDA_PASSWORD --url https://dap.ceda.ac.uk/...
 
             # download with debug logging
             dataset-download-tool  --token CEDA_TOKEN --url URL --debug
+
+            Note: Always use quotes around URLs containing special characters (?, &, |)
             """,
         )
 
@@ -57,7 +62,10 @@ class ConfigLoader:
 
         # download options
         download_group = parser.add_mutually_exclusive_group(required=False)
-        download_group.add_argument("--url", help="url to download")
+        download_group.add_argument(
+            "--url",
+            help='URL to download. For multiple URLs, use quotes with pipe separator: --url "url1 | url2"'
+        )
         download_group.add_argument("--ssh-download-path", "-dp", help="path of file to download")
         parser.add_argument(
             "--dest", "-d", help="destination path or directory (default: current directory)"
@@ -129,6 +137,16 @@ class ConfigLoader:
 
         if not config.url and not config.ssh_download_path:
             self.parser.error("please provide download path with --url or --ssh-download-path")
+
+        # Validate URL format - help users with pipe separator syntax
+        if config.url and "|" in config.url:
+            # Check if URLs are properly formatted
+            urls = [u.strip() for u in config.url.split("|") if u.strip()]
+            if len(urls) < 2:
+                self.parser.error(
+                    "Invalid URL format with pipe separator. "
+                    'For multiple URLs, use: --url "url1 | url2"'
+                )
 
     def parse(self, argv=None) -> argparse.Namespace:
         """

@@ -10,21 +10,23 @@
 #   CEDA_PASSWORD      CEDA archive password
 #   CEDA_TOKEN         CEDA access token
 #   JASMIN_USERNAME    JASMIN GWS username
+#   SSH_KEY            Path to SSH private key (no default - must be set)
 #   ACCESS_KEY         S3 access key (for S3 destination examples)
 #   SECRET_KEY         S3 secret key (for S3 destination examples)
 #   S3_MINIO_DEST      MinIO S3 destination (e.g. http://test.localhost:9000/data/)
 #   S3_STFC_DEST       STFC Echo S3 destination (e.g. https://ddttest.s3.echo.stfc.ac.uk/key)
 #
 # Optional:
-#   SSH_KEY            Path to SSH private key (default: ~/.ssh/id_rsa)
 #   FTP_EMAIL          Email to use as anonymous FTP password
 #                      (default: anonymous@example.com)
 #   DEST               Destination directory for downloads (default: ./data/)
 #   CONFIG_FILE        JSON config file path (default: config.json)
+#                      If explicitly set to a non-default value, file must exist
 #   SLEEP_BETWEEN      Seconds to sleep between commands (default: 2)
 #
 # Usage:
 #   export CEDA_USERNAME=... CEDA_PASSWORD=... CEDA_TOKEN=... JASMIN_USERNAME=...
+#   export SSH_KEY=/path/to/your/private/key
 #   export ACCESS_KEY=... SECRET_KEY=...
 #   export S3_MINIO_DEST=http://test.localhost:9000/data/
 #   export S3_STFC_DEST=https://ddttest.s3.echo.stfc.ac.uk/dataset
@@ -36,14 +38,14 @@ set -u  # error on unset variables
 # even if one fails. Each command's exit code is reported at the end.
 
 # ---- Defaults ---------------------------------------------------------------
-SSH_KEY="${SSH_KEY:-$HOME/.ssh/id_rsa}"
+SSH_KEY="${SSH_KEY:-}"  # No default - must be explicitly provided
 FTP_EMAIL="${FTP_EMAIL:-anonymous@example.com}"
 DEST="${DEST:-./data/}"
 CONFIG_FILE="${CONFIG_FILE:-config.json}"
-SLEEP_BETWEEN="${SLEEP_BETWEEN:-2}"
+SLEEP_BETWEEN="${SLEEP_BETWEEN:-3}"
 
 # ---- Required variable check -----------------------------------------------
-REQUIRED_VARS=(CEDA_USERNAME CEDA_PASSWORD CEDA_TOKEN JASMIN_USERNAME ACCESS_KEY SECRET_KEY S3_MINIO_DEST S3_STFC_DEST)
+REQUIRED_VARS=(CEDA_USERNAME CEDA_PASSWORD CEDA_TOKEN JASMIN_USERNAME ACCESS_KEY SECRET_KEY S3_MINIO_DEST S3_STFC_DEST SSH_KEY)
 missing=0
 for var in "${REQUIRED_VARS[@]}"; do
   if [[ -z "${!var:-}" ]]; then
@@ -54,6 +56,16 @@ done
 if [[ $missing -ne 0 ]]; then
   echo "Set the required environment variables and re-run." >&2
   exit 1
+fi
+
+# ---- Config file check -----------------------------------------------------
+# If CONFIG_FILE is explicitly set (not default) or if default exists, validate it
+if [[ -n "${CONFIG_FILE}" && "${CONFIG_FILE}" != "config.json" ]]; then
+  # User explicitly set CONFIG_FILE, so it must exist
+  if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo "ERROR: CONFIG_FILE is set to '$CONFIG_FILE' but file does not exist" >&2
+    exit 1
+  fi
 fi
 
 mkdir -p "$DEST"
@@ -171,9 +183,9 @@ run_step() {
   dst="$(detect_dest "$@")"
   echo
   echo "=============================================================="
-  echo "[$step] $name  (auth: $auth, $src -> $dst)"
+  echo "➡️  [$step] $name  (auth: $auth, $src -> $dst)"
   echo "--------------------------------------------------------------"
-  echo "+ $(mask_command "$@")"
+  echo "🖥️  $(mask_command "$@")"
   echo "--------------------------------------------------------------"
   "$@"
   local rc=$?
@@ -192,21 +204,21 @@ run_step() {
 run_step "Debug logging" \
   dataset-download-tool \
     --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \
-    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1" \
+    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK" \
     --dest "$DEST" \
     --debug
 
 run_step "Log file" \
   dataset-download-tool \
     --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \
-    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1" \
+    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK" \
     --dest "$DEST" \
     --log-file ./download.log
 
 run_step "Debug + log file" \
   dataset-download-tool \
     --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \
-    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1" \
+    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK" \
     --dest "$DEST" \
     --debug --log-file ./download.log
 
@@ -216,7 +228,7 @@ run_step "Debug + log file" \
 
 run_step "No auth download" \
   dataset-download-tool --no-auth \
-    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1" \
+    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt" \
     --dest "$DEST"
 
 # =============================================================================
@@ -226,7 +238,7 @@ run_step "No auth download" \
 run_step "Username/password (env vars)" \
   dataset-download-tool \
     --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \
-    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1" \
+    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK" \
     --dest "$DEST"
 
 # =============================================================================
@@ -236,7 +248,7 @@ run_step "Username/password (env vars)" \
 run_step "Token auth" \
   dataset-download-tool \
     --token "$CEDA_TOKEN" \
-    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1" \
+    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-06.jsonl.gz" \
     --dest "$DEST"
 
 # =============================================================================
@@ -280,12 +292,21 @@ if [[ -f "$CONFIG_FILE" ]]; then
 fi
 
 # =============================================================================
+# Download Options: Single URLs
+# =============================================================================
+
+run_step "Single URL" \
+  dataset-download-tool --no-auth \
+    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-05.jsonl.gz" \
+    --dest "$DEST"
+
+# =============================================================================
 # Download Options: Multiple URLs
 # =============================================================================
 
 run_step "Multiple URLs (pipe-separated)" \
   dataset-download-tool --no-auth \
-    --url "https://dap.ceda.ac.uk/badc/file1.txt?download=1 | https://dap.ceda.ac.uk/badc/file2.txt?download=1" \
+    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-05.jsonl.gz | https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-05.jsonl.gz" \
     --dest "$DEST"
 
 # =============================================================================
@@ -303,17 +324,17 @@ run_step "HTTP directory download" \
 
 run_step "GWS HTTP: single file" \
   dataset-download-tool --no-auth \
-    --url "https://gws-access.jasmin.ac.uk/public/perf-testing/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc" \
+    --url "https://gws-access.jasmin.ac.uk/public/perf_testing/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc" \
     --dest "$DEST" --checksum
 
 run_step "GWS HTTP: multiple files" \
   dataset-download-tool --no-auth \
-    --url "https://gws-access.jasmin.ac.uk/public/perf-testing/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc | https://gws-access.jasmin.ac.uk/public/perf-testing/testdir/SEAsia_HAD_1m_19920101_19921231_gridU.nc" \
+    --url "https://gws-access.jasmin.ac.uk/public/perf_testing/testdir/SEAsia_HAD_1m_19920101_19921231_gridU.nc | https://gws-access.jasmin.ac.uk/public/perf_testing/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc" \
     --dest "$DEST" --checksum
 
 run_step "GWS HTTP: entire directory" \
   dataset-download-tool --no-auth \
-    --url "https://gws-access.jasmin.ac.uk/public/perf-testing/testdir/" \
+    --url "https://gws-access.jasmin.ac.uk/public/perf_testing/testdir/" \
     --dest "$DEST" --checksum
 
 # =============================================================================
@@ -372,12 +393,12 @@ run_step "SSH: entire directory" \
 
 run_step "S3 destination: MinIO (local)" \
   dataset-download-tool --no-auth \
-    --url "https://dap.ceda.ac.uk/badc/00README.txt?download=1" \
+    --url "https://gws-access.jasmin.ac.uk/public/perf_testing/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc" \
     --dest "$S3_MINIO_DEST" --checksum
 
 run_step "S3 destination: STFC Echo" \
   dataset-download-tool --no-auth \
-    --url "https://dap.ceda.ac.uk/badc/00README.txt?download=1" \
+    --url "https://dap.ceda.ac.uk/badc/00README.txt" \
     --dest "$S3_STFC_DEST" --checksum
 
 # =============================================================================
@@ -387,7 +408,7 @@ run_step "S3 destination: STFC Echo" \
 run_step "Timeout and retries" \
   dataset-download-tool \
     --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \
-    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1" \
+    --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK" \
     --dest "$DEST" --timeout 60 --retries 5
 
 # =============================================================================

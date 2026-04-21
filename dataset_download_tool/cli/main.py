@@ -3,9 +3,11 @@ import sys
 
 from dataset_download_tool.cli.config_parser import ConfigLoader
 from dataset_download_tool.exceptions import (
+    AuthenticationRequiredError,
     AuthError,
     BucketNotFoundError,
     DownloadError,
+    HTTPError,
     TokenValidationError,
     ValidationError,
 )
@@ -69,8 +71,29 @@ def main():
         logger.error(f"authentication failed: {e}")
         sys.exit(1)
 
+    except AuthenticationRequiredError as e:
+        logger.error(f"authentication required: {e}")
+        if args.no_auth:
+            logger.info("Tip: The file may require authentication. Remove --no-auth and use --token or --username/--password")
+        sys.exit(1)
+
+    except HTTPError as e:
+        if e.url:
+            logger.error(f"HTTP error for {e.url}: {e}")
+        else:
+            logger.error(f"HTTP error: {e}")
+        if e.status_code:
+            logger.info(f"HTTP status code: {e.status_code}")
+        sys.exit(1)
+
     except DownloadError as e:
-        logger.error(f"download failed: {e}")
+        if args.url:
+            logger.error(f"download failed for {args.url}: {e}")
+        elif args.ssh_download_path:
+            logger.error(f"download failed for {args.ssh_download_path}: {e}")
+        else:
+            logger.error(f"download failed: {e}")
+        logger.info("Tip: For multiple files, use quotes: --url \"url1 | url2\"")
         sys.exit(1)
 
     except BucketNotFoundError as e:

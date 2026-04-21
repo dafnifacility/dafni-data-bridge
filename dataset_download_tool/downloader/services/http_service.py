@@ -8,7 +8,7 @@ from dataset_download_tool.downloader.download_utils import (
     logger,
 )
 from dataset_download_tool.downloader.models import DownloadResult, ProgressCallback
-from dataset_download_tool.exceptions import DownloadError
+from dataset_download_tool.exceptions import AuthenticationRequiredError, DownloadError, HTTPError
 
 
 class HTTPDownloader(BaseDownloader):
@@ -75,21 +75,48 @@ class HTTPDownloader(BaseDownloader):
 
         Returns:
             generator: A generator that yields chunks of data
-            int: total numver of bytes
+            int: total number of bytes
 
         """
 
         try:
             response = self._session.get(url, stream=True)
             response.raise_for_status()
-            if response.headers["Content-Type"] == "text/html; charset=utf-8":
-                raise DownloadError("File not accesssible! Check login or file URL")
+
+            # Check if response is HTML (case-insensitive, handle missing header)
+            content_type = response.headers.get("Content-Type", "").lower()
+            if "text/html" in content_type:
+                # Likely an authentication page or error page
+                raise AuthenticationRequiredError(
+                    f"File not accessible at {url}. "
+                    f"Received HTML response (status {response.status_code}). "
+                    "Please check your authentication or verify the file URL.",
+                    status_code=response.status_code,
+                    url=url
+                )
+
+        except requests.HTTPError as e:
+            # Provide more detailed HTTP error information
+            status_code = None
+            if e.response is not None:
+                status_code = getattr(e.response, 'status_code', None)
+            status_str = str(status_code) if status_code is not None else "unknown"
+            logger.error(
+                f"HTTP error {status_str} while downloading {url}: {e}\n"
+                "Please ensure you have access to the file and the URL is correct."
+            )
+            raise HTTPError(
+                f"Failed to download {url}: HTTP {status_str} - {e}",
+                status_code=status_code,
+                url=url
+            ) from e
+
         except requests.RequestException as e:
             logger.error(
-                f"download request failed: {e} \nNOTE:"
-                'Please ensure you have access to file'
+                f"Download request failed for {url}: {e}\n"
+                "Please ensure you have network connectivity and access to the file."
             )
-            raise DownloadError(f"failed to download {url}: {e}") from e
+            raise DownloadError(f"Failed to download {url}: {e}") from e
 
         total_size = int(response.headers.get("content-length", 0)) or None
 

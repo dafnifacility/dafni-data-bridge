@@ -22,6 +22,21 @@ class DownloadError(DFTError):
     pass
 
 
+class HTTPError(DownloadError):
+    """raised when HTTP request fails."""
+
+    def __init__(self, message: str, status_code: int = None, url: str = None):
+        super().__init__(message)
+        self.status_code = status_code
+        self.url = url
+
+
+class AuthenticationRequiredError(HTTPError):
+    """raised when authentication is required but not provided."""
+
+    pass
+
+
 class ValidationError(DownloadError):
     """raised when input validation fails."""
 

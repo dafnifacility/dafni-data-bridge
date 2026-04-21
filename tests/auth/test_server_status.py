@@ -26,5 +26,5 @@ def test_server_access_failure(file_url, auth_url, tmp_path, monkeypatch):
     )
 
     assert result.returncode == 1
-    assert result.stdout.__contains__("download failed: failed to download")
+    assert result.stdout.__contains__("download failed")
     server.check_assertions()
