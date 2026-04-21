@@ -46,7 +46,7 @@ export JASMIN_USERNAME=<jasmin gws username>
 Reference them in commands with `$VARIABLE`:
 
 ```bash
-dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url <url> --dest ./data/
+dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url "<url>" --dest ./data/
 ```
 
 For S3 uploads, set the following:
@@ -69,19 +69,19 @@ export SECRET_KEY=<secret_key>
 Enable debug logging:
 
 ```bash
-dataset-download-tool --token $CEDA_TOKEN --url <url> --debug
+dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url "<url>" --debug
 ```
 
 Write logs to a file:
 
 ```bash
-dataset-download-tool --token $CEDA_TOKEN --url <url> --log-file ./download.log
+dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url "<url>" --log-file ./download.log
 ```
 
 Both:
 
 ```bash
-dataset-download-tool --token $CEDA_TOKEN --url <url> --debug --log-file ./download.log
+dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD --url "<url>" --debug --log-file ./download.log
 ```
 
 ---
@@ -93,14 +93,14 @@ dataset-download-tool --token $CEDA_TOKEN --url <url> --debug --log-file ./downl
 For publicly accessible files that require no credentials.
 
 ```bash
-dataset-download-tool --no-auth --url <url> --dest <path>
+dataset-download-tool --no-auth --url "<url>" --dest <path>
 ```
 
 **Example:**
 
 ```bash
 dataset-download-tool --no-auth \
-  --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1 \
+  --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1" \
   --dest ./data/
 ```
 
@@ -113,7 +113,7 @@ The tool supports four authentication methods depending on the data source and a
 Authenticate using CEDA credentials. Register for a [CEDA Archive account](https://accounts.ceda.ac.uk/realms/ceda/login-actions/registration?client_id=account-console&tab_id=H-sQE2Qp8_I) if you don't have one. A token is generated automatically from your credentials.
 
 ```bash
-dataset-download-tool --username <user> --password <pass> --url <url> --dest <path>
+dataset-download-tool --username <user> --password <pass> --url "<url>" --dest <path>
 ```
 
 **Examples:**
@@ -121,31 +121,32 @@ dataset-download-tool --username <user> --password <pass> --url <url> --dest <pa
 ```bash
 # Using environment variables (recommended)
 dataset-download-tool --username $CEDA_USERNAME --password $CEDA_PASSWORD \
-  --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 \
+  --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1" \
   --dest ./data/
 
 # Inline credentials
 dataset-download-tool --username johndoe --password P4ssW0rd \
-  --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 \
+  --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1" \
   --dest ./data/
 ```
 
 !!! tip "Verify authentication"
-If the downloaded `TOKEN_CHECK` file contains "Congratulations, you have successfully authenticated with CEDA using a token." then credentials are working correctly.
+
+    If the downloaded `TOKEN_CHECK` file contains "Congratulations, you have successfully authenticated with CEDA using a token." then credentials are working correctly.
 
 #### Token Authentication
 
 Authenticate using a CEDA access token. Get your token from the [CEDA token page](https://services-beta.ceda.ac.uk/account/token/).
 
 ```bash
-dataset-download-tool --token <token> --url <url> --dest <path>
+dataset-download-tool --token <token> --url "<url>" --dest <path>
 ```
 
 **Example:**
 
 ```bash
 dataset-download-tool --token $CEDA_TOKEN \
-  --url https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1 \
+  --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1" \
   --dest ./data/
 ```
 
@@ -171,13 +172,14 @@ dataset-download-tool --username $JASMIN_USERNAME \
 # Entire directory from JASMIN GWS
 dataset-download-tool --username $JASMIN_USERNAME \
   --ssh xfer-vm-01.jasmin.ac.uk \
-  --ssh-download-path /gws/pw/j07/perf_testing/mtrceda/testdir \
+  --ssh-download-path /gws/pw/j07/perf_testing/test_download_dir \
   --key-filename ~/.ssh/id_rsa \
   --dest ./data/
 ```
 
 !!! warning "Security"
-Never hardcode credentials in scripts or config files that are shared. Use environment variables or secure credential stores.
+
+    Never hardcode credentials in scripts or config files that are shared. Use environment variables or secure credential stores.
 
 ### Using Configuration File
 
@@ -265,7 +267,8 @@ Pass a directory URL to download all files within it:
 
 ```bash
 dataset-download-tool --no-auth \
-  --url https://data.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989 --dest ./data/
+  --url "https://data.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989" \
+  --dest ./data/
 ```
 
 #### GWS HTTP Downloads
@@ -275,7 +278,7 @@ Download files from JASMIN Group Workspace (GWS) public HTTP endpoints:
 ```bash
 # Single file
 dataset-download-tool --no-auth \
-  --url https://gws-access.jasmin.ac.uk/public/perf-testing/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc \
+  --url "https://gws-access.jasmin.ac.uk/public/perf-testing/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc" \
   --dest ./data/ --checksum
 
 # Multiple files (pipe-separated)
@@ -285,7 +288,7 @@ dataset-download-tool --no-auth \
 
 # Entire directory
 dataset-download-tool --no-auth \
-  --url https://gws-access.jasmin.ac.uk/public/perf-testing/testdir/ \
+  --url "https://gws-access.jasmin.ac.uk/public/perf-testing/testdir/" \
   --dest ./data/ --checksum
 ```
 
@@ -294,12 +297,13 @@ dataset-download-tool --no-auth \
 CEDA FTP server is public — use `anonymous` as username and your email as password.
 
 !!! info
-See the [CEDA FTP help page](https://help.ceda.ac.uk/article/280-ftp) for more information.
+
+    See the [CEDA FTP help page](https://help.ceda.ac.uk/article/280-ftp) for more information.
 
 ```bash
 # Single file
 dataset-download-tool --username anonymous --password johndoe@email.com \
-  --url ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc \
+  --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc" \
   --dest ./data/
 
 # Multiple files (pipe-separated)
@@ -309,7 +313,7 @@ dataset-download-tool --username anonymous --password johndoe@email.com \
 
 # Entire directory
 dataset-download-tool --username anonymous --password johndoe@email.com \
-  --url ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/ \
+  --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/" \
   --dest ./data/
 ```
 
@@ -335,7 +339,7 @@ dataset-download-tool --username $JASMIN_USERNAME \
 # Entire directory
 dataset-download-tool --username $JASMIN_USERNAME \
   --ssh xfer-vm-01.jasmin.ac.uk \
-  --ssh-download-path /gws/pw/j07/perf_testing/mtrceda/testdir \
+  --ssh-download-path /gws/pw/j07/perf_testing/test_download_dir \
   --key-filename ~/.ssh/id_rsa \
   --dest ./data/ --checksum
 ```
@@ -354,20 +358,21 @@ Can be used with any download method — just point `--dest` at an S3 bucket:
 ```bash
 # MinIO (local)
 dataset-download-tool --no-auth \
-  --url https://dap.ceda.ac.uk/badc/00README.txt?download=1 \
-  --dest http://test.localhost:9000/data/ --checksum
+  --url "https://dap.ceda.ac.uk/badc/00README.txt?download=1" \
+  --dest "http://test.localhost:9000/data/" --checksum
 
 # STFC Echo S3
 dataset-download-tool --no-auth \
-  --url https://dap.ceda.ac.uk/badc/00README.txt\?download\=1 \
-  --dest https://ddttest.s3.echo.stfc.ac.uk/key --checksum
+  --url "https://dap.ceda.ac.uk/badc/00README.txt?download=1" \
+  --dest "https://ddttest.s3.echo.stfc.ac.uk/key" --checksum
 ```
 
 !!! tip
-See the [Development Setup — S3 Setup](../developer-guide/setup.md#s3-setup-optional) section for configuring S3 endpoints.
+
+    See the [Development Setup — S3 Setup](../developer-guide/setup.md#s3-setup-optional) section for configuring S3 endpoints.
 
 ### Timeout and Retries
 
 ```bash
-dataset-download-tool --token $CEDA_TOKEN --url <url> --dest ./data/ --timeout 60 --retries 5
+dataset-download-tool --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \ --url "<url>" --dest ./data/ --timeout 60 --retries 5
 ```

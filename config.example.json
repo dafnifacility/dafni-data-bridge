@@ -1,6 +1,7 @@
 {
-  "token": "YOUR_TOKEN",
-  "url": "https://dap.ceda.ac.uk/path/to/file",
+  "username": "",
+  "password": "",
+  "url": " https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK",
   "dest": "./data/",
   "checksum": "",
   "retries": 5,

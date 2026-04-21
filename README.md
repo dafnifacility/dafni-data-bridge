@@ -23,7 +23,26 @@ uv add git+https://github.com/dafnifacility/dataset-download-tool.git
 source ./.venv/bin/activate
 ```
 
-Run examples together:
+## ⚠️ Important: Using Quotes for URLs
+
+**Always use quotes around URLs**, especially when:
+- URLs contain special shell characters (`?`, `&`, `|`)
+- Downloading multiple files (separated by `|`)
+
+```bash
+# CORRECT - with quotes
+dataset-download-tool --no-auth --url "https://example.com/file.txt" --dest ./data/
+
+# CORRECT - multiple URLs with quotes
+dataset-download-tool --token TOKEN --url "url1 | url2" --dest ./data/
+
+# WRONG - without quotes (will cause shell errors)
+dataset-download-tool --no-auth --url https://example.com/file.txt --dest ./data/
+```
+
+If you see shell errors like `no matches found`, make sure you're using quotes around your URLs!
+
+Run all examples together:
 
 ```bash
 export CEDA_USERNAME=...
@@ -32,6 +51,8 @@ export CEDA_TOKEN=...
 export JASMIN_USERNAME=...
 export ACCESS_KEY=...
 export SECRET_KEY=...
+export S3_MINIO_DEST=
+export S3_STFC_DEST=
 ./scripts/run_cli_examples.sh
 ```
 
@@ -52,3 +73,19 @@ Go to https://github.com/dafnifacility/dataset-download-tool/settings/pages
 
 - Set Source to GitHub Actions
 - The docs will then be available at https://dafnifacility.github.io/dataset-download-tool/.
+
+
+
+
+## commands
+
+```sh
+
+dataset-download-tool \
+    --username $JASMIN_USERNAME \
+    --ssh xfer-vm-01.jasmin.ac.uk \
+    --ssh-download-path "/gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc | /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19920101_19921231_gridU.nc" \
+    --key-filename ~/.ssh/jasmin-gws-data-transfer-tool \
+    --dest ./data --checksum
+
+```
