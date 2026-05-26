@@ -10,6 +10,7 @@ from botocore.exceptions import ClientError
 if TYPE_CHECKING:
     from mypy_boto3_s3 import S3Client as S3ClientBoto3
 
+from dataset_download_tool.uploader.base import BaseUploader
 from dataset_download_tool.downloader.models import ProgressCallback
 from dataset_download_tool.exceptions import AuthError, BucketNotFoundError
 
@@ -26,14 +27,14 @@ ACCESS_KEY = os.getenv("ACCESS_KEY")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 
-class S3Client:
-    """S3 file uploader class
+class S3Client(BaseUploader):
+    """
+    S3 file uploader class
 
     This class opens an S3 client and uploads chunks
 
     Args:
         s3_endpoint: str of endpoint to s3
-
     """
 
     CHUNK_SIZE = 5 * 1024 * 1024
@@ -48,7 +49,7 @@ class S3Client:
             config=CONFIG,
         )
 
-    def upload_to_s3(
+    def upload(
         self,
         chunk_iter: Iterable[bytes],
         bucket: str,

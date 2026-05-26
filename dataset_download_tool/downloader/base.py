@@ -16,7 +16,8 @@ from dataset_download_tool.downloader.download_utils import (
     resolve_destination,
 )
 from dataset_download_tool.downloader.models import DownloadResult, ProgressCallback
-from dataset_download_tool.remote_upload.s3_upload import S3Client
+# from dataset_download_tool.remote_upload.s3_upload import S3Client
+from dataset_download_tool.uploader import get_uploader
 from dataset_download_tool.exceptions import ValidationError
 
 
@@ -95,11 +96,12 @@ class BaseDownloader(ABC):
             checksum=checksum,
         )
 
-    def s3_upload(
+    def remote_path_upload(
         self, url, chunk_iter, dest_path, calculate_checksum, progress_callback, total_size
     ) -> DownloadResult:
-        s3_uploader = S3Client(s3_endpoint=dest_path["endpoint"])
-        result = s3_uploader.upload_to_s3(
+        # s3_uploader = S3Client(s3_endpoint=dest_path["endpoint"])
+        uploader = get_uploader(endpoint_url=dest_path["endpoint"])
+        result = uploader.upload(
             chunk_iter=chunk_iter,
             bucket=dest_path["bucket"],
             key=dest_path["key"],
@@ -162,7 +164,7 @@ class BaseDownloader(ABC):
                     )
 
                 if isinstance(dest_path, dict):
-                    return self.s3_upload(
+                    return self.remote_path_upload(
                         url=url,
                         chunk_iter=chunk_iter,
                         dest_path=dest_path,
