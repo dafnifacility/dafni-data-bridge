@@ -16,7 +16,7 @@ from dataset_download_tool.downloader.download_utils import (
     resolve_destination,
 )
 from dataset_download_tool.downloader.models import DownloadResult, ProgressCallback
-from dataset_download_tool.downloader.s3_upload import S3Client
+from dataset_download_tool.downloader.remote_upload.s3_upload import S3Client
 from dataset_download_tool.exceptions import ValidationError
 
 
