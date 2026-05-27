@@ -7,9 +7,10 @@ from typing import Iterable, Optional, TYPE_CHECKING
 from azure.storage.blob import BlobServiceClient, BlobBlock
 from azure.core.exceptions import ResourceNotFoundError, ClientAuthenticationError, HttpResponseError
 
+
 from dataset_download_tool.downloader.models import ProgressCallback
-from dataset_download_tool.exceptions import AuthError, BucketNotFoundError
-from dataset_download_tool.uploader.base import BaseUploader
+from dataset_download_tool.exceptions import AuthError, BucketNotFoundError, ValidationError
+from dataset_download_tool.storage_selector.base import BaseUploader
 
 logger = logging.getLogger(__name__)
 
@@ -21,14 +22,20 @@ class AzureBlobClient(BaseUploader):
     CHUNK_SIZE = 4 * 1024 * 1024
 
     def __init__(self, blob_url: str):
-
-        self._client = BlobServiceClient(
-            account_url=blob_url,
-            credential=AZURE_STOAGE_KEY,
-            connection_timeout=10,
-            read_timeout=120,
-            retry_total=5,
-        )
+        try:
+            self._client = BlobServiceClient(
+                account_url=blob_url,
+                credential=AZURE_STOAGE_KEY,
+                connection_timeout=10,
+                read_timeout=120,
+                retry_total=5,
+            )
+        except ValueError as e:
+            logger.error(f"Cannot Access Azure URL: {e}")
+            raise ValidationError(
+                f"Invalid Azure endpoint URL: {blob_url}. "
+                f"Ensure it follows the format: https://<container>.blob.core.windows.net/dir"
+            )
 
     def upload(
         self,
@@ -98,6 +105,7 @@ class AzureBlobClient(BaseUploader):
             logger.error(f"Unexpected error during upload: {e}")
             self._abort_block_upload(blob_client, key)
             raise
+
 
     def _stage_block(self, blob_client, data: bytes) -> str:
         """Stage a single block and return its block ID."""

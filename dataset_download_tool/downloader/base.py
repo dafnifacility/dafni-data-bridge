@@ -13,13 +13,14 @@ from dataset_download_tool.downloader.download_utils import (
     multiple_download_result,
     multiple_url_download,
     multiple_urls_split,
-    resolve_destination,
 )
+from dataset_download_tool.storage_selector.selector_utils import resolve_destination
 from dataset_download_tool.downloader.models import DownloadResult, ProgressCallback
-# from dataset_download_tool.remote_upload.s3_upload import S3Client
-from dataset_download_tool.uploader import get_uploader
+
+from dataset_download_tool.storage_selector import get_uploader
 from dataset_download_tool.exceptions import ValidationError
 
+STORAGE_MAP = {0: "local", 1: "s3", 2: "azure"}
 
 class BaseDownloader(ABC):
     """Abstract base class for all downloader implementations.
@@ -55,7 +56,7 @@ class BaseDownloader(ABC):
         pass
 
     @abstractmethod
-    def _recursive_download(self, url, destination, calculate_checksum, progress_callback) -> list[DownloadResult]:
+    def _recursive_download(self, url, destination, calculate_checksum, progress_callback, storage) -> list[DownloadResult]:
         pass
 
     def _write_file(
@@ -97,10 +98,17 @@ class BaseDownloader(ABC):
         )
 
     def remote_path_upload(
-        self, url, chunk_iter, dest_path, calculate_checksum, progress_callback, total_size
+        self, 
+        url, 
+        chunk_iter, 
+        dest_path, 
+        calculate_checksum, 
+        progress_callback, 
+        total_size, 
+        storage
     ) -> DownloadResult:
-        # s3_uploader = S3Client(s3_endpoint=dest_path["endpoint"])
-        uploader = get_uploader(endpoint_url=dest_path["endpoint"])
+        
+        uploader = get_uploader(storage=storage,endpoint_url=dest_path["endpoint"])
         result = uploader.upload(
             chunk_iter=chunk_iter,
             bucket=dest_path["bucket"],
@@ -122,6 +130,7 @@ class BaseDownloader(ABC):
         destination: Optional[str | Path] = None,
         progress_callback: Optional[ProgressCallback] = None,
         calculate_checksum: bool = False,
+        storage: int = 0
     ) -> DownloadResult:
         """Args:
             url: url to download from.
@@ -139,19 +148,25 @@ class BaseDownloader(ABC):
             DownloadError: if download fails.
 
         """
+
+        storage_map = STORAGE_MAP[storage]
+        logger.info(f"Downloading to storage: {storage_map}")
+
         url = multiple_urls_split(url)
+        
         if isinstance(url, str):
-            dest_path = resolve_destination(url, destination)
+
+            dest_path = resolve_destination(url, destination, storage)
             if self._is_directory(url):
                 logger.info(f"Downloading directory: {url}")
-                directory_download = self._recursive_download(url, dest_path, calculate_checksum, progress_callback)
+                directory_download = self._recursive_download(url, dest_path, calculate_checksum, progress_callback, storage)
                 return multiple_download_result(url, directory_download)
             else:
                 logger.info(f"starting download: {url}")
                 logger.info(f"destination: {dest_path}")
 
                 chunk_iter, total_size = self._stream(url)
-                if isinstance(dest_path, Path):
+                if storage_map=="local":
                     if total_size:
                         logger.info(f"file size: {total_size / (1024 * 1024):.2f} MB")
                     return self._write_file(
@@ -162,8 +177,7 @@ class BaseDownloader(ABC):
                         calculate_checksum=calculate_checksum,
                         progress_callback=progress_callback,
                     )
-
-                if isinstance(dest_path, dict):
+                if storage_map=="s3" or storage_map=="azure":
                     return self.remote_path_upload(
                         url=url,
                         chunk_iter=chunk_iter,
@@ -171,6 +185,7 @@ class BaseDownloader(ABC):
                         calculate_checksum=calculate_checksum,
                         progress_callback=progress_callback,
                         total_size=total_size,
+                        storage=storage
                     )
 
         if isinstance(url, list):
@@ -180,5 +195,6 @@ class BaseDownloader(ABC):
                 session=self._session,
                 calculate_checksum=calculate_checksum,
                 progress_callback=progress_callback,
+                storage=storage
             )
             return multiple_download_result(url, download_files)

@@ -4,11 +4,11 @@ import requests
 
 from dataset_download_tool.downloader.base import BaseDownloader
 from dataset_download_tool.downloader.download_utils import (
-    append_bucket_url,
     logger,
 )
 from dataset_download_tool.downloader.models import DownloadResult, ProgressCallback
 from dataset_download_tool.exceptions import AuthenticationRequiredError, DownloadError, HTTPError
+from dataset_download_tool.storage_selector.selector_utils import append_bucket_url
 
 
 class HTTPDownloader(BaseDownloader):

@@ -47,7 +47,11 @@ def main():
         # download file
         url = args.ssh_download_path if args.ssh else args.url
         result = client.download(
-            url=url, destination=args.dest, show_progress=not args.no_progress, calculate_checksum=args.checksum
+            url=url, 
+            destination=args.dest, 
+            show_progress=not args.no_progress, 
+            calculate_checksum=args.checksum, 
+            storage=args.storage,
         )
 
         # print result

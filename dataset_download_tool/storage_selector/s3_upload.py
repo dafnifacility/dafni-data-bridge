@@ -10,7 +10,7 @@ from botocore.exceptions import ClientError
 if TYPE_CHECKING:
     from mypy_boto3_s3 import S3Client as S3ClientBoto3
 
-from dataset_download_tool.uploader.base import BaseUploader
+from dataset_download_tool.storage_selector.base import BaseUploader
 from dataset_download_tool.downloader.models import ProgressCallback
 from dataset_download_tool.exceptions import AuthError, BucketNotFoundError
 
@@ -117,7 +117,6 @@ class S3Client(BaseUploader):
                 f"failed to upload to bucket: {bucket}" "please use aws format: https://[BUCKET].[S3 ENDPOINT]/DIR"
             )
         except ClientError as e:
-            logger.error(f"client error {e}")
             if upload_id:
                 self._abort_multipart_upload(bucket, key, upload_id)
             raise AuthError(f"Cannot access {bucket}: {e}")
