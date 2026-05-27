@@ -5,7 +5,7 @@ from typing import Iterable, Optional, TYPE_CHECKING
 
 import boto3
 from botocore.config import Config
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 
 if TYPE_CHECKING:
     from mypy_boto3_s3 import S3Client as S3ClientBoto3
@@ -115,6 +115,11 @@ class S3Client:
             raise BucketNotFoundError(
                 f"failed to upload to bucket: {bucket}" "please use aws format: https://[BUCKET].[S3 ENDPOINT]/DIR"
             )
+        except (NoCredentialsError, PartialCredentialsError) as e:
+            logger.error("Cannot access bucket, check AWS credentials or URL")
+            if upload_id:
+                self._abort_multipart_upload(bucket, key, upload_id)
+            raise AuthError(f"Cannot access {bucket}: {e}")
         except ClientError as e:
             logger.error(f"client error {e}")
             if upload_id:
