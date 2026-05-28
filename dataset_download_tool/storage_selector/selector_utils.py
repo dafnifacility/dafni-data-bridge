@@ -62,7 +62,6 @@ def resolve_destination(url: str, destination: Optional[str | Path], storage: st
                 bucket = parsed.netloc.split(".")[0]
                 endpoint = parsed.scheme + "://" + parsed.netloc.replace(f"{bucket}.", "")
                 key = f"{subdir}{filename}"
-                print(subdir, ",", filename)
                 return {"endpoint": endpoint, "bucket": bucket, "key": key}
             else:
                 raise ValidationError("Azure endpoint url wrong format please use aws format: https://[CONTAINER].[AZURE URL]/DIR")
@@ -70,4 +69,4 @@ def resolve_destination(url: str, destination: Optional[str | Path], storage: st
 def append_bucket_url(destination: dict) -> str:
     """Append bucket name to s3 endpoint for recursive downloads"""
     parsed = urlparse(destination["endpoint"])
-    return f"https://{destination["bucket"]}.{parsed.netloc}/{destination['key']}"
+    return f"{parsed.scheme}://{destination["bucket"]}.{parsed.netloc}/{destination['key']}"

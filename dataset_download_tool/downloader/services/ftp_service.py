@@ -63,7 +63,7 @@ class FTPDownloader(BaseDownloader):
             destination = append_bucket_url(destination)
         for item_url in contents:
             filename = extract_filename(item_url)
-            dest_path = f"{destination}/{filename}"
+            dest_path = f"{str(destination).strip("/")}"
             result = self.download(
                 url=item_url,
                 destination=dest_path,

@@ -51,6 +51,7 @@ class HTTPDownloader(BaseDownloader):
         destination: str,
         calculate_checksum: bool,
         progress_callback: ProgressCallback,
+        storage
     ) -> list[DownloadResult]:
         """Download all files in a directory"""
         file_list = []
@@ -65,6 +66,7 @@ class HTTPDownloader(BaseDownloader):
                 destination=dest_path,
                 calculate_checksum=calculate_checksum,
                 progress_callback=progress_callback,
+                storage=storage
             )
             file_list.append(result)
 

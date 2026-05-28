@@ -34,7 +34,7 @@ class SSHDownloader(BaseDownloader):
 
         return items_path
 
-    def _recursive_download(self, path, destination, calculate_checksum, progress_callback) -> list[DownloadResult]:
+    def _recursive_download(self, path, destination, calculate_checksum, progress_callback, storage) -> list[DownloadResult]:
         """Download all files in a directory"""
 
         file_list = []
@@ -49,6 +49,7 @@ class SSHDownloader(BaseDownloader):
                 destination=dest_path,
                 calculate_checksum=calculate_checksum,
                 progress_callback=progress_callback,
+                storage=storage
             )
             file_list.append(result)
         return file_list
