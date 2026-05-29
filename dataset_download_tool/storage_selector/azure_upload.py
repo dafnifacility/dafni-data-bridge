@@ -23,13 +23,15 @@ class AzureBlobClient(BaseUploader):
 
     def __init__(self, blob_url: str):
         try:
+            account_url = blob_url + "/" + ACCOUNT_NAME
             self._client = BlobServiceClient(
-                account_url=blob_url,
+                account_url=account_url,
                 credential=AZURE_STOAGE_KEY,
                 connection_timeout=10,
                 read_timeout=120,
                 retry_total=5,
             )
+            logger.info("Azure blob connection established!")
         except ValueError as e:
             logger.error(f"Cannot Access Azure URL: {e}")
             raise ValidationError(

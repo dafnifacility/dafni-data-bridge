@@ -60,10 +60,9 @@ class HTTPDownloader(BaseDownloader):
             destination = append_bucket_url(destination)
         for item in contents["items"]:
             item_url = urljoin(url, item["path"])
-            dest_path = f"{destination}/{item["name"]}"
             result = self.download(
                 url=item_url,
-                destination=dest_path,
+                destination=destination,
                 calculate_checksum=calculate_checksum,
                 progress_callback=progress_callback,
                 storage=storage

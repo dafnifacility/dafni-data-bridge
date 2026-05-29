@@ -43,10 +43,9 @@ class SSHDownloader(BaseDownloader):
             destination = append_bucket_url(destination)
         for item_path in contents:
             filename = extract_filename(item_path)
-            dest_path = f"{destination}/{filename}"
             result = self.download(
                 url=item_path,
-                destination=dest_path,
+                destination=destination,
                 calculate_checksum=calculate_checksum,
                 progress_callback=progress_callback,
                 storage=storage

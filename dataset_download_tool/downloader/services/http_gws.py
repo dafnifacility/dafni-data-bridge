@@ -48,10 +48,9 @@ class HTTPDownloaderGWS(HTTPDownloader):
             destination = append_bucket_url(destination)
         for file in contents:
             item_url = urljoin(url, file)
-            dest_path = f"{destination}/{file}"
             result = self.download(
                 url=item_url,
-                destination=dest_path,
+                destination=destination,
                 calculate_checksum=calculate_checksum,
                 progress_callback=progress_callback,
                 storage=storage

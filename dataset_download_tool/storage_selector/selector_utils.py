@@ -10,6 +10,8 @@ from dataset_download_tool.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
+ACCOUNT_NAME = os.getenv("AZURE_STORAGE_ACCOUNT_NAME")
+
 def resolve_destination(url: str, destination: Optional[str | Path], storage: str) -> Path:
     """Resolve the final destination path for a download."""
     filename = extract_filename(url)
@@ -18,8 +20,7 @@ def resolve_destination(url: str, destination: Optional[str | Path], storage: st
         case 0:
                 if destination is None:
                     return Path.cwd() / filename
-                
-                if destination.startswith(("https://", "http://", "s3://")):
+                if str(destination).startswith(("https://", "http://", "s3://")):
                     logger.error(f"Local storage selected but given remote URL: {destination}")
                     raise ValidationError("Please select correct storage location!")
                 
@@ -52,19 +53,27 @@ def resolve_destination(url: str, destination: Optional[str | Path], storage: st
         case 2:
             parsed = urlparse(destination)
             if destination.startswith(("https://", "http://")):
+
+                bucket = parsed.netloc.split(".")[0]
+                bare_host = parsed.netloc.replace(f"{bucket}.", "")
+                endpoint = f"{parsed.scheme}://{bare_host}"
+
                 subdir = parsed.path.lstrip("/")
+                if ACCOUNT_NAME and subdir.startswith(f"{ACCOUNT_NAME}/"):
+                    subdir = subdir[len(ACCOUNT_NAME) + 1:]
+                
                 if not subdir:
                     raise ValidationError(
                         f"Azure destination '{destination}' is missing a directory. "
                         "Please provide a destination in the format: "
-                        "https://[CONTAINER].[AZURE URL]/DIR (e.g. https://ddtesting.blob.core.windows.net/mydir)"
+                        "https://[CONTAINER].[AZURE URL]/[AZURE_ACCOUNT_NAME]/DIR (e.g. https://ddtesting.blob.core.windows.net/devaccount1/mydir)"
                     )
-                bucket = parsed.netloc.split(".")[0]
-                endpoint = parsed.scheme + "://" + parsed.netloc.replace(f"{bucket}.", "")
+        
                 key = f"{subdir}{filename}"
+                print("endpoint",endpoint,"bucket", bucket, "key", key)
                 return {"endpoint": endpoint, "bucket": bucket, "key": key}
             else:
-                raise ValidationError("Azure endpoint url wrong format please use aws format: https://[CONTAINER].[AZURE URL]/DIR")
+                raise ValidationError("Azure endpoint url wrong format please use aws format: https://[CONTAINER].[AZURE URL]/[AZURE_ACCOUNT_NAME]/DIR")
 
 def append_bucket_url(destination: dict) -> str:
     """Append bucket name to s3 endpoint for recursive downloads"""
