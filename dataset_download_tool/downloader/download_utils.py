@@ -21,49 +21,6 @@ def extract_filename(url: str) -> str:
 
     return filename
 
-
-def resolve_destination(url: str, destination: Optional[str | Path]) -> Path:
-    """Resolve the final destination path for a download."""
-    filename = extract_filename(url)
-
-    if isinstance(destination, str):
-        parsed = urlparse(destination)
-
-        if destination.startswith(("https://", "http://")):
-            subdir = parsed.path.strip("/")
-            if not subdir:
-                raise ValidationError(
-                    f"S3 destination '{destination}' is missing a directory. "
-                    "Please provide a destination in the format: "
-                    "https://[BUCKET].[S3 ENDPOINT]/DIR (e.g. https://mybucket.s3.example.com/mydir)"
-                )
-            bucket = parsed.netloc.split(".")[0]
-            endpoint = parsed.scheme + "://" + parsed.netloc.replace(f"{bucket}.", "")
-            key = f"{subdir}/{filename}"
-            return {"endpoint": endpoint, "bucket": bucket, "key": key}
-
-        if destination.startswith("s3://"):
-            raise ValidationError("S3 endpoint wrong format please use aws format: https://[BUCKET].[S3 ENDPOINT]/DIR")
-
-    if destination is None:
-        return Path.cwd() / filename
-
-    dest_path = Path(destination)
-    # if destination is a directory, append filename
-    if dest_path.is_dir() or str(destination).endswith(os.sep):
-        dest_path.mkdir(parents=True, exist_ok=True)
-
-        return dest_path / filename
-
-    return dest_path
-
-
-def append_bucket_url(destination: dict) -> str:
-    """Append bucket name to s3 endpoint for recursive downloads"""
-    parsed = urlparse(destination["endpoint"])
-    return f"https://{destination["bucket"]}.{parsed.netloc}/{destination['key']}"
-
-
 def multiple_urls_split(url: str) -> list[str] | str:
     """Split multiple urls into list"""
     url = [u.strip() for u in url.split("|") if u.strip()]
@@ -79,6 +36,7 @@ def multiple_url_download(
     destination: str,
     calculate_checksum: bool = False,
     progress_callback: Optional[ProgressCallback] = None,
+    storage: int = 0,
     session=None,
 ) -> list[DownloadResult]:
     """Download all files from list of"""
@@ -92,6 +50,7 @@ def multiple_url_download(
             destination=destination,
             calculate_checksum=calculate_checksum,
             progress_callback=progress_callback,
+            storage=storage
         )
         download_list.append(result)
 

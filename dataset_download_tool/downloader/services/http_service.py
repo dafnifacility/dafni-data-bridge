@@ -4,11 +4,11 @@ import requests
 
 from dataset_download_tool.downloader.base import BaseDownloader
 from dataset_download_tool.downloader.download_utils import (
-    append_bucket_url,
     logger,
 )
 from dataset_download_tool.downloader.models import DownloadResult, ProgressCallback
 from dataset_download_tool.exceptions import AuthenticationRequiredError, DownloadError, HTTPError
+from dataset_download_tool.storage_selector.selector_utils import append_bucket_url
 
 
 class HTTPDownloader(BaseDownloader):
@@ -51,6 +51,7 @@ class HTTPDownloader(BaseDownloader):
         destination: str,
         calculate_checksum: bool,
         progress_callback: ProgressCallback,
+        storage
     ) -> list[DownloadResult]:
         """Download all files in a directory"""
         file_list = []
@@ -59,12 +60,12 @@ class HTTPDownloader(BaseDownloader):
             destination = append_bucket_url(destination)
         for item in contents["items"]:
             item_url = urljoin(url, item["path"])
-            dest_path = f"{destination}/{item["name"]}"
             result = self.download(
                 url=item_url,
-                destination=dest_path,
+                destination=destination,
                 calculate_checksum=calculate_checksum,
                 progress_callback=progress_callback,
+                storage=storage
             )
             file_list.append(result)
 

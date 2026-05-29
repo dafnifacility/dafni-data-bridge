@@ -5,12 +5,12 @@ from urllib.parse import urljoin, urlparse
 
 from dataset_download_tool.downloader.base import BaseDownloader
 from dataset_download_tool.downloader.download_utils import (
-    append_bucket_url,
     extract_filename,
     logger,
 )
 from dataset_download_tool.downloader.models import DownloadResult, ProgressCallback
 from dataset_download_tool.exceptions import ValidationError
+from dataset_download_tool.storage_selector.selector_utils import append_bucket_url
 
 
 class FTPDownloader(BaseDownloader):
@@ -52,6 +52,7 @@ class FTPDownloader(BaseDownloader):
         destination: str,
         calculate_checksum: bool = False,
         progress_callback: Optional[ProgressCallback] = None,
+        storage: int = 0,
     ) -> list[DownloadResult]:
         """Download all files from directory"""
         file_list = []
@@ -62,12 +63,13 @@ class FTPDownloader(BaseDownloader):
             destination = append_bucket_url(destination)
         for item_url in contents:
             filename = extract_filename(item_url)
-            dest_path = f"{destination}/{filename}"
+            dest_path = f"{str(destination).strip("/")}"
             result = self.download(
                 url=item_url,
                 destination=dest_path,
                 calculate_checksum=calculate_checksum,
                 progress_callback=progress_callback,
+                storage=storage
             )
             file_list.append(result)
 

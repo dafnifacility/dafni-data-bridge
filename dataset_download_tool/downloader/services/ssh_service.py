@@ -1,8 +1,9 @@
 import paramiko
 
 from dataset_download_tool.downloader.base import BaseDownloader
-from dataset_download_tool.downloader.download_utils import append_bucket_url, extract_filename
+from dataset_download_tool.downloader.download_utils import extract_filename
 from dataset_download_tool.downloader.models import DownloadResult
+from dataset_download_tool.storage_selector.selector_utils import append_bucket_url
 
 
 class SSHDownloader(BaseDownloader):
@@ -33,7 +34,7 @@ class SSHDownloader(BaseDownloader):
 
         return items_path
 
-    def _recursive_download(self, path, destination, calculate_checksum, progress_callback) -> list[DownloadResult]:
+    def _recursive_download(self, path, destination, calculate_checksum, progress_callback, storage) -> list[DownloadResult]:
         """Download all files in a directory"""
 
         file_list = []
@@ -42,12 +43,12 @@ class SSHDownloader(BaseDownloader):
             destination = append_bucket_url(destination)
         for item_path in contents:
             filename = extract_filename(item_path)
-            dest_path = f"{destination}/{filename}"
             result = self.download(
                 url=item_path,
-                destination=dest_path,
+                destination=destination,
                 calculate_checksum=calculate_checksum,
                 progress_callback=progress_callback,
+                storage=storage
             )
             file_list.append(result)
         return file_list

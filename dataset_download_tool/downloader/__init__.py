@@ -29,3 +29,4 @@ def get_downloader(url: str, session: Optional[Session | FTP | SSHClient] = None
         return FTPDownloader(session=session)
     else:
         return SSHDownloader(session=session)
+

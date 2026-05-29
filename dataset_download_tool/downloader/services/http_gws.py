@@ -2,9 +2,9 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
-from dataset_download_tool.downloader.download_utils import append_bucket_url
 from dataset_download_tool.downloader.models import DownloadResult
 from dataset_download_tool.downloader.services.http_service import HTTPDownloader
+from dataset_download_tool.storage_selector.selector_utils import append_bucket_url
 
 
 class HTTPDownloaderGWS(HTTPDownloader):
@@ -40,7 +40,7 @@ class HTTPDownloaderGWS(HTTPDownloader):
 
         return contents
 
-    def _recursive_download(self, url, destination, calculate_checksum, progress_callback) -> list[DownloadResult]:
+    def _recursive_download(self, url, destination, calculate_checksum, progress_callback, storage) -> list[DownloadResult]:
         """Downloads all files in a directory"""
         file_list = []
         contents = self._directory_contents(url)
@@ -48,12 +48,12 @@ class HTTPDownloaderGWS(HTTPDownloader):
             destination = append_bucket_url(destination)
         for file in contents:
             item_url = urljoin(url, file)
-            dest_path = f"{destination}/{file}"
             result = self.download(
                 url=item_url,
-                destination=dest_path,
+                destination=destination,
                 calculate_checksum=calculate_checksum,
                 progress_callback=progress_callback,
+                storage=storage
             )
             file_list.append(result)
 

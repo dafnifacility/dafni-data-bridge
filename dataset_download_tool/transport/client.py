@@ -108,6 +108,8 @@ class Client:
         destination: Optional[str | Path] = None,
         show_progress: bool = True,
         calculate_checksum: bool = False,
+        storage: int = 0
+        
     ) -> DownloadResult:
         """Args:
             url: url to download
@@ -124,13 +126,14 @@ class Client:
 
         if show_progress:
             progress_callback, close_progress = ProgressLogger.create_progress_bar()
-
+        
         try:
             result = self._downloader.download(
                 url=url,
                 destination=destination,
                 progress_callback=progress_callback,
                 calculate_checksum=calculate_checksum,
+                storage=storage,
             )
         finally:
             if close_progress:
