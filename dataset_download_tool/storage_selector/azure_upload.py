@@ -15,7 +15,7 @@ from dataset_download_tool.storage_selector.base import BaseUploader
 logger = logging.getLogger(__name__)
 
 ACCOUNT_NAME = os.getenv("AZURE_STORAGE_ACCOUNT_NAME")
-AZURE_STOAGE_KEY=os.environ.get("AZURE_STORAGE_KEY")
+AZURE_STORAGE_KEY=os.environ.get("AZURE_STORAGE_KEY")
 
 class AzureBlobClient(BaseUploader):
 
@@ -26,7 +26,7 @@ class AzureBlobClient(BaseUploader):
             account_url = blob_url + "/" + ACCOUNT_NAME
             self._client = BlobServiceClient(
                 account_url=account_url,
-                credential=AZURE_STOAGE_KEY,
+                credential=AZURE_STORAGE_KEY,
                 connection_timeout=10,
                 read_timeout=120,
                 retry_total=5,

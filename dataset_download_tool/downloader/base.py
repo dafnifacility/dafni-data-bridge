@@ -177,7 +177,7 @@ class BaseDownloader(ABC):
                         calculate_checksum=calculate_checksum,
                         progress_callback=progress_callback,
                     )
-                if storage=="s3" or storage=="azure":
+                if storage=="s3" or storage=="blob":
                     return self.remote_path_upload(
                         url=url,
                         chunk_iter=chunk_iter,
