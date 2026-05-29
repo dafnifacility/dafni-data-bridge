@@ -72,7 +72,7 @@ class ConfigLoader:
         )
         parser.add_argument("--checksum", action="store_true", help="calculate md5 checksum of downloaded file")
         parser.add_argument("--no-progress", action="store_true", help="disable progress bar")
-        parser.add_argument("--storage", "-s", type=int, choices=[0, 1, 2], default=0, help="Storage location: 0=Local (default), 1=S3, 2=Azure")
+        parser.add_argument("--storage", "-s", type=str, choices=["local", "s3", "blob"], default="local", help="Storage location: 0=Local (default), 1=S3, 2=Azure Blob")
 
         # session options
         parser.add_argument("--timeout", type=int, default=30, help="request timeout in seconds (default: 30)")

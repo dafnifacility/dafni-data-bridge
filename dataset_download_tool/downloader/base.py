@@ -20,7 +20,7 @@ from dataset_download_tool.downloader.models import DownloadResult, ProgressCall
 from dataset_download_tool.storage_selector import get_uploader
 from dataset_download_tool.exceptions import ValidationError
 
-STORAGE_MAP = {0: "local", 1: "s3", 2: "azure"}
+# STORAGE_MAP = {0: "local", 1: "s3", 2: "azure"}
 
 class BaseDownloader(ABC):
     """Abstract base class for all downloader implementations.
@@ -149,8 +149,8 @@ class BaseDownloader(ABC):
 
         """
 
-        storage_map = STORAGE_MAP[storage]
-        logger.info(f"Downloading to storage: {storage_map}")
+        # storage_map = STORAGE_MAP[storage]
+        logger.info(f"Downloading to storage: {storage}")
 
         url = multiple_urls_split(url)
         
@@ -166,7 +166,7 @@ class BaseDownloader(ABC):
                 logger.info(f"destination: {dest_path}")
 
                 chunk_iter, total_size = self._stream(url)
-                if storage_map=="local":
+                if storage=="local":
                     if total_size:
                         logger.info(f"file size: {total_size / (1024 * 1024):.2f} MB")
                     return self._write_file(
@@ -177,7 +177,7 @@ class BaseDownloader(ABC):
                         calculate_checksum=calculate_checksum,
                         progress_callback=progress_callback,
                     )
-                if storage_map=="s3" or storage_map=="azure":
+                if storage=="s3" or storage=="azure":
                     return self.remote_path_upload(
                         url=url,
                         chunk_iter=chunk_iter,

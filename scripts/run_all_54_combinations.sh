@@ -230,35 +230,38 @@ echo "############################################################"
 run_step "HTTP/no-auth/local/single" \
   dataset-download-tool --no-auth \
     --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt" \
+    --storage local \
     --dest "$DEST"
 
 run_step "HTTP/no-auth/local/batch" \
   dataset-download-tool --no-auth \
     --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-05.jsonl.gz | https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-06.jsonl.gz" \
+    --storage local \
     --dest "$DEST"
 
 run_step "HTTP/no-auth/local/directory" \
   dataset-download-tool --no-auth \
     --url "https://data.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989" \
+    --storage local \
     --dest "$DEST"
 
 # --- HTTP + No-Auth + S3 (3 combinations: S3 single, S3 batch, S3 dir) ---
 run_step "HTTP/no-auth/s3/single" \
   dataset-download-tool --no-auth \
     --url "https://dap.ceda.ac.uk/badc/00README.txt" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 run_step "HTTP/no-auth/s3/batch" \
   dataset-download-tool --no-auth \
     --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-05.jsonl.gz | https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-06.jsonl.gz" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_STFC_DEST"
 
 run_step "HTTP/no-auth/s3/directory" \
   dataset-download-tool --no-auth \
     --url "https://data.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 # --- HTTP + Token Auth (3 combinations: local single, local batch, local dir) ---
@@ -272,12 +275,14 @@ run_step "HTTP/token/local/batch" \
   dataset-download-tool \
     --token "$CEDA_TOKEN" \
     --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-05.jsonl.gz | https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-06.jsonl.gz" \
+    --storage local \
     --dest "$DEST"
 
 run_step "HTTP/token/local/directory" \
   dataset-download-tool \
     --token "$CEDA_TOKEN" \
     --url "https://data.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989" \
+    --storage local \
     --dest "$DEST"
 
 # --- HTTP + Token Auth + S3 (3 combinations: S3 single, S3 batch, S3 dir) ---
@@ -285,21 +290,21 @@ run_step "HTTP/token/s3/single" \
   dataset-download-tool \
     --token "$CEDA_TOKEN" \
     --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-06.jsonl.gz" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 run_step "HTTP/token/s3/batch" \
   dataset-download-tool \
     --token "$CEDA_TOKEN" \
     --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-05.jsonl.gz | https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-06.jsonl.gz" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_STFC_DEST"
 
 run_step "HTTP/token/s3/directory" \
   dataset-download-tool \
     --token "$CEDA_TOKEN" \
     --url "https://data.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 # --- HTTP + User/Pass Auth (3 combinations: local single, local batch, local dir) ---
@@ -307,18 +312,21 @@ run_step "HTTP/user-pass/local/single" \
   dataset-download-tool \
     --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \
     --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK" \
+    --storage local \
     --dest "$DEST"
 
 run_step "HTTP/user-pass/local/batch" \
   dataset-download-tool \
     --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \
     --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-05.jsonl.gz | https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-06.jsonl.gz" \
+    --storage local \
     --dest "$DEST"
 
 run_step "HTTP/user-pass/local/directory" \
   dataset-download-tool \
     --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \
     --url "https://data.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989" \
+    --storage local \
     --dest "$DEST"
 
 # --- HTTP + User/Pass Auth + S3 (3 combinations: S3 single, S3 batch, S3 dir) ---
@@ -326,21 +334,21 @@ run_step "HTTP/user-pass/s3/single" \
   dataset-download-tool \
     --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \
     --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 run_step "HTTP/user-pass/s3/batch" \
   dataset-download-tool \
     --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \
     --url "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-05.jsonl.gz | https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989/fbi_files_1989-01-06.jsonl.gz" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_STFC_DEST"
 
 run_step "HTTP/user-pass/s3/directory" \
   dataset-download-tool \
     --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \
     --url "https://data.ceda.ac.uk/badc/ARCHIVE_INFO/fbi/1989" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 # =============================================================================
@@ -357,18 +365,21 @@ run_step "FTP/no-auth/local/single" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc" \
+    --storage local \
     --dest "$DEST"
 
 run_step "FTP/no-auth/local/batch" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc | ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724155203-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02083-v2.30.nc" \
+    --storage local \
     --dest "$DEST"
 
 run_step "FTP/no-auth/local/directory" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/" \
+    --storage local \
     --dest "$DEST"
 
 # --- FTP + Anonymous + S3 (3 combinations: S3 single, S3 batch, S3 dir) ---
@@ -376,21 +387,21 @@ run_step "FTP/no-auth/s3/single" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 run_step "FTP/no-auth/s3/batch" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc | ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724155203-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02083-v2.30.nc" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_STFC_DEST"
 
 run_step "FTP/no-auth/s3/directory" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 # --- FTP + User/Pass Auth (3 combinations: local single, local batch, local dir) ---
@@ -399,18 +410,21 @@ run_step "FTP/user-pass/local/single" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc" \
+    --storage local \
     --dest "$DEST"
 
 run_step "FTP/user-pass/local/batch" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc | ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724155203-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02083-v2.30.nc" \
+    --storage local \
     --dest "$DEST"
 
 run_step "FTP/user-pass/local/directory" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/" \
+    --storage local \
     --dest "$DEST"
 
 # --- FTP + User/Pass Auth + S3 (3 combinations: S3 single, S3 batch, S3 dir) ---
@@ -418,21 +432,21 @@ run_step "FTP/user-pass/s3/single" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 run_step "FTP/user-pass/s3/batch" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc | ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724155203-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02083-v2.30.nc" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_STFC_DEST"
 
 run_step "FTP/user-pass/s3/directory" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 # --- FTP + Token Auth (3 combinations: local single, local batch, local dir) ---
@@ -442,18 +456,21 @@ run_step "FTP/token/local/single" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc" \
+    --storage local \
     --dest "$DEST"
 
 run_step "FTP/token/local/batch" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc | ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724155203-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02083-v2.30.nc" \
+    --storage local \
     --dest "$DEST"
 
 run_step "FTP/token/local/directory" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/" \
+    --storage local \
     --dest "$DEST"
 
 # --- FTP + Token Auth + S3 (3 combinations: S3 single, S3 batch, S3 dir) ---
@@ -461,21 +478,21 @@ run_step "FTP/token/s3/single" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 run_step "FTP/token/s3/batch" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724141127-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02082-v2.30.nc | ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/20020724155203-ESACCI-L2P_AEROSOL-AER_PRODUCTS-AATSR-ENVISAT-ADV_02083-v2.30.nc" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_STFC_DEST"
 
 run_step "FTP/token/s3/directory" \
   dataset-download-tool \
     --username anonymous --password "$FTP_EMAIL" \
     --url "ftp://anon-ftp.ceda.ac.uk/neodc/esacci/aerosol/data/AATSR_ADV/L2/v2.30/2002/07/24/" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 # =============================================================================
@@ -494,6 +511,7 @@ run_step "SSH/ssh-key/local/single" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc \
     --key-filename "$SSH_KEY" \
+    --storage local \
     --dest "$DEST"
 
 run_step "SSH/ssh-key/local/batch" \
@@ -502,6 +520,7 @@ run_step "SSH/ssh-key/local/batch" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path "/gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc | /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19920101_19921231_gridU.nc" \
     --key-filename "$SSH_KEY" \
+    --storage local \
     --dest "$DEST"
 
 run_step "SSH/ssh-key/local/directory" \
@@ -510,6 +529,7 @@ run_step "SSH/ssh-key/local/directory" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path /gws/pw/j07/perf_testing/test_download_dir \
     --key-filename "$SSH_KEY" \
+    --storage local \
     --dest "$DEST"
 
 # --- SSH + SSH Key Auth + S3 (3 combinations: S3 single, S3 batch, S3 dir) ---
@@ -519,7 +539,7 @@ run_step "SSH/ssh-key/s3/single" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc \
     --key-filename "$SSH_KEY" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 run_step "SSH/ssh-key/s3/batch" \
@@ -528,7 +548,7 @@ run_step "SSH/ssh-key/s3/batch" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path "/gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc | /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19920101_19921231_gridU.nc" \
     --key-filename "$SSH_KEY" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_STFC_DEST"
 
 run_step "SSH/ssh-key/s3/directory" \
@@ -537,7 +557,7 @@ run_step "SSH/ssh-key/s3/directory" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path /gws/pw/j07/perf_testing/test_download_dir \
     --key-filename "$SSH_KEY" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 # --- SSH + User/Pass Auth (3 combinations: local single, local batch, local dir) ---
@@ -547,6 +567,7 @@ run_step "SSH/user-pass/local/single" \
     --username "$JASMIN_USERNAME" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc \
+    --storage local \
     --dest "$DEST"
 
 run_step "SSH/user-pass/local/batch" \
@@ -554,6 +575,7 @@ run_step "SSH/user-pass/local/batch" \
     --username "$JASMIN_USERNAME" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path "/gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc | /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19920101_19921231_gridU.nc" \
+    --storage local \
     --dest "$DEST"
 
 run_step "SSH/user-pass/local/directory" \
@@ -561,6 +583,7 @@ run_step "SSH/user-pass/local/directory" \
     --username "$JASMIN_USERNAME" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path /gws/pw/j07/perf_testing/test_download_dir \
+    --storage local \
     --dest "$DEST"
 
 # --- SSH + User/Pass Auth + S3 (3 combinations: S3 single, S3 batch, S3 dir) ---
@@ -569,7 +592,7 @@ run_step "SSH/user-pass/s3/single" \
     --username "$JASMIN_USERNAME" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 run_step "SSH/user-pass/s3/batch" \
@@ -577,7 +600,7 @@ run_step "SSH/user-pass/s3/batch" \
     --username "$JASMIN_USERNAME" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path "/gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc | /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19920101_19921231_gridU.nc" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_STFC_DEST"
 
 run_step "SSH/user-pass/s3/directory" \
@@ -585,7 +608,7 @@ run_step "SSH/user-pass/s3/directory" \
     --username "$JASMIN_USERNAME" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path /gws/pw/j07/perf_testing/test_download_dir \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 # --- SSH + Token Auth (3 combinations: local single, local batch, local dir) ---
@@ -597,6 +620,7 @@ run_step "SSH/token/local/single" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc \
     --key-filename "$SSH_KEY" \
+    --storage local \
     --dest "$DEST"
 
 run_step "SSH/token/local/batch" \
@@ -605,6 +629,7 @@ run_step "SSH/token/local/batch" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path "/gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc | /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19920101_19921231_gridU.nc" \
     --key-filename "$SSH_KEY" \
+    --storage local \
     --dest "$DEST"
 
 run_step "SSH/token/local/directory" \
@@ -613,6 +638,7 @@ run_step "SSH/token/local/directory" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path /gws/pw/j07/perf_testing/test_download_dir \
     --key-filename "$SSH_KEY" \
+    --storage local \
     --dest "$DEST"
 
 # --- SSH + Token Auth + S3 (3 combinations: S3 single, S3 batch, S3 dir) ---
@@ -622,7 +648,7 @@ run_step "SSH/token/s3/single" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc \
     --key-filename "$SSH_KEY" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 run_step "SSH/token/s3/batch" \
@@ -631,7 +657,7 @@ run_step "SSH/token/s3/batch" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path "/gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19910101_19911231_gridU.nc | /gws/pw/j07/perf_testing/public/testdir/SEAsia_HAD_1m_19920101_19921231_gridU.nc" \
     --key-filename "$SSH_KEY" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_STFC_DEST"
 
 run_step "SSH/token/s3/directory" \
@@ -640,7 +666,7 @@ run_step "SSH/token/s3/directory" \
     --ssh xfer-vm-01.jasmin.ac.uk \
     --ssh-download-path /gws/pw/j07/perf_testing/test_download_dir \
     --key-filename "$SSH_KEY" \
-    -s 1 \
+    --storage s3 \
     --dest "$S3_MINIO_DEST"
 
 # =============================================================================

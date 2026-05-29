@@ -17,7 +17,7 @@ def resolve_destination(url: str, destination: Optional[str | Path], storage: st
     filename = extract_filename(url)
 
     match storage:
-        case 0:
+        case "local":
                 if destination is None:
                     return Path.cwd() / filename
                 if str(destination).startswith(("https://", "http://", "s3://")):
@@ -32,7 +32,7 @@ def resolve_destination(url: str, destination: Optional[str | Path], storage: st
 
                 return dest_path
         
-        case 1:
+        case "s3":
             parsed = urlparse(destination)
 
             if destination.startswith("s3://"):
@@ -50,7 +50,7 @@ def resolve_destination(url: str, destination: Optional[str | Path], storage: st
             key = f"{subdir}/{filename}"
             return {"endpoint": endpoint, "bucket": bucket, "key": key}
 
-        case 2:
+        case "blob":
             parsed = urlparse(destination)
             if destination.startswith(("https://", "http://")):
 

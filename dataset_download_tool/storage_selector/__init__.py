@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 def get_uploader(storage: str, endpoint_url: str):
 
-    if storage==1:
+    if storage=="s3":
         return S3Client(endpoint_url)
-    elif storage==2:
+    elif storage=="blob":
         return AzureBlobClient(endpoint_url)
