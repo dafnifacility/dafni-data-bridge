@@ -125,7 +125,7 @@ SSH/SFTP downloader using `paramiko.SSHClient`.
 
 ## `S3Client`
 
-::: dataset_download_tool.downloader.s3_upload.S3Client
+::: dataset_download_tool.storage_selector.s3_upload.S3Client
 
 S3 multipart upload client using `boto3`.
 

@@ -61,7 +61,10 @@ export S3_STFC_DEST=
 Open the document:
 
 ```sh
+# install
 uv sync --extra docs
+
+# load server
 uv run mkdocs serve --livereload # live reload during editing
 uv run mkdocs serve              # without live reloading 
 ```
