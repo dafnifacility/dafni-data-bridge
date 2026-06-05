@@ -193,4 +193,4 @@ s3cmd mb s3://ddttest
 ### Option 3: Azure Blob Storage
 
 !!!note 
-The tool supports Azure blob storage and we tested it using emulator provided by Microsoft Azure.
+The tool supports Azure blob storage and we tested it using emulator provided by Microsoft Azure. See the [Azure setup guide](azure.md) for details.

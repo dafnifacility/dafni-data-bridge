@@ -141,6 +141,8 @@ To inspect uploaded files visually, install **Azure Storage Explorer**:
 - Download: https://azure.microsoft.com/en-us/products/storage/storage-explorer
 - On first launch, select **"Local storage emulator"** and it will connect to Azurite automatically using the default credentials.
 
+![Azure Storage Explorer connected to Azurite](../assets/images/azure.png)
+
 
 ## Example
 

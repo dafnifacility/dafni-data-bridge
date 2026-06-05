@@ -89,6 +89,7 @@ nav:
     - Design: developer-guide/design.md
     - Extending the Tool: developer-guide/extending.md
     - Testing: developer-guide/testing.md
+    - Azure: developer-guide/azure.md
   - API Reference:
     - CLI Module: reference/cli.md
     - Transport Layer: reference/transport.md
