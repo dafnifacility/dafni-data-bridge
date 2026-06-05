@@ -156,9 +156,11 @@ Create a client with FTP login.
 
 ### Methods
 
-#### `download(url, destination=None, show_progress=True, calculate_checksum=False) -> DownloadResult`
+#### `download(url, destination=None, show_progress=True, calculate_checksum=False, storage="local") -> DownloadResult`
 
 Download a file or directory. Sets up a progress bar (unless disabled) and delegates to the selected downloader.
+
+The `storage` parameter controls where data is written: `"local"` (default), `"s3"`, or `"blob"`. It is passed through to `BaseDownloader.download()`.
 
 #### `validate_url(url) -> str` (static)
 

@@ -190,8 +190,7 @@ Create a test bucket to use later:
 s3cmd mb s3://ddttest
 ```
 
-### Option 3: NERC DSE S3
+### Option 3: Azure Blob Storage
 
-!!!note
-
-NERC DSE S3 support is planned but not yet available.
+!!!note 
+The tool supports Azure blob storage and we tested it using emulator provided by Microsoft Azure.

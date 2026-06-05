@@ -11,6 +11,8 @@ The class diagram below shows the main classes in the tool and their
 relationships. The `BaseDownloader` abstract class is at the heart of the
 downloader layer — concrete downloaders (`HTTPDownloader`, `FTPDownloader`,
 `SSHDownloader`, `HTTPDownloaderGWS`) implement the protocol-specific behaviour.
+The `storage_selector` layer provides a parallel abstraction for storage
+backends via `BaseUploader` and its concrete subclasses.
 
 ```mermaid
 classDiagram
@@ -60,7 +62,7 @@ classDiagram
         +from_credentials(url, username, password)$ Client
         +ssh_client(url, hostname, username, key_filename)$ Client
         +ftp_login(url, username, password)$ Client
-        +download(url, destination, show_progress, calculate_checksum) DownloadResult
+        +download(url, destination, show_progress, calculate_checksum, storage) DownloadResult
         +validate_url(url)$ str
     }
 
@@ -68,12 +70,12 @@ classDiagram
         <<abstract>>
         #_chunk_size: int
         #_session: Session | FTP | SSHClient
-        +download(url, destination, progress_callback, calculate_checksum) DownloadResult
+        +download(url, destination, progress_callback, calculate_checksum, storage) DownloadResult
         #_stream(url)* tuple
         #_is_directory(url)* bool
-        #_recursive_download(url, dest, checksum, callback)* list~DownloadResult~
+        #_recursive_download(url, dest, checksum, callback, storage)* list~DownloadResult~
         #_write_file(...) DownloadResult
-        +s3_upload(...) DownloadResult
+        +remote_path_upload(...) DownloadResult
     }
 
     class HTTPDownloader {
@@ -113,11 +115,25 @@ classDiagram
         +size_mb: float
     }
 
+    class BaseUploader {
+        <<abstract>>
+        +upload(chunk_iter, bucket, key, total_size, calculate_checksum, progress_callback)* dict
+    }
+
     class S3Client {
         -_client: boto3.S3Client
         +CHUNK_SIZE: int
-        +upload_to_s3(chunk_iter, bucket, key, ...) dict
+        +upload(chunk_iter, bucket, key, ...) dict
         -_upload_part(...) str
+        -_abort_multipart_upload(...) None
+    }
+
+    class AzureBlobClient {
+        -_client: BlobServiceClient
+        +CHUNK_SIZE: int
+        +upload(chunk_iter, bucket, key, ...) dict
+        -_stage_block(...) str
+        -_abort_block_upload(...) None
     }
 
     Auth --> TokenInfo : contains
@@ -130,7 +146,9 @@ classDiagram
     BaseDownloader <|-- SSHDownloader
     HTTPDownloader <|-- HTTPDownloaderGWS
     BaseDownloader --> DownloadResult : returns
-    BaseDownloader --> S3Client : uses for S3 uploads
+    BaseDownloader --> BaseUploader : uses via get_uploader()
+    BaseUploader <|-- S3Client
+    BaseUploader <|-- AzureBlobClient
 ```
 
 ## Design Patterns
@@ -146,13 +164,31 @@ The `get_downloader()` function in `downloader/__init__.py` selects the appropri
 | `ftp://` | `FTPDownloader` |
 | Anything else (file paths) | `SSHDownloader` |
 
+### Factory Pattern — `get_uploader()`
+
+The `get_uploader()` function in `storage_selector/__init__.py` selects the
+appropriate storage backend based on the `storage` string parameter:
+
+| `storage` value | Uploader |
+|-----------------|----------|
+| `"s3"` | `S3Client` — multipart upload to an S3-compatible store |
+| `"blob"` | `AzureBlobClient` — block upload to Azure Blob Storage |
+
+The `storage` parameter originates from the CLI (`-s`/`--storage` flag) and is
+propagated through `Client.download()` and `BaseDownloader.download()` all the
+way to `remote_path_upload()` and `resolve_destination()`.
+
 ### Template Method — `BaseDownloader.download()`
 
 `BaseDownloader` defines the download algorithm in `download()`. Subclasses provide the protocol-specific behaviour by implementing three abstract methods:
 
 - `_stream(url)` — return an iterable of bytes and optional total size
 - `_is_directory(url)` — check whether the URL points to a directory
-- `_recursive_download(...)` — handle directory traversal
+- `_recursive_download(..., storage)` — handle directory traversal for the chosen storage backend
+
+### Strategy Pattern — `BaseUploader`
+
+`BaseUploader` is an abstract base class that defines a uniform `upload()` interface. `S3Client` and `AzureBlobClient` are concrete strategies that implement this interface for their respective cloud storage providers. `BaseDownloader.remote_path_upload()` uses `get_uploader()` to select the strategy at runtime without knowing the specific backend.
 
 ### Alternative Constructors — `Client`
 
@@ -209,8 +245,8 @@ sequenceDiagram
     Client->>GD: get_downloader(url, session)
     GD-->>Client: downloader instance
 
-    main->>Client: client.download(url, dest, ...)
-    Client->>BD: downloader.download(url, dest, ...)
+    main->>Client: client.download(url, dest, storage=...)
+    Client->>BD: downloader.download(url, dest, storage=...)
     BD-->>Client: DownloadResult
     Client-->>main: DownloadResult
     main->>User: print success
@@ -248,37 +284,53 @@ sequenceDiagram
 ### Download Flow
 
 The download flow shows how the `BaseDownloader.download()` template method
-orchestrates single-file, directory, and multi-URL downloads — and how
-destinations can be either local paths or an S3 bucket.
+orchestrates single-file, directory, and multi-URL downloads — and how the
+`storage` parameter routes writes to local disk, an S3-compatible store, or
+Azure Blob Storage.
 
 ```mermaid
 sequenceDiagram
     participant Client
     participant PL as ProgressLogger
     participant BD as BaseDownloader
+    participant RD as resolve_destination()
     participant WF as _write_file()
+    participant GU as get_uploader()
     participant S3 as S3Client
+    participant Az as AzureBlobClient
 
     Client->>PL: create_progress_bar()
     PL-->>Client: (progress_callback, close_fn)
-    Client->>BD: download(url, dest, callback, checksum)
+    Client->>BD: download(url, dest, callback, checksum, storage)
     BD->>BD: multiple_urls_split(url)
 
     alt Single URL
-        BD->>BD: resolve_destination(url, dest)
+        BD->>RD: resolve_destination(url, dest, storage)
+        RD-->>BD: dest_path (Path or dict)
         alt Directory
-            BD->>BD: _recursive_download()
+            BD->>BD: _recursive_download(..., storage)
             Note over BD: Downloads each file recursively
         else File
             BD->>BD: _stream(url) → (chunks, size)
-            alt Local destination (Path)
-                BD->>WF: _write_file(url, dest, chunks, ...)
+            alt storage == "local"
+                BD->>WF: _write_file(url, dest_path, chunks, ...)
                 WF->>WF: Write chunks + MD5 + progress
                 WF-->>BD: DownloadResult
-            else S3 destination (dict)
-                BD->>S3: s3_upload(url, chunks, dest, ...)
-                S3->>S3: Multipart upload
-                S3-->>BD: DownloadResult
+            else storage == "s3" or "blob"
+                BD->>BD: remote_path_upload(url, chunks, dest_path, ..., storage)
+                BD->>GU: get_uploader(storage, endpoint_url)
+                alt storage == "s3"
+                    GU-->>BD: S3Client
+                    BD->>S3: upload(chunks, bucket, key, ...)
+                    S3->>S3: Multipart upload
+                    S3-->>BD: {destination, size_bytes, checksum}
+                else storage == "blob"
+                    GU-->>BD: AzureBlobClient
+                    BD->>Az: upload(chunks, bucket, key, ...)
+                    Az->>Az: Block upload
+                    Az-->>BD: {destination, size_bytes, checksum}
+                end
+                BD-->>BD: DownloadResult
             end
         end
     else Multiple URLs (pipe-separated)

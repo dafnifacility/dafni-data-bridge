@@ -6,19 +6,21 @@ patterns, and runtime sequence diagrams, see [Design](design.md).
 
 ## Layers
 
-The codebase is organized into three layers:
+The codebase is organized into four layers:
 
-| Layer          | Package       | Responsibility                                                   |
-| -------------- | ------------- | ---------------------------------------------------------------- |
-| **CLI**        | `cli/`        | Argument parsing, config file loading, entry point orchestration |
-| **Transport**  | `transport/`  | Authentication, HTTP session management, client construction     |
-| **Downloader** | `downloader/` | Protocol-specific file downloads, S3 upload, progress tracking   |
+| Layer                | Package              | Responsibility                                                        |
+| -------------------- | -------------------- | --------------------------------------------------------------------- |
+| **CLI**              | `cli/`               | Argument parsing, config file loading, entry point orchestration      |
+| **Transport**        | `transport/`         | Authentication, HTTP session management, client construction          |
+| **Downloader**       | `downloader/`        | Protocol-specific file downloads, progress tracking                   |
+| **Storage Selector** | `storage_selector/`  | Storage backend selection, destination resolution, S3 and Azure upload |
 
 ## Software Architecture Diagram
 
 The diagram below shows the major components of the tool, how they are grouped
 into layers, and how they interact with external systems (the user, remote
-dataset servers, the CEDA token service, and S3-compatible object storage).
+dataset servers, the CEDA token service, S3-compatible object storage, and
+Azure Blob Storage).
 
 ```mermaid
 flowchart TB
@@ -48,7 +50,14 @@ flowchart TB
         end
 
         Progress["progress_logger.py"]
+    end
+
+    subgraph StorageSelector["Storage Selector Layer (storage_selector/)"]
+        UpFactory["__init__.py<br/>get_uploader()"]
+        BaseUp["base.py<br/>BaseUploader"]
         S3Up["s3_upload.py<br/>S3Client"]
+        AzUp["azure_upload.py<br/>AzureBlobClient"]
+        SelUtils["selector_utils.py<br/>resolve_destination()"]
     end
 
     subgraph External["External Systems"]
@@ -57,6 +66,7 @@ flowchart TB
         FTPSrv[("FTP Servers")]
         SSHSrv[("SSH/SFTP<br/>Servers")]
         S3[("S3-compatible<br/>Object Storage")]
+        AzBlob[("Azure Blob<br/>Storage")]
     end
 
     User -->|command-line args| Main
@@ -79,14 +89,20 @@ flowchart TB
     SSH --> SSHSrv
 
     Base --> Progress
-    Base --> S3Up
+    Base --> SelUtils
+    Base --> UpFactory
+    UpFactory --> S3Up
+    UpFactory --> AzUp
+    S3Up -.->|inherits| BaseUp
+    AzUp -.->|inherits| BaseUp
     S3Up --> S3
+    AzUp --> AzBlob
 
     classDef layer fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
     classDef external fill:#fff3e0,stroke:#e65100,stroke-width:2px
     classDef actor fill:#f3e5f5,stroke:#6a1b9a,stroke-width:2px
-    class CLI,Transport,Downloader,Services layer
-    class CEDA,HTTPSrv,FTPSrv,SSHSrv,S3 external
+    class CLI,Transport,Downloader,Services,StorageSelector layer
+    class CEDA,HTTPSrv,FTPSrv,SSHSrv,S3,AzBlob external
     class User,ConfigFile actor
 ```
 
@@ -95,8 +111,11 @@ The `main()` entry point in the CLI layer delegates argument handling to
 `Client` sets up authentication and an HTTP session (with retry logic) and
 uses the `get_downloader()` factory to pick a concrete downloader from the
 downloader layer based on the URL protocol. Each concrete downloader talks
-to its own external protocol endpoint, and destination writes can go either
-to the local filesystem or — via `S3Client` — to an S3-compatible bucket.
+to its own external protocol endpoint. The `storage_selector` layer abstracts
+where data is written: a `storage` parameter (`"local"`, `"s3"`, or `"blob"`)
+selects the backend, and `get_uploader()` returns the appropriate
+`BaseUploader` subclass — `S3Client` for S3-compatible stores or
+`AzureBlobClient` for Azure Blob Storage.
 
 ## Data Flow Summary
 
@@ -125,17 +144,23 @@ flowchart TD
     Dl --> PL["ProgressLogger<br/><i>Set up progress bar</i>"]
     PL --> BD["BaseDownloader.download()<br/><i>Template method</i>"]
 
-    BD --> DecDir{"Directory?"}
+    BD --> RD["resolve_destination()<br/><i>storage_selector/selector_utils.py</i>"]
+    RD --> DecDir{"Directory?"}
     DecDir -->|yes| Rec["_recursive_download()<br/><i>Directory traversal</i>"]
     DecDir -->|no| Stream["_stream()"]
 
-    Stream --> DecDest{"Destination?"}
-    DecDest -->|local path| WF["_write_file()<br/><i>Single file to local disk</i>"]
-    DecDest -->|S3 bucket| S3["s3_upload()<br/><i>Single file to S3</i>"]
+    Stream --> DecDest{"Storage?"}
+    DecDest -->|local| WF["_write_file()<br/><i>Single file to local disk</i>"]
+    DecDest -->|s3 or blob| Remote["remote_path_upload()<br/><i>Delegate to get_uploader()</i>"]
+
+    Remote --> UpFactory["get_uploader(storage, endpoint)<br/><i>Factory: pick uploader</i>"]
+    UpFactory -->|s3| S3["S3Client.upload()<br/><i>Multipart upload to S3</i>"]
+    UpFactory -->|blob| Az["AzureBlobClient.upload()<br/><i>Block upload to Azure Blob</i>"]
 
     Rec --> Result["DownloadResult<br/><i>url, destination, size, checksum</i>"]
     WF --> Result
     S3 --> Result
+    Az --> Result
     Result --> End([return to user])
 
     classDef entry fill:#f3e5f5,stroke:#6a1b9a,stroke-width:2px
