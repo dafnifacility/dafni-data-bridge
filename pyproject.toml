@@ -19,6 +19,7 @@ docs = [
     "mkdocs>=1.6.0",
     "mkdocs-material>=9.5.0",
     "mkdocstrings[python]>=0.25.0",
+    "mkdocs-print-site-plugin>=2.6.0",
 ]
 dev = [
     "mypy-boto3-s3>=1.42.37",

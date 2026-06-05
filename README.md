@@ -69,6 +69,9 @@ uv run mkdocs serve --livereload # live reload during editing
 uv run mkdocs serve              # without live reloading 
 ```
 
+To print the entire website as a PDF document open: http://localhost:8000/print_page and print as PDF.
+
+
 ### Publish as page
 
 Go to https://github.com/dafnifacility/dataset-download-tool/settings/pages

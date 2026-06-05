@@ -34,12 +34,18 @@ theme:
   icon:
     repo: fontawesome/brands/github
 
+extra_css:
+  - assets/print.css
+
 watch:
   - docs
   - dataset_download_tool
 
 plugins:
   - search
+  - print-site:
+      enumerate_headings: true
+      enumerate_figures: true
   - mkdocstrings:
       default_handler: python
       handlers:

@@ -1,0 +1,5 @@
+@media print {
+    details.mkdocstrings-source {
+        display: none !important;
+    }
+}
