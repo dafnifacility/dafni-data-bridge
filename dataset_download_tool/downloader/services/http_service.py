@@ -86,11 +86,15 @@ class HTTPDownloader(BaseDownloader):
 
             # Check if response is HTML (case-insensitive, handle missing header)
             content_type = response.headers.get("Content-Type", "").lower()
-            if "text/html" in content_type:
-                # Likely an authentication page or error page
+            # Only treat HTML as an auth failure if we got redirected off to another
+            # host (e.g. an SSO sign-in page) - some files are legitimately HTML.
+            redirected_to_different_host = (
+                response.history and urlparse(response.url).netloc != urlparse(url).netloc
+            )
+            if "text/html" in content_type and redirected_to_different_host:
                 raise AuthenticationRequiredError(
                     f"File not accessible at {url}. "
-                    f"Received HTML response (status {response.status_code}). "
+                    f"Redirected to {urlparse(response.url).netloc} (status {response.status_code}). "
                     "Please check your authentication or verify the file URL.",
                     status_code=response.status_code,
                     url=url
