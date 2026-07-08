@@ -16,6 +16,8 @@ def test_s3_upload_http(file_url, auth_url, moto_s3_server):
             file.url_for("/dir/file.nc"),
             "--dest",
             "http://testbucket.s3.localhost/files/",
+            "--storage",
+            "s3",
             "--checksum",
         ],
         env={
@@ -30,6 +32,7 @@ def test_s3_upload_http(file_url, auth_url, moto_s3_server):
 
     print(result.stdout)
     print(result.stderr)
+    assert result.returncode == 0
     obj = moto_s3_server.Object("testbucket", "files/file.nc")
     uploaded_content = obj.get()["Body"].read()
 
