@@ -1,4 +1,3 @@
-from collections import deque
 from ftplib import FTP, error_perm
 from typing import Optional
 from urllib.parse import urljoin, urlparse
@@ -79,19 +78,16 @@ class FTPDownloader(BaseDownloader):
         parsed = urlparse(url)
         try:
             total_size = self._session.size(parsed.path)
-            queue = deque()
-
-            def callback(data):
-                queue.append(data)
 
             def generator():
-                self._session.retrbinary(
-                    f"RETR {parsed.path}",
-                    callback,
-                    blocksize=self._chunk_size,
-                )
-                while queue:
-                    yield queue.popleft()
+                self._session.voidcmd("TYPE I")
+                with self._session.transfercmd(f"RETR {parsed.path}") as conn:
+                    while True:
+                        chunk = conn.recv(self._chunk_size)
+                        if not chunk:
+                            break
+                        yield chunk
+                self._session.voidresp()
 
             return generator(), total_size
         except error_perm as e:
