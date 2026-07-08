@@ -80,6 +80,7 @@ class HTTPDownloader(BaseDownloader):
 
         """
 
+        response = None
         try:
             response = self._session.get(url, stream=True)
             response.raise_for_status()
@@ -110,6 +111,8 @@ class HTTPDownloader(BaseDownloader):
                 f"HTTP error {status_str} while downloading {url}: {e}\n"
                 "Please ensure you have access to the file and the URL is correct."
             )
+            if response is not None:
+                response.close()
             raise HTTPError(
                 f"Failed to download {url}: HTTP {status_str} - {e}",
                 status_code=status_code,
@@ -121,13 +124,22 @@ class HTTPDownloader(BaseDownloader):
                 f"Download request failed for {url}: {e}\n"
                 "Please ensure you have network connectivity and access to the file."
             )
+            if response is not None:
+                response.close()
             raise DownloadError(f"Failed to download {url}: {e}") from e
+
+        except AuthenticationRequiredError:
+            response.close()
+            raise
 
         total_size = int(response.headers.get("content-length", 0)) or None
 
         def generator():
-            for chunk in response.iter_content(chunk_size=self._chunk_size):
-                if chunk:
-                    yield chunk
+            try:
+                for chunk in response.iter_content(chunk_size=self._chunk_size):
+                    if chunk:
+                        yield chunk
+            finally:
+                response.close()
 
         return generator(), total_size
