@@ -62,8 +62,7 @@ class SSHDownloader(BaseDownloader):
 
         """
 
-        file = self._sftp.file(path, mode="rb")
-        total_size = file.stat().st_size
+        total_size = self._sftp.stat(path).st_size
 
         def generator():
             with self._sftp.open(path, "rb") as remote_file:
