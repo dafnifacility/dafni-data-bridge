@@ -1,6 +1,7 @@
 from __future__ import annotations
 from pathlib import Path
 import logging
+import posixpath
 from urllib.parse import urlparse
 from typing import Optional
 import os
@@ -47,7 +48,7 @@ def resolve_destination(url: str, destination: Optional[str | Path], storage: st
                 )
             bucket = parsed.netloc.split(".")[0]
             endpoint = parsed.scheme + "://" + parsed.netloc.replace(f"{bucket}.", "")
-            key = f"{subdir}/{filename}"
+            key = posixpath.join(subdir, filename)
             return {"endpoint": endpoint, "bucket": bucket, "key": key}
 
         case "blob":
@@ -69,11 +70,13 @@ def resolve_destination(url: str, destination: Optional[str | Path], storage: st
                         "https://[CONTAINER].[AZURE URL]/[AZURE_ACCOUNT_NAME]/DIR (e.g. https://ddtesting.blob.core.windows.net/devaccount1/mydir)"
                     )
         
-                key = f"{subdir}{filename}"
-                print("endpoint",endpoint,"bucket", bucket, "key", key)
+                key = posixpath.join(subdir, filename)
                 return {"endpoint": endpoint, "bucket": bucket, "key": key}
             else:
                 raise ValidationError("Azure endpoint url wrong format please use aws format: https://[CONTAINER].[AZURE URL]/[AZURE_ACCOUNT_NAME]/DIR")
+
+        case _:
+            raise ValidationError(f"unsupported storage backend: {storage}")
 
 def append_bucket_url(destination: dict) -> str:
     """Append bucket name to s3 endpoint for recursive downloads"""

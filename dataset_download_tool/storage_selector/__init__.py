@@ -12,3 +12,5 @@ def get_uploader(storage: str, endpoint_url: str):
         return S3Client(endpoint_url)
     elif storage=="blob":
         return AzureBlobClient(endpoint_url)
+    else:
+        raise ValidationError(f"unsupported storage backend: {storage}")

@@ -22,8 +22,12 @@ class AzureBlobClient(BaseUploader):
     CHUNK_SIZE = 4 * 1024 * 1024
 
     def __init__(self, blob_url: str):
+        if not ACCOUNT_NAME:
+            raise ValidationError(
+                "AZURE_STORAGE_ACCOUNT_NAME environment variable is not set"
+            )
         try:
-            account_url = blob_url + "/" + ACCOUNT_NAME
+            account_url = f"{blob_url}/{ACCOUNT_NAME}"
             self._client = BlobServiceClient(
                 account_url=account_url,
                 credential=AZURE_STORAGE_KEY,

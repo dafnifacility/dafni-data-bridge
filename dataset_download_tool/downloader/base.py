@@ -20,7 +20,6 @@ from dataset_download_tool.downloader.models import DownloadResult, ProgressCall
 from dataset_download_tool.storage_selector import get_uploader
 from dataset_download_tool.exceptions import ValidationError
 
-# STORAGE_MAP = {0: "local", 1: "s3", 2: "azure"}
 
 class BaseDownloader(ABC):
     """Abstract base class for all downloader implementations.
@@ -130,7 +129,7 @@ class BaseDownloader(ABC):
         destination: Optional[str | Path] = None,
         progress_callback: Optional[ProgressCallback] = None,
         calculate_checksum: bool = False,
-        storage: int = 0
+        storage: str = "local"
     ) -> DownloadResult:
         """Args:
             url: url to download from.
@@ -187,6 +186,7 @@ class BaseDownloader(ABC):
                         total_size=total_size,
                         storage=storage
                     )
+                raise ValidationError(f"unsupported storage backend: {storage}")
 
         if isinstance(url, list):
             download_files = multiple_url_download(
