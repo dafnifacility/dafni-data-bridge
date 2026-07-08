@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Python** >= 3.10
+- **Python** >= 3.12
 - **uv** — Python package and project manager. [Install uv](https://docs.astral.sh/uv/getting-started/installation/) if you don't have it.
 - **s3cmd** — for S3 bucket testing
 

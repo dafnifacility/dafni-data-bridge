@@ -49,7 +49,7 @@ Main entry point. Parses CLI args, optionally loads a config file, merges them, 
 
 Constructs the argument parser with these groups:
 
-- **Authentication** (mutually exclusive, required): `--config`, `--token`, `--username`, `--no-auth`, `--ssh`
+- **Authentication** (mutually exclusive, required): `--config`, `--token`, `--username`, `--no-auth`. `--ssh` is a separate flag that must be combined with `--username`.
 - **Download**: `--url`, `--ssh-download-path`
 - **Session options**: `--timeout`, `--retries`, `--key-filename`
 - **Download options**: `--dest`, `--checksum`, `--no-progress`, `--storage`
@@ -73,9 +73,9 @@ The `--dest` format must match the chosen storage:
 
 Reads and parses a JSON config file.
 
-#### `_merge(cli_args, file_data) -> argparse.Namespace`
+#### `_merge(cli_args, file_data, explicit_dests) -> argparse.Namespace`
 
-Merges CLI arguments with config file data. CLI values take priority — config file values are only used for arguments not explicitly provided on the command line.
+Merges CLI arguments with config file data. CLI values take priority — config file values are only used for arguments not explicitly provided on the command line (`explicit_dests` is computed by `_explicit_dests()`).
 
 #### `_validate(config) -> None`
 

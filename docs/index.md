@@ -8,9 +8,9 @@ A unified interface for downloading files from SSH, HTTP, and FTP servers, inclu
 
 | Source Protocol | Authentication Options | Destination Options | Additional Capabilities |
 |----------------|----------------------|-------------------|------------------------|
-| **HTTP/HTTPS** | • CEDA token<br>• Username/password<br>• No-auth (public files) | • Local filesystem<br>• S3-compatible buckets | • MD5 checksum verification<br>• Batch downloads (pipe-separated URLs)<br>• Directory downloads (recursive) |
-| **FTP** | • Username/password<br>• Anonymous access | • Local filesystem<br>• S3-compatible buckets | • MD5 checksum verification<br>• Batch downloads<br>• Directory downloads (recursive) |
-| **SSH/SFTP** | • SSH key authentication<br>• Username/password | • Local filesystem<br>• S3-compatible buckets | • JASMIN GWS filesystem access<br>• MD5 checksum verification<br>• Batch downloads<br>• Directory downloads (recursive) |
+| **HTTP/HTTPS** | • CEDA token<br>• Username/password<br>• No-auth (public files) | • Local filesystem<br>• S3-compatible buckets<br>• Azure Blob storage | • MD5 checksum calculation<br>• Batch downloads (pipe-separated URLs)<br>• Directory downloads (recursive) |
+| **FTP** | • Username/password<br>• Anonymous access | • Local filesystem<br>• S3-compatible buckets<br>• Azure Blob storage | • MD5 checksum calculation<br>• Batch downloads<br>• Directory downloads (recursive) |
+| **SSH/SFTP** | • SSH key authentication<br>• Username/password | • Local filesystem<br>• S3-compatible buckets<br>• Azure Blob storage | • JASMIN GWS filesystem access<br>• MD5 checksum calculation<br>• Batch downloads<br>• Directory downloads (recursive) |
 
 ### Core Capabilities
 
@@ -18,8 +18,8 @@ A unified interface for downloading files from SSH, HTTP, and FTP servers, inclu
 |---------|-------------|
 | **Multi-protocol support** | Download from HTTP/HTTPS, FTP, SSH/SFTP sources |
 | **Flexible authentication** | CEDA tokens, username/password, SSH keys, or no-auth for public data |
-| **Dual destination modes** | Save to local disk or stream directly to S3-compatible buckets |
-| **Integrity verification** | Optional MD5 checksum validation for all protocols |
+| **Multiple destination modes** | Save to local disk, or stream directly to S3-compatible buckets or Azure Blob storage |
+| **Integrity checks** | Optional MD5 checksum calculation for all protocols |
 | **Progress tracking** | Console progress bar with automatic log-based fallback |
 | **Batch operations** | Download multiple files using pipe-separated URLs |
 | **Recursive downloads** | Download entire directory trees from any protocol |
@@ -29,12 +29,12 @@ A unified interface for downloading files from SSH, HTTP, and FTP servers, inclu
 
 ### Supported Combinations
 
-The tool supports **54+ feature combinations**, including:
+The tool supports **160+ feature combinations**, including:
 
 - **18 source/auth combinations** (3 protocols × 6 auth methods)
-- **×2 destination types** (local filesystem or S3)
+- **×3 destination types** (local filesystem, S3, or Azure Blob storage)
 - **×3 download modes** (single file, batch, or directory)
-- Additional permutations with checksum verification, progress tracking, and config file usage
+- Additional permutations with checksum calculation, progress tracking, and config file usage
 
 ## Quick Start
 

@@ -19,6 +19,7 @@ dataset-download-tool [OPTIONS]
 | `--dest DEST`              | `-d DEST`          | Destination path or directory (default: current directory) |
 | `--checksum`               |                    | Calculate MD5 checksum of downloaded file                  |
 | `--no-progress`            |                    | Disable progress bar                                       |
+| `--storage {local,s3,blob}`| `-s {local,s3,blob}` | Storage backend for the destination (default: `local`)   |
 | `--timeout TIMEOUT`        |                    | Request timeout in seconds (default: 30)                   |
 | `--retries RETRIES`        |                    | Maximum retry attempts (default: 3)                        |
 | `--key-filename FILE`      | `-kf FILE`         | SSH private key file                                       |
@@ -30,7 +31,7 @@ dataset-download-tool [OPTIONS]
 The following flags **cannot** be used together:
 
 - **`--url`** and **`--ssh-download-path`** — `--url` is for HTTP/HTTPS/FTP sources, `--ssh-download-path` is for JASMIN GWS server paths.
-- **Authentication**: `--config`, `--token`, `--username`, `--no-auth`, and `--ssh` are mutually exclusive.
+- **Authentication**: `--config`, `--token`, `--username`, and `--no-auth` are mutually exclusive. `--ssh` is not part of this group but must always be combined with `--username` (it selects SSH as the connection method for that username, rather than being a stand-alone auth option) and cannot be combined with `--token` or `--no-auth`.
 
 #### Environment Variables
 
@@ -201,10 +202,10 @@ dataset-download-tool --config config.json
 
 ```json
 {
-  "no_auth": "",
+  "no_auth": true,
   "url": "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/00FILES_ON_OBJECTSTORE.txt?download=1",
   "dest": "./data/",
-  "checksum": ""
+  "checksum": true
 }
 ```
 
@@ -215,7 +216,7 @@ dataset-download-tool --config config.json
   "token": "<ceda token>",
   "url": "https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK?download=1",
   "dest": "./data/",
-  "checksum": ""
+  "checksum": true
 }
 ```
 
@@ -226,25 +227,25 @@ dataset-download-tool --config config.json
   "username": "USERNAME",
   "password": "PASSWORD",
   "url": "https://dap.ceda.ac.uk/path/to/file.nc",
-  "checksum": ""
+  "checksum": true
 }
 ```
 
 **Boolean Flags**
 
-Boolean flags default to `false`. To enable them in a config file, set the value to an empty string:
+Boolean flags default to `false`. Set them with real JSON booleans in a config file:
 
 ```json
 {
-  "checksum": "",
-  "no_auth": "",
-  "no_progress": ""
+  "checksum": true,
+  "no_auth": true,
+  "no_progress": true
 }
 ```
 
 **CLI Precedence**
 
-CLI arguments override config file values. For example, the following overrides the `dest` from the config file:
+Any flag explicitly passed on the command line overrides the same key in the config file; flags left out of the command line fall back to the config file's value. For example, the following overrides the `dest` from the config file but keeps everything else from it:
 
 ```bash
 dataset-download-tool --config config.json --dest /different/path/
@@ -353,18 +354,18 @@ export ACCESS_KEY=<access_key>
 export SECRET_KEY=<secret_key>
 ```
 
-Can be used with any download method — just point `--dest` at an S3 bucket:
+Can be used with any download method — point `--dest` at an S3 bucket and pass `--storage s3`:
 
 ```bash
 # MinIO (local)
 dataset-download-tool --no-auth \
   --url "https://dap.ceda.ac.uk/badc/00README.txt?download=1" \
-  --dest "http://test.localhost:9000/data/" --checksum
+  --dest "http://test.localhost:9000/data/" --storage s3 --checksum
 
 # STFC Echo S3
 dataset-download-tool --no-auth \
   --url "https://dap.ceda.ac.uk/badc/00README.txt?download=1" \
-  --dest "https://ddttest.s3.echo.stfc.ac.uk/key" --checksum
+  --dest "https://ddttest.s3.echo.stfc.ac.uk/key" --storage s3 --checksum
 ```
 
 !!! tip
@@ -374,5 +375,6 @@ dataset-download-tool --no-auth \
 ### Timeout and Retries
 
 ```bash
-dataset-download-tool --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \ --url "<url>" --dest ./data/ --timeout 60 --retries 5
+dataset-download-tool --username "$CEDA_USERNAME" --password "$CEDA_PASSWORD" \
+  --url "<url>" --dest ./data/ --timeout 60 --retries 5
 ```
