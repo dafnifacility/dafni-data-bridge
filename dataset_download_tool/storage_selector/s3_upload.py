@@ -59,7 +59,6 @@ class S3Client(BaseUploader):
         progress_callback: Optional[ProgressCallback] = None,
     ) -> dict:
         md5_hash = hashlib.md5() if calculate_checksum else None
-        downloaded_size = 0
         upload_id = None
 
         try:
@@ -87,7 +86,7 @@ class S3Client(BaseUploader):
                     buffer.clear()
 
                 if progress_callback:
-                    progress_callback(downloaded_size, total_size)
+                    progress_callback(uploaded_size, total_size)
 
             if buffer:
                 etag = self._upload_part(bucket, key, upload_id, part_num, bytes(buffer))
