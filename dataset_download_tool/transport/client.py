@@ -57,13 +57,13 @@ class Client:
     ) -> "Client":
         logger.info(f"Generating token for user: {username}")
         auth = Auth.from_credentials(username, password, timeout=timeout)
-        session = create_session(auth=auth)
+        session = create_session(auth=auth, timeout=timeout, max_retries=max_retries)
         return cls(url=url, session=session)
 
     @staticmethod
     def create_session(token, timeout, max_retries):
         auth = Auth(token=token) if token != "no_auth" else None
-        return create_session(auth=auth)
+        return create_session(auth=auth, timeout=timeout, max_retries=max_retries)
 
     @classmethod
     def ssh_client(cls, url, hostname, username, key_filename) -> "Client":
@@ -108,8 +108,7 @@ class Client:
         destination: Optional[str | Path] = None,
         show_progress: bool = True,
         calculate_checksum: bool = False,
-        storage: int = 0
-        
+        storage: str = "local"
     ) -> DownloadResult:
         """Args:
             url: url to download

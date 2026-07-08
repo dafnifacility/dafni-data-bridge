@@ -30,11 +30,11 @@ def main():
         if args.url:
             client = Client.validate_url(url=args.url)
             if args.token:
-                client = Client(url=args.url, token=args.token)
+                client = Client(url=args.url, token=args.token, timeout=args.timeout, max_retries=args.retries)
             if args.url.startswith(("ftp://")):
                 client = Client.ftp_login(url=args.url, username=args.username, password=args.password)
             if args.no_auth:
-                client = Client(url=args.url, token="no_auth")
+                client = Client(url=args.url, token="no_auth", timeout=args.timeout, max_retries=args.retries)
             if args.username and not args.url.startswith(("ftp://")):
                 client = Client.from_credentials(
                     url=args.url,
