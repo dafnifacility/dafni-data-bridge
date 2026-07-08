@@ -94,23 +94,37 @@ class ConfigLoader:
         except json.JSONDecodeError as e:
             raise ValidationError(f"file must be in JSON format: {e}")
 
-    def _merge(self, cli_args: argparse.Namespace, file_data: dict) -> argparse.Namespace:
+    def _explicit_dests(self, argv) -> set:
+        """Return the dests the user actually passed on the command line.
+
+        Temporarily suppresses every action's default so that parse_args()
+        only populates the namespace with values the user explicitly typed.
         """
-        For each key in file_data, only apply it when the CLI did not provide a value.
+        original_defaults = {action.dest: action.default for action in self.parser._actions}
+        try:
+            for action in self.parser._actions:
+                action.default = argparse.SUPPRESS
+            return set(vars(self.parser.parse_args(argv)).keys())
+        finally:
+            for action in self.parser._actions:
+                action.default = original_defaults[action.dest]
+
+    def _merge(self, cli_args: argparse.Namespace, file_data: dict, explicit_dests: set) -> argparse.Namespace:
+        """
+        For each key in file_data, only apply it when the CLI did not explicitly
+        provide a value for that argument. Config-file values are used as-is,
+        so boolean keys must be real JSON booleans (true/false).
         """
         merged = vars(cli_args).copy()
-        defaults = {None, "", False}
-    
+
         for key, file_value in file_data.items():
             if key == "config":
                 continue
             if key not in merged:
                 continue
-            if merged[key] in defaults:
-                if isinstance(merged[key], bool):
-                    merged[key] = True
-                else:
-                    merged[key] = file_value
+            if key in explicit_dests:
+                continue
+            merged[key] = file_value
 
         return argparse.Namespace(**merged)
 
@@ -158,7 +172,8 @@ class ConfigLoader:
 
         if cli_args.config:
             file_data = self._load_config_file(cli_args.config)
-            config = self._merge(cli_args, file_data)
+            explicit_dests = self._explicit_dests(argv)
+            config = self._merge(cli_args, file_data, explicit_dests)
         else:
             config = cli_args
 

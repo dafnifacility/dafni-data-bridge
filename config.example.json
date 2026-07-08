@@ -3,7 +3,7 @@
   "password": "",
   "url": " https://dap.ceda.ac.uk/badc/ARCHIVE_INFO/ACCESS_TEST/RESTRICTED/TOKEN_CHECK",
   "dest": "./data/",
-  "checksum": "",
+  "checksum": true,
   "retries": 5,
   "timeout": 60
 }
