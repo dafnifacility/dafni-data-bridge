@@ -1,0 +1,33 @@
+kind: M
+api_version: v1beta3
+metadata:
+  display_name: DAFNI Data Bridge - Example with no authentication
+  name: data-bridge-noauth
+  summary: Download datasets from CEDA archive
+  type: model
+  publisher: DAFNI
+  contact_point_name: DAFNI
+  contact_point_email: info@dafni.ac.uk
+  description: >
+    Model for downloading open datasets (requiring no authentication) from CEDA
+
+spec:
+  inputs:
+    parameters:
+      - name: ISDAFNI
+        title: Running on DAFNI
+        type: boolean
+        default: True
+        description: True or False
+        required: True
+      - name: CEDA_URL
+        title: CEDA dataset URL
+        type: string
+        default: None
+        description: URL of the CEDA dataset to download
+        required: True
+  outputs:
+      datasets:
+      - name: data
+        type: dir
+        description: downloaded files
