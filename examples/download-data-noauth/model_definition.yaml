@@ -1,15 +1,19 @@
 kind: M
 api_version: v1beta3
 metadata:
-  display_name: DAFNI Data Bridge - Example with no authentication
+  display_name: Download Open CEDA Data
   name: data-bridge-noauth
-  summary: Download datasets from CEDA archive
+  summary: Download open CEDA datasets without authentication.
   type: model
   publisher: DAFNI
   contact_point_name: DAFNI
   contact_point_email: info@dafni.ac.uk
+  project_name: DAFNI Data Bridge
+  project_url: https://github.com/dafnifacility/dataset-download-tool
+  licence: MIT
+  source_code: https://github.com/dafnifacility/dataset-download-tool
   description: >
-    Model for downloading open datasets (requiring no authentication) from CEDA
+    DAFNI Data Bridge – software for downloading data from CEDA and JWS. This software was developed in collaboration with the NERC Digital Solutions Engineering (DSE) team and the University of Manchester. To use this model user needs to provide the URL of the CEDA open dataset they wish to download. The model will then download the dataset and return it as an output.
 
 spec:
   inputs:
