@@ -1,4 +1,4 @@
-# Dataset Download Tool
+# DAFNI Data Bridge 
 
 This tool provides a unified interface for downloading files from various sources, such as SSH, HTTP, and FTP servers, including CEDA and GWS.
 It saves the downloaded files to a specified destination, such as a local disk or S3-compatible buckets.
@@ -77,4 +77,4 @@ To print the entire website as a PDF document open: http://localhost:8000/print_
 Go to https://github.com/dafnifacility/dataset-download-tool/settings/pages
 
 - Set Source to GitHub Actions
-- The docs will then be available at https://dafnifacility.github.io/dataset-download-tool/.
+- The docs will then be available at 🌐 https://dafnifacility.github.io/dataset-download-tool/.
