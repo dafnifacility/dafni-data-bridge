@@ -1,7 +1,8 @@
 site_name: Dataset Download Tool
 site_description: A unified CLI tool for downloading datasets from CEDA/JASMIN via HTTP, FTP, and SSH with S3 upload support
-repo_url: https://github.com/dafnifacility/dataset-download-tool
-repo_name: dafnifacility/dataset-download-tool
+site_url: https://dafnifacility.github.io/dafni-data-bridge/
+repo_url: https://github.com/dafnifacility/dafni-data-bridge
+repo_name: dafnifacility/dafni-data-bridge
 
 dev_addr: '0.0.0.0:8000'
 
