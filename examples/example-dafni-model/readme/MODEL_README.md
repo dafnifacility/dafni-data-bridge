@@ -1,6 +1,6 @@
-# Dataset Download Tool
+# DAFNI Data Bridge
 
-This document goes over how to use the [Dataset Download Tool](https://github.com/dafnifacility/dataset-download-tool) on the DAFNI platform. The tool enables users to download datasets directly from CEDA archive or Jasmin GWS, and run further models on the downloaded data.
+This document goes over how to use the [DAFNI Data Bridge](https://github.com/dafnifacility/dataset-download-tool) on the DAFNI platform. The tool enables users to download datasets directly from CEDA archive or Jasmin GWS, and run further models on the downloaded data.
 
 ## Pre-requisites
 
