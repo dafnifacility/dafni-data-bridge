@@ -1,4 +1,4 @@
-# Dataset Download Tool
+# DAFNI Data Bridge
 
 A unified interface for downloading files from SSH, HTTP, and FTP servers, including CEDA and JASMIN GWS, with support for saving to local disk or S3-compatible buckets.
 

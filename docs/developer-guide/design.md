@@ -1,6 +1,6 @@
 # Design
 
-This document describes the detailed design of the Dataset Download Tool — the
+This document describes the detailed design of the DAFNI Data Bridge — the
 classes that make up the implementation, the design patterns they use, and the
 runtime interactions between them. For a higher-level view of the system, see
 [Architecture](architecture.md).

@@ -1,6 +1,6 @@
 # Architecture
 
-This document gives a high-level view of how the Dataset Download Tool is
+This document gives a high-level view of how the DAFNI Data Bridge is
 organised and how its layers interact. For the detailed class model, design
 patterns, and runtime sequence diagrams, see [Design](design.md).
 

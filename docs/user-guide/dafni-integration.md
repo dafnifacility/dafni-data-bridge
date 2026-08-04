@@ -1,6 +1,6 @@
 # DAFNI Integration
 
-This guide covers using the Dataset Download Tool on the [DAFNI platform](https://docs.secure.dafni.rl.ac.uk/docs/How%20to/how-to-get-started). It enables models to download datasets from CEDA or JASMIN GWS as part of a DAFNI workflow.
+This guide covers using the DAFNI Data Bridge on the [DAFNI platform](https://docs.secure.dafni.rl.ac.uk/docs/How%20to/how-to-get-started). It enables models to download datasets from CEDA or JASMIN GWS as part of a DAFNI workflow.
 
 ## Config File Setup
 

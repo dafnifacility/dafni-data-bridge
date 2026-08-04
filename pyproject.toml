@@ -1,8 +1,8 @@
 [project]
-name = "dataset-download-tool"
-authors = [{name="Muhammad Mohsin", email="muhammad.mohsin@stfc.ac.uk"},]
+name = "dafni-data-bridge"
+authors = [{name="Saiful Khan", email="saiful.khan@stfc.ac.uk"}, {name="Muhammad Mohsin", email="muhammad.mohsin@stfc.ac.uk"}]
 version = "0.1.4"
-description = "Download tool to install datasets from CEDA/JASMIN"
+description = "DAFNI Data Bridge is a Python package that provides a command-line interface (CLI) for downloading datasets from various sources, including AWS S3, Azure Blob Storage, and FTP servers. It simplifies the process of accessing and retrieving datasets for data analysis and research purposes."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

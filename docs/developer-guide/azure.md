@@ -164,7 +164,7 @@ export AZURE_CONN="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;Ac
 # Create a azure container (similar to s3 bucket)
 az storage container create --name ddt1 --connection-string $AZURE_CONN
 
-# Download file to blob using dataset download tool:
+# Download file to blob using DAFNI Data Bridge tool:
 ddt -n --url "https://gws-access.jasmin.ac.uk/public/acpc/acpc/pmarin/Base_States_Apr2020/ALL_PROFS_T_0.png" -s blob --dest http://ddt1.127.0.0.1:10000/devstoreaccount1/test/ --checksum
 
 # Check blob for installed file
