@@ -77,4 +77,4 @@ To print the entire website as a PDF document open: http://localhost:8000/print_
 Go to https://github.com/dafnifacility/dataset-download-tool/settings/pages
 
 - Set Source to GitHub Actions
-- The docs will then be available at 🌐 https://dafnifacility.github.io/dataset-download-tool/.
+- The docs will then be available at 🌐 https://dafnifacility.github.io/dafni-data-bridge/
